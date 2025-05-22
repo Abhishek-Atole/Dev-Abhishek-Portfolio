@@ -14,22 +14,21 @@ type ExperienceItem = {
   skills: string[];
 };
 
+// Sort experiences chronologically (oldest first)
 const experiences: ExperienceItem[] = [
   {
-    title: "C++ Developer Intern",
-    company: "CodSoft",
-    type: "Internship",
-    location: "Karnataka, India · Remote",
-    duration: "May 2025 – Present",
+    title: "Software Engineering Intern (Virtual)",
+    company: "EA Sports (Forage)",
+    type: "Job Simulation",
+    location: "Virtual · Remote",
+    duration: "Feb 2025 – Feb 2025",
     timeframe: "1 mo",
     description: [
-      "Selected as a C++ Developer Intern for the May Batch B28 at CodSoft, contributing to real-world software development projects remotely.",
-      "Working on performance-oriented C++17/20 projects focused on data structures, file systems, and modular design.",
-      "Collaborating in an Agile environment using Git and GitHub for version control and task management.",
-      "Sharing deliverables through a dedicated GitHub repo (CODSOFT) and demo videos on LinkedIn.",
-      "Following best practices in documentation, versioning, and modern C++ engineering."
+      "Developed a weather simulation module for a sports game, enhancing realism and increasing engagement by 15%.",
+      "Authored modern C++ specifications to optimize load times by 20%.",
+      "Collaborated with cross-functional teams to integrate features and ensure a smooth user experience."
     ],
-    skills: ["C++", "Git", "Data Structures", "File Systems", "Agile", "Remote Work"]
+    skills: ["C++ (C++17/20)", "Game Logic", "System Design", "Cross-Team Collaboration"]
   },
   {
     title: "Infosec Intern",
@@ -46,18 +45,20 @@ const experiences: ExperienceItem[] = [
     skills: ["Infosec", "VirtualBox", "Cybersecurity", "SIEM", "Network Security"]
   },
   {
-    title: "Software Engineering Intern (Virtual)",
-    company: "EA Sports (Forage)",
-    type: "Job Simulation",
-    location: "Virtual · Remote",
-    duration: "Feb 2025 – Feb 2025",
+    title: "C++ Developer Intern",
+    company: "CodSoft",
+    type: "Internship",
+    location: "Karnataka, India · Remote",
+    duration: "May 2025 – Present",
     timeframe: "1 mo",
     description: [
-      "Developed a weather simulation module for a sports game, enhancing realism and increasing engagement by 15%.",
-      "Authored modern C++ specifications to optimize load times by 20%.",
-      "Collaborated with cross-functional teams to integrate features and ensure a smooth user experience."
+      "Selected as a C++ Developer Intern for the May Batch B28 at CodSoft, contributing to real-world software development projects remotely.",
+      "Working on performance-oriented C++17/20 projects focused on data structures, file systems, and modular design.",
+      "Collaborating in an Agile environment using Git and GitHub for version control and task management.",
+      "Sharing deliverables through a dedicated GitHub repo (CODSOFT) and demo videos on LinkedIn.",
+      "Following best practices in documentation, versioning, and modern C++ engineering."
     ],
-    skills: ["C++ (C++17/20)", "Game Logic", "System Design", "Cross-Team Collaboration"]
+    skills: ["C++", "Git", "Data Structures", "File Systems", "Agile", "Remote Work"]
   }
 ];
 
@@ -96,7 +97,7 @@ const ResumeSection = () => {
             Work Experience
           </h3>
           
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
             {experiences.map((exp, idx) => (
               <Card key={idx} className="relative overflow-hidden border-l-4 border-l-primary animate-fade-in">
                 <div className="absolute w-2 h-2 rounded-full bg-primary top-6 -left-[5px]"></div>
