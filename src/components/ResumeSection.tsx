@@ -80,7 +80,7 @@ const ResumeSection = () => {
           
           <Button asChild className="font-mono">
             <a 
-              href="/public/Abhishek_Atole_Cpp_Developer_Resume.pdf" 
+              href="/Abhishek_Atole_Cpp_Developer_Resume.pdf" 
               target="_blank"
               rel="noopener noreferrer"
               className="flex items-center gap-2"
