@@ -97,10 +97,10 @@ const ContactSection = () => {
                 <div>
                   <h4 className="font-medium">Email</h4>
                   <a 
-                    href="mailto:contact@johndoedev.com" 
+                    href="mailto:abhiatole03@gmail.com" 
                     className="text-sm text-muted-foreground hover:text-primary transition-colors"
                   >
-                    contact@johndoedev.com
+                    abhiatole03@gmail.com
                   </a>
                 </div>
               </div>
@@ -127,7 +127,7 @@ const ContactSection = () => {
                 <div>
                   <h4 className="font-medium">Location</h4>
                   <p className="text-sm text-muted-foreground">
-                    San Francisco, California
+                    Mumbai, India
                   </p>
                 </div>
               </div>
@@ -137,9 +137,8 @@ const ContactSection = () => {
               <h4 className="text-lg font-bold mb-4">Connect with me</h4>
               <div className="flex gap-4">
                 {[
-                  { name: "GitHub", href: "https://github.com" },
-                  { name: "LinkedIn", href: "https://linkedin.com" },
-                  { name: "Twitter", href: "https://twitter.com" }
+                  { name: "GitHub", href: "https://github.com/Abhishek-Atole" },
+                  { name: "LinkedIn", href: "https://linkedin.com/in/abhishekatole" }
                 ].map((social, idx) => (
                   <Button key={idx} variant="outline" asChild size="sm">
                     <a 

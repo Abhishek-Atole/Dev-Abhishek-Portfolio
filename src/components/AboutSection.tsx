@@ -12,7 +12,7 @@ const AboutSection = () => {
           <div className="col-span-2">
             <div className="space-y-4">
               <p>
-                Hello! I'm a passionate software developer specializing in C++ and Java development with a strong focus on high-performance computing, systems programming, and backend development. I thrive on solving complex technical challenges and building reliable, efficient software systems.
+                Hi, I'm Abhishek Atole — a software developer passionate about building robust C++ and Java systems. With hands-on experience in CGAL-based polygon visualizers, in-memory file systems, and data structure libraries, I specialize in crafting performance-critical backend solutions. I'm a strong believer in clean, modular code and thrive in Linux-based development environments.
               </p>
               
               <p>
@@ -36,13 +36,13 @@ const AboutSection = () => {
               
               <div className="flex flex-wrap gap-4 mt-6">
                 <Button variant="outline" asChild>
-                  <a href="https://github.com" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2">
+                  <a href="https://github.com/Abhishek-Atole" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2">
                     <Github size={18} />
                     GitHub
                   </a>
                 </Button>
                 <Button variant="outline" asChild>
-                  <a href="https://linkedin.com" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2">
+                  <a href="https://linkedin.com/in/abhishekatole" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2">
                     <Linkedin size={18} />
                     LinkedIn
                   </a>
@@ -69,8 +69,8 @@ const AboutSection = () => {
                 <div className="flex flex-wrap gap-2">
                   <span className="bg-secondary px-3 py-1 rounded-full text-sm">C++</span>
                   <span className="bg-secondary px-3 py-1 rounded-full text-sm">Java</span>
+                  <span className="bg-secondary px-3 py-1 rounded-full text-sm">C</span>
                   <span className="bg-secondary px-3 py-1 rounded-full text-sm">Python</span>
-                  <span className="bg-secondary px-3 py-1 rounded-full text-sm">Bash</span>
                 </div>
               </div>
               
@@ -78,9 +78,9 @@ const AboutSection = () => {
                 <h4 className="font-medium text-primary mb-2">Frameworks & Libraries</h4>
                 <div className="flex flex-wrap gap-2">
                   <span className="bg-secondary px-3 py-1 rounded-full text-sm">STL</span>
-                  <span className="bg-secondary px-3 py-1 rounded-full text-sm">Spring Boot</span>
-                  <span className="bg-secondary px-3 py-1 rounded-full text-sm">JUnit</span>
-                  <span className="bg-secondary px-3 py-1 rounded-full text-sm">Boost</span>
+                  <span className="bg-secondary px-3 py-1 rounded-full text-sm">Qt6</span>
+                  <span className="bg-secondary px-3 py-1 rounded-full text-sm">CGAL</span>
+                  <span className="bg-secondary px-3 py-1 rounded-full text-sm">CMake</span>
                 </div>
               </div>
               
@@ -90,7 +90,7 @@ const AboutSection = () => {
                   <span className="bg-secondary px-3 py-1 rounded-full text-sm">Git</span>
                   <span className="bg-secondary px-3 py-1 rounded-full text-sm">Docker</span>
                   <span className="bg-secondary px-3 py-1 rounded-full text-sm">Linux</span>
-                  <span className="bg-secondary px-3 py-1 rounded-full text-sm">CMake</span>
+                  <span className="bg-secondary px-3 py-1 rounded-full text-sm">GDB</span>
                 </div>
               </div>
               
@@ -98,9 +98,9 @@ const AboutSection = () => {
                 <h4 className="font-medium text-primary mb-2">Concepts</h4>
                 <div className="flex flex-wrap gap-2">
                   <span className="bg-secondary px-3 py-1 rounded-full text-sm">OOP</span>
-                  <span className="bg-secondary px-3 py-1 rounded-full text-sm">Multithreading</span>
-                  <span className="bg-secondary px-3 py-1 rounded-full text-sm">Algorithms</span>
-                  <span className="bg-secondary px-3 py-1 rounded-full text-sm">System Design</span>
+                  <span className="bg-secondary px-3 py-1 rounded-full text-sm">File Systems</span>
+                  <span className="bg-secondary px-3 py-1 rounded-full text-sm">Memory Management</span>
+                  <span className="bg-secondary px-3 py-1 rounded-full text-sm">Modular Design</span>
                 </div>
               </div>
             </div>

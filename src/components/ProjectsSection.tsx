@@ -15,33 +15,31 @@ type ProjectType = {
 
 const projects: ProjectType[] = [
   {
-    title: "High-Performance Data Structure Library",
-    description: "A C++ library implementing advanced data structures with a focus on performance optimization and memory efficiency. Includes concurrent hash maps, lock-free queues, and custom allocators.",
-    tags: ["C++", "Data Structures", "Multithreading", "CMake"],
-    github: "https://github.com",
+    title: "Polygon Boolean Operations Visualizer",
+    description: "A GUI tool for visualizing 2D polygon Boolean operations. Cross-platform support and 50+ test cases with real-time rendering.",
+    tags: ["C++", "Qt6", "CGAL", "CMake"],
+    github: "https://github.com/Abhishek-Atole",
     image: "https://images.unsplash.com/photo-1555949963-ff9fe0c870eb?q=80&w=2070&auto=format&fit=crop"
   },
   {
-    title: "Distributed Task Scheduler",
-    description: "A Java-based distributed task scheduling system supporting job prioritization, failure recovery, and dynamic resource allocation. Built with Spring Boot and Apache Kafka.",
-    tags: ["Java", "Spring Boot", "Kafka", "Microservices"],
-    github: "https://github.com",
-    demo: "https://example.com",
+    title: "Generalized Data Structures Library",
+    description: "A modular, header-only library of linked lists built with modern C++ best practices.",
+    tags: ["C++17", "Templates", "OOP", "Header-only"],
+    github: "https://github.com/Abhishek-Atole",
     image: "https://images.unsplash.com/photo-1518432031352-d6fc5c10da5a?q=80&w=1974&auto=format&fit=crop"
   },
   {
-    title: "Custom Memory Allocator",
-    description: "A specialized memory allocator designed for high-frequency allocation patterns in C++. Features include memory pooling, fragmentation reduction algorithms, and comprehensive performance metrics.",
-    tags: ["C++", "Memory Management", "Systems Programming"],
-    github: "https://github.com",
+    title: "Custom Virtual File System",
+    description: "An in-memory file system simulation supporting 15+ shell commands and detailed permission handling.",
+    tags: ["C++", "Memory Management", "File Systems"],
+    github: "https://github.com/Abhishek-Atole",
     image: "https://images.unsplash.com/photo-1555949963-aa79dcee981c?q=80&w=2070&auto=format&fit=crop"
   },
   {
-    title: "Parallel Processing Framework",
-    description: "A modular framework for parallel data processing pipelines in Java, supporting work stealing, dynamic thread allocation, and adaptive execution strategies.",
-    tags: ["Java", "Parallel Processing", "Threading", "Performance"],
-    github: "https://github.com",
-    demo: "https://example.com",
+    title: "SQL Inventory App",
+    description: "A CRUD-enabled CLI inventory system built with JDBC and normalized relational schema.",
+    tags: ["Java", "MySQL", "JDBC", "SQL"],
+    github: "https://github.com/Abhishek-Atole",
     image: "https://images.unsplash.com/photo-1545670723-196ed0954986?q=80&w=2952&auto=format&fit=crop"
   }
 ];
@@ -110,7 +108,7 @@ const ProjectsSection = () => {
         <div className="mt-12 text-center">
           <Button asChild className="font-mono">
             <a 
-              href="https://github.com" 
+              href="https://github.com/Abhishek-Atole" 
               target="_blank" 
               rel="noopener noreferrer"
               className="flex items-center gap-2"

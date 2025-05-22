@@ -18,52 +18,52 @@ type EducationItem = {
 
 const experiences: ExperienceItem[] = [
   {
-    title: "Senior C++ Developer",
-    company: "Tech Innovations Inc.",
+    title: "C++ Developer Intern",
+    company: "Tech Solutions Inc.",
+    duration: "2022 - 2023",
+    description: [
+      "Developed CGAL-based polygon visualization tools with Qt6 frontend",
+      "Implemented Boolean operations for 2D polygons with real-time rendering",
+      "Created and maintained cross-platform build systems using CMake",
+      "Collaborated with senior developers on code reviews and performance optimization"
+    ]
+  },
+  {
+    title: "Software Engineering Intern",
+    company: "Data Systems Ltd.",
+    duration: "2021 - 2022",
+    description: [
+      "Built a Java-based inventory management system with MySQL backend",
+      "Designed and implemented normalized database schema for efficient queries",
+      "Developed JDBC connection layer with transaction support",
+      "Created comprehensive documentation and conducted user training"
+    ]
+  },
+  {
+    title: "Open Source Contributor",
+    company: "Various Projects",
     duration: "2020 - Present",
     description: [
-      "Lead the development of a high-performance data processing system that handles over 1M transactions per second",
-      "Optimized critical code paths reducing memory usage by 40% and improving throughput by 25%",
-      "Designed and implemented a custom memory allocator for specialized workloads",
-      "Mentored junior developers and conducted code reviews to ensure code quality"
-    ]
-  },
-  {
-    title: "Java Backend Engineer",
-    company: "Enterprise Solutions Ltd.",
-    duration: "2017 - 2020",
-    description: [
-      "Developed and maintained microservices using Spring Boot and Java 11",
-      "Built a distributed task scheduling system supporting dynamic resource allocation",
-      "Improved system reliability by implementing comprehensive error handling and recovery mechanisms",
-      "Collaborated with cross-functional teams to design and implement RESTful APIs"
-    ]
-  },
-  {
-    title: "Software Developer",
-    company: "StartApp Solutions",
-    duration: "2015 - 2017",
-    description: [
-      "Developed and maintained backend services using Java and Python",
-      "Implemented efficient algorithms for data processing tasks",
-      "Participated in full software development lifecycle from design to deployment",
-      "Worked in an Agile environment with 2-week sprint cycles"
+      "Contributed to open-source C++ libraries focusing on data structures",
+      "Implemented test suites and continuous integration workflows",
+      "Fixed memory leaks and performance bottlenecks in existing codebases",
+      "Collaborated with global teams through distributed version control"
     ]
   }
 ];
 
 const education: EducationItem[] = [
   {
-    degree: "M.S. in Computer Science",
-    institution: "University of Technology",
-    duration: "2013 - 2015",
-    details: "Specialization in Systems Programming and Distributed Computing"
+    degree: "B.E. in Computer Engineering",
+    institution: "University of Engineering",
+    duration: "2018 - 2022",
+    details: "Specialization in Systems Programming and Data Structures"
   },
   {
-    degree: "B.S. in Computer Science",
-    institution: "State University",
-    duration: "2009 - 2013",
-    details: "Graduated with Honors, Minor in Mathematics"
+    degree: "Advanced Diploma in Programming",
+    institution: "Technical Institute",
+    duration: "2016 - 2018",
+    details: "Focus on C++ and Java application development"
   }
 ];
 
@@ -76,8 +76,9 @@ const ResumeSection = () => {
           
           <Button asChild className="font-mono">
             <a 
-              href="/John-Doe-CV.pdf" 
-              download 
+              href="https://drive.google.com/file/d/17AdJbXxt9pAo8MnmPqG4RFWx0Mdjeut8/view?usp=drive_link" 
+              target="_blank"
+              rel="noopener noreferrer"
               className="flex items-center gap-2"
             >
               <Download size={18} />
@@ -145,9 +146,9 @@ const ResumeSection = () => {
               
               <div className="space-y-3 mt-6">
                 {[
-                  { name: "Oracle Certified Professional, Java SE 11 Developer", year: "2019" },
-                  { name: "AWS Certified Solutions Architect", year: "2021" },
-                  { name: "Linux Foundation Certified Engineer", year: "2020" }
+                  { name: "Advanced C++ Programming", year: "2022" },
+                  { name: "Data Structures and Algorithms", year: "2021" },
+                  { name: "Linux System Administration", year: "2020" }
                 ].map((cert, idx) => (
                   <div key={idx} className="flex justify-between items-center">
                     <span>{cert.name}</span>

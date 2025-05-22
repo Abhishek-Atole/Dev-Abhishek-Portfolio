@@ -86,13 +86,13 @@ const HeroSection = () => {
         <div className="z-10 flex flex-col justify-center animate-fade-in">
           <p className="font-mono text-primary mb-2">Hi, my name is</p>
           <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold mb-4">
-            John Doe
+            Abhishek Atole
           </h1>
           <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-muted-foreground mb-6">
-            C++ & Java Developer
+            C++ Developer | Java Enthusiast | System-Level Problem Solver
           </h2>
           <p className="text-muted-foreground max-w-md mb-8">
-            I build high-performance software systems, backend services, and applications using C++, Java, and related technologies.
+            Engineering graduate specializing in high-performance C++ applications, virtual systems, and backend solutions. Contributor to real-world projects and open-source tooling with a passion for deep logic and clean architecture.
           </p>
           <div className="flex flex-wrap gap-4">
             <Button asChild className="font-mono">

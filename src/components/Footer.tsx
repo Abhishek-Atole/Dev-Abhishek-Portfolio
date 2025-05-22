@@ -18,7 +18,7 @@ const Footer = () => {
           <div className="flex flex-col items-center md:items-end">
             <div className="flex space-x-4 mb-4">
               <a 
-                href="https://github.com" 
+                href="https://github.com/Abhishek-Atole" 
                 target="_blank" 
                 rel="noopener noreferrer"
                 className="text-muted-foreground hover:text-primary transition-colors"
@@ -27,7 +27,7 @@ const Footer = () => {
                 <Github size={20} />
               </a>
               <a 
-                href="https://linkedin.com" 
+                href="https://linkedin.com/in/abhishekatole" 
                 target="_blank" 
                 rel="noopener noreferrer"
                 className="text-muted-foreground hover:text-primary transition-colors"
@@ -36,7 +36,7 @@ const Footer = () => {
                 <Linkedin size={20} />
               </a>
               <a 
-                href="mailto:contact@johndoedev.com" 
+                href="mailto:abhiatole03@gmail.com" 
                 className="text-muted-foreground hover:text-primary transition-colors"
                 aria-label="Email"
               >
@@ -45,7 +45,7 @@ const Footer = () => {
             </div>
             
             <p className="text-xs text-muted-foreground">
-              &copy; {new Date().getFullYear()} John Doe. All rights reserved.
+              &copy; {new Date().getFullYear()} Abhishek Atole. All rights reserved.
             </p>
           </div>
         </div>

@@ -12,12 +12,12 @@ import { useEffect } from "react";
 const Index = () => {
   // Set meta tags for SEO
   useEffect(() => {
-    document.title = "John Doe | C++ & Java Developer Portfolio";
+    document.title = "Abhishek Atole | C++ & Java Developer Portfolio";
     
     // Update meta tags
     const metaDescription = document.querySelector('meta[name="description"]');
     if (metaDescription) {
-      metaDescription.setAttribute("content", "Portfolio of John Doe, a specialized C++ and Java developer focused on high-performance systems and backend development.");
+      metaDescription.setAttribute("content", "Portfolio of Abhishek Atole, specializing in C++ applications, virtual systems, and backend solutions with a passion for deep logic and clean architecture.");
     }
   }, []);
   

@@ -14,37 +14,39 @@ const skillCategories: SkillCategory[] = [
   {
     name: "Languages",
     skills: [
-      { name: "C++", level: 95 },
-      { name: "Java", level: 90 },
-      { name: "Python", level: 80 },
-      { name: "JavaScript/TypeScript", level: 75 },
+      { name: "C++14/17/20", level: 95 },
+      { name: "Java", level: 85 },
+      { name: "C", level: 80 },
+      { name: "Python", level: 75 },
+      { name: "SQL", level: 70 },
     ],
   },
   {
-    name: "Systems & Backend",
+    name: "Tools",
     skills: [
-      { name: "Multithreading", level: 90 },
-      { name: "Memory Management", level: 85 },
-      { name: "Systems Design", level: 80 },
-      { name: "Database Optimization", level: 75 },
-    ],
-  },
-  {
-    name: "Frameworks & Libraries",
-    skills: [
-      { name: "STL (C++)", level: 95 },
-      { name: "Spring Boot", level: 85 },
-      { name: "Boost", level: 80 },
-      { name: "React", level: 70 },
-    ],
-  },
-  {
-    name: "Tools & Technologies",
-    skills: [
+      { name: "STL", level: 90 },
+      { name: "Qt6", level: 85 },
+      { name: "CGAL", level: 80 },
       { name: "Git", level: 90 },
-      { name: "Docker", level: 85 },
-      { name: "Linux", level: 90 },
-      { name: "CI/CD", level: 80 },
+      { name: "CMake", level: 85 },
+    ],
+  },
+  {
+    name: "Operating Systems",
+    skills: [
+      { name: "Linux (Ubuntu)", level: 90 },
+      { name: "Linux (Kali)", level: 80 },
+      { name: "Linux (Arch)", level: 75 },
+      { name: "Windows", level: 85 },
+    ],
+  },
+  {
+    name: "Concepts",
+    skills: [
+      { name: "File Systems", level: 90 },
+      { name: "Memory Management", level: 85 },
+      { name: "OOP", level: 90 },
+      { name: "Modular Design", level: 85 },
     ],
   },
 ];
@@ -82,28 +84,28 @@ const SkillsSection = () => {
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
             {[
               {
-                title: "High-Performance Computing",
-                description: "Optimization techniques, parallel algorithms, and efficient memory usage for maximum performance."
+                title: "C++ Development",
+                description: "Modern C++14/17/20 applications with a focus on performance optimization and clean architecture."
               },
               {
-                title: "Systems Programming",
-                description: "Low-level system interfaces, device drivers, and operating system interaction."
+                title: "System Programming",
+                description: "File systems, memory management, and low-level system interfaces."
               },
               {
-                title: "Backend Development",
-                description: "Scalable services, API design, and distributed systems architecture."
+                title: "Data Structures",
+                description: "Implementation of efficient, reusable data structures and algorithms."
               },
               {
-                title: "Algorithm Design",
-                description: "Implementation of complex algorithms with a focus on efficiency and correctness."
+                title: "GUI Applications",
+                description: "Cross-platform desktop applications using Qt6 and visualization frameworks."
               },
               {
-                title: "Concurrency & Threading",
-                description: "Thread synchronization, lock-free programming, and concurrent data structures."
+                title: "Linux Environment",
+                description: "Development in Linux ecosystems with shell scripting and system tools."
               },
               {
                 title: "Software Architecture",
-                description: "Designing maintainable, scalable, and robust software systems."
+                description: "Designing maintainable, modular, and robust software systems."
               }
             ].map((expertise, idx) => (
               <div key={idx} className="bg-card rounded-lg p-6 shadow-lg">
