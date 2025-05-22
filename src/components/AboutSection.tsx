@@ -48,7 +48,7 @@ const AboutSection = () => {
                   </a>
                 </Button>
                 <Button variant="outline" asChild>
-                  <a href="#resume" className="flex items-center gap-2">
+                  <a href="/Abhishek_Atole_Cpp_Developer_Resume.pdf" className="flex items-center gap-2">
                     <FileText size={18} />
                     Resume
                   </a>
