@@ -1,71 +1,75 @@
 
-import { Download, FileText } from "lucide-react";
+import { Download, FileText, Briefcase, Calendar, MapPin, GitBranch, Database, FileCode, Network, Computer } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
 type ExperienceItem = {
   title: string;
   company: string;
+  type: string;
+  location: string;
   duration: string;
+  timeframe: string;
   description: string[];
-};
-
-type EducationItem = {
-  degree: string;
-  institution: string;
-  duration: string;
-  details: string;
+  skills: string[];
 };
 
 const experiences: ExperienceItem[] = [
   {
     title: "C++ Developer Intern",
-    company: "Tech Solutions Inc.",
-    duration: "2022 - 2023",
+    company: "CodSoft",
+    type: "Internship",
+    location: "Karnataka, India · Remote",
+    duration: "May 2025 – Present",
+    timeframe: "1 mo",
     description: [
-      "Developed CGAL-based polygon visualization tools with Qt6 frontend",
-      "Implemented Boolean operations for 2D polygons with real-time rendering",
-      "Created and maintained cross-platform build systems using CMake",
-      "Collaborated with senior developers on code reviews and performance optimization"
-    ]
+      "Selected as a C++ Developer Intern for the May Batch B28 at CodSoft, contributing to real-world software development projects remotely.",
+      "Working on performance-oriented C++17/20 projects focused on data structures, file systems, and modular design.",
+      "Collaborating in an Agile environment using Git and GitHub for version control and task management.",
+      "Sharing deliverables through a dedicated GitHub repo (CODSOFT) and demo videos on LinkedIn.",
+      "Following best practices in documentation, versioning, and modern C++ engineering."
+    ],
+    skills: ["C++", "Git", "Data Structures", "File Systems", "Agile", "Remote Work"]
   },
   {
-    title: "Software Engineering Intern",
-    company: "Data Systems Ltd.",
-    duration: "2021 - 2022",
+    title: "Infosec Intern",
+    company: "Babli IT Consulting",
+    type: "Internship",
+    location: "Pune, Maharashtra, India · Remote",
+    duration: "Mar 2025 – Apr 2025",
+    timeframe: "2 mos",
     description: [
-      "Built a Java-based inventory management system with MySQL backend",
-      "Designed and implemented normalized database schema for efficient queries",
-      "Developed JDBC connection layer with transaction support",
-      "Created comprehensive documentation and conducted user training"
-    ]
+      "Assisted in penetration testing and vulnerability assessments of company networks.",
+      "Gained hands-on experience with SIEM tools, threat monitoring, and incident response procedures.",
+      "Conducted research on best practices in cybersecurity strategy, helping strengthen network defenses."
+    ],
+    skills: ["Infosec", "VirtualBox", "Cybersecurity", "SIEM", "Network Security"]
   },
   {
-    title: "Open Source Contributor",
-    company: "Various Projects",
-    duration: "2020 - Present",
+    title: "Software Engineering Intern (Virtual)",
+    company: "EA Sports (Forage)",
+    type: "Job Simulation",
+    location: "Virtual · Remote",
+    duration: "Feb 2025 – Feb 2025",
+    timeframe: "1 mo",
     description: [
-      "Contributed to open-source C++ libraries focusing on data structures",
-      "Implemented test suites and continuous integration workflows",
-      "Fixed memory leaks and performance bottlenecks in existing codebases",
-      "Collaborated with global teams through distributed version control"
-    ]
+      "Developed a weather simulation module for a sports game, enhancing realism and increasing engagement by 15%.",
+      "Authored modern C++ specifications to optimize load times by 20%.",
+      "Collaborated with cross-functional teams to integrate features and ensure a smooth user experience."
+    ],
+    skills: ["C++ (C++17/20)", "Game Logic", "System Design", "Cross-Team Collaboration"]
   }
 ];
 
-const education: EducationItem[] = [
-  {
-    degree: "B.E. in Computer Engineering",
-    institution: "University of Engineering",
-    duration: "2018 - 2022",
-    details: "Specialization in Systems Programming and Data Structures"
-  },
-  {
-    degree: "Advanced Diploma in Programming",
-    institution: "Technical Institute",
-    duration: "2016 - 2018",
-    details: "Focus on C++ and Java application development"
-  }
-];
+const getIconForSkill = (skill: string) => {
+  const lowerSkill = skill.toLowerCase();
+  if (lowerSkill.includes("c++")) return <FileCode className="h-4 w-4" />;
+  if (lowerSkill.includes("git")) return <GitBranch className="h-4 w-4" />;
+  if (lowerSkill.includes("data structure")) return <Database className="h-4 w-4" />;
+  if (lowerSkill.includes("network") || lowerSkill.includes("security") || lowerSkill.includes("infosec")) return <Network className="h-4 w-4" />;
+  return <Computer className="h-4 w-4" />;
+};
 
 const ResumeSection = () => {
   return (
@@ -76,7 +80,7 @@ const ResumeSection = () => {
           
           <Button asChild className="font-mono">
             <a 
-              href="https://drive.google.com/file/d/17AdJbXxt9pAo8MnmPqG4RFWx0Mdjeut8/view?usp=drive_link" 
+              href="/John-Doe-CV.pdf" 
               target="_blank"
               rel="noopener noreferrer"
               className="flex items-center gap-2"
@@ -87,76 +91,67 @@ const ResumeSection = () => {
           </Button>
         </div>
         
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          <div className="lg:col-span-2">
-            <div className="space-y-8">
-              <h3 className="text-2xl font-bold flex items-center gap-2 pb-2 border-b">
-                <FileText size={22} className="text-primary" />
-                Work Experience
-              </h3>
-              
-              {experiences.map((exp, idx) => (
-                <div key={idx} className="relative pl-6 border-l-2 border-primary/30 pb-6">
-                  <div className="absolute w-3 h-3 bg-primary rounded-full -left-[7px] top-2"></div>
-                  
-                  <h4 className="text-xl font-bold">{exp.title}</h4>
-                  <div className="flex flex-wrap justify-between mb-2">
-                    <span className="font-medium text-primary">{exp.company}</span>
-                    <span className="text-sm text-muted-foreground font-mono">{exp.duration}</span>
+        <div className="space-y-8">
+          <h3 className="text-2xl font-bold flex items-center gap-2 pb-2 border-b">
+            <Briefcase size={22} className="text-primary" />
+            Work Experience
+          </h3>
+          
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            {experiences.map((exp, idx) => (
+              <Card key={idx} className="relative overflow-hidden border-l-4 border-l-primary animate-fade-in">
+                <div className="absolute w-2 h-2 rounded-full bg-primary top-6 -left-[5px]"></div>
+                
+                <CardHeader className="pb-2">
+                  <div className="flex flex-col gap-1">
+                    <h4 className="text-xl font-bold">{exp.title}</h4>
+                    <div className="flex items-center gap-1 text-primary">
+                      <Briefcase size={16} />
+                      <span className="font-medium">{exp.company} · {exp.type}</span>
+                    </div>
+                    <div className="flex flex-wrap items-center gap-x-4 text-sm text-muted-foreground">
+                      <div className="flex items-center gap-1">
+                        <MapPin size={14} />
+                        <span>{exp.location}</span>
+                      </div>
+                      <div className="flex items-center gap-1">
+                        <Calendar size={14} />
+                        <span>{exp.duration} · {exp.timeframe}</span>
+                      </div>
+                    </div>
                   </div>
-                  
-                  <ul className="list-disc list-inside space-y-1 text-sm">
+                </CardHeader>
+                
+                <CardContent className="pt-0">
+                  <ul className="list-disc list-inside space-y-2 text-sm">
                     {exp.description.map((item, i) => (
-                      <li key={i}>{item}</li>
+                      <li key={i} className="text-sm">{item}</li>
                     ))}
                   </ul>
-                </div>
-              ))}
-            </div>
-          </div>
-          
-          <div className="space-y-8">
-            <div>
-              <h3 className="text-2xl font-bold flex items-center gap-2 pb-2 border-b">
-                <FileText size={22} className="text-primary" />
-                Education
-              </h3>
-              
-              <div className="space-y-6 mt-6">
-                {education.map((edu, idx) => (
-                  <div key={idx} className="relative pl-6 border-l-2 border-primary/30 pb-6">
-                    <div className="absolute w-3 h-3 bg-primary rounded-full -left-[7px] top-2"></div>
-                    
-                    <h4 className="font-bold">{edu.degree}</h4>
-                    <div className="flex flex-wrap justify-between mb-1">
-                      <span className="text-sm text-primary">{edu.institution}</span>
-                      <span className="text-xs text-muted-foreground font-mono">{edu.duration}</span>
+                  
+                  <div className="mt-4">
+                    <div className="text-sm font-semibold mb-2">Skills:</div>
+                    <div className="flex flex-wrap gap-2">
+                      <TooltipProvider>
+                        {exp.skills.map((skill, i) => (
+                          <Tooltip key={i}>
+                            <TooltipTrigger asChild>
+                              <span className="inline-flex items-center gap-1 px-2 py-1 text-xs rounded-md bg-secondary text-secondary-foreground">
+                                {getIconForSkill(skill)}
+                                {skill}
+                              </span>
+                            </TooltipTrigger>
+                            <TooltipContent>
+                              <p>{skill}</p>
+                            </TooltipContent>
+                          </Tooltip>
+                        ))}
+                      </TooltipProvider>
                     </div>
-                    <p className="text-sm">{edu.details}</p>
                   </div>
-                ))}
-              </div>
-            </div>
-            
-            <div>
-              <h3 className="text-2xl font-bold flex items-center gap-2 pb-2 border-b">
-                <FileText size={22} className="text-primary" />
-                Certifications
-              </h3>
-              
-              <div className="space-y-3 mt-6">
-                {[
-                  { name: "Advanced C++ Programming", year: "2022" },
-                  { name: "Data Structures and Algorithms", year: "2021" },
-                  { name: "Linux System Administration", year: "2020" }
-                ].map((cert, idx) => (
-                  <div key={idx} className="flex justify-between items-center">
-                    <span>{cert.name}</span>
-                    <span className="text-xs font-mono text-muted-foreground">{cert.year}</span>
-                  </div>
-                ))}
-              </div>
-            </div>
+                </CardContent>
+              </Card>
+            ))}
           </div>
         </div>
       </div>
