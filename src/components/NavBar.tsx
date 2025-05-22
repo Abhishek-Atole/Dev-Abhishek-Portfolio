@@ -1,22 +1,29 @@
 
 import { useState, useEffect } from "react";
-import { Menu, X } from "lucide-react";
+import { Menu, X, Home, User, Mail, BookOpen, Code, FileText } from "lucide-react";
 import { cn } from "@/lib/utils";
 import ThemeSwitcher from "./ThemeSwitcher";
 import { Button } from "@/components/ui/button";
+import { Link, useLocation } from "react-router-dom";
 
 const navItems = [
-  { label: "Home", href: "#home" },
-  { label: "About", href: "#about" },
-  { label: "Projects", href: "#projects" },
-  { label: "Skills", href: "#skills" },
-  { label: "Resume", href: "#resume" },
-  { label: "Contact", href: "#contact" },
+  { label: "Home", href: "/", icon: Home },
+  { label: "About", href: "/about", icon: User },
+  { label: "Projects", href: "/projects", icon: Code },
+  { label: "Education", href: "/education", icon: BookOpen },
+  { label: "Blog", href: "/blog", icon: FileText },
+  { label: "Contact", href: "/contact", icon: Mail },
 ];
 
 const NavBar = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  const location = useLocation();
+
+  const isActive = (path: string) => {
+    if (path === "/" && location.pathname !== "/") return false;
+    return location.pathname.startsWith(path);
+  };
 
   useEffect(() => {
     const handleScroll = () => {
@@ -32,29 +39,35 @@ const NavBar = () => {
       className={cn(
         "fixed top-0 w-full z-50 transition-all duration-300 py-4",
         scrolled
-          ? "bg-background/90 backdrop-blur-lg shadow-md"
-          : "bg-transparent"
+          ? "bg-background/70 backdrop-blur-lg shadow-md"
+          : "bg-background/30 backdrop-blur-sm"
       )}
     >
       <div className="container flex items-center justify-between">
         {/* Logo */}
-        <a 
-          href="#home" 
+        <Link 
+          to="/" 
           className="text-xl font-mono font-bold text-primary"
         >
           dev<span className="text-foreground">.portfolio</span>
-        </a>
+        </Link>
 
         {/* Desktop Navigation */}
         <nav className="hidden md:flex items-center gap-6">
           {navItems.map((item) => (
-            <a
+            <Link
               key={item.href}
-              href={item.href}
-              className="font-mono text-sm hover:text-primary transition-colors duration-200"
+              to={item.href}
+              className={cn(
+                "font-mono text-sm transition-colors duration-200 flex items-center gap-2",
+                isActive(item.href) 
+                  ? "text-primary font-bold" 
+                  : "hover:text-primary"
+              )}
             >
+              <item.icon size={16} />
               {item.label}
-            </a>
+            </Link>
           ))}
           <ThemeSwitcher />
         </nav>
@@ -77,14 +90,20 @@ const NavBar = () => {
           <div className="fixed inset-0 top-16 bg-background/95 backdrop-blur-md md:hidden z-50">
             <nav className="flex flex-col items-center justify-center h-full gap-8">
               {navItems.map((item) => (
-                <a
+                <Link
                   key={item.href}
-                  href={item.href}
-                  className="text-lg font-mono hover:text-primary transition-colors"
+                  to={item.href}
+                  className={cn(
+                    "text-lg font-mono transition-colors flex items-center gap-2",
+                    isActive(item.href) 
+                      ? "text-primary font-bold" 
+                      : "hover:text-primary"
+                  )}
                   onClick={() => setIsOpen(false)}
                 >
+                  <item.icon size={20} />
                   {item.label}
-                </a>
+                </Link>
               ))}
             </nav>
           </div>
