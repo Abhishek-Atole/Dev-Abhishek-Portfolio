@@ -116,4 +116,46 @@
     -ms-overflow-style: none;  /* IE and Edge */
     scrollbar-width: none;  /* Firefox */
   }
+
+  /* Enhanced Code Block Styling */
+  .prose pre {
+    @apply bg-card border border-border rounded-lg p-4 overflow-x-auto;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.875rem;
+    line-height: 1.5;
+    color: hsl(var(--foreground));
+  }
+
+  .prose pre code {
+    @apply bg-transparent p-0 text-inherit;
+    font-family: inherit;
+  }
+
+  .prose code {
+    @apply bg-muted px-2 py-1 rounded font-mono text-sm;
+    color: hsl(var(--primary));
+    font-weight: 500;
+  }
+
+  .prose blockquote {
+    @apply border-l-4 border-primary pl-6 italic my-6;
+    background: hsl(var(--muted) / 0.3);
+    padding: 1rem 1.5rem;
+    border-radius: 0.5rem;
+  }
+
+  /* Line clamp utilities */
+  .line-clamp-2 {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  .line-clamp-3 {
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
 }
