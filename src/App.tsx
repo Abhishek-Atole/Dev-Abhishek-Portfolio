@@ -1,4 +1,3 @@
-
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -12,6 +11,9 @@ import EducationPage from "./pages/EducationPage";
 import ProjectsPage from "./pages/ProjectsPage";
 import BlogPage from "./pages/BlogPage";
 import BlogPost from "./pages/BlogPost";
+import ModernCppBestPracticesPage from "./pages/blog/ModernCppBestPracticesPage";
+import InMemoryFilesystemPage from "./pages/blog/InMemoryFilesystemPage";
+import JavaJdbcBestPracticesPage from "./pages/blog/JavaJdbcBestPracticesPage";
 
 const queryClient = new QueryClient();
 
@@ -28,6 +30,11 @@ const App = () => (
           <Route path="/education" element={<EducationPage />} />
           <Route path="/projects" element={<ProjectsPage />} />
           <Route path="/blog" element={<BlogPage />} />
+          {/* Static blog post routes */}
+          <Route path="/blog/modern-cpp-best-practices" element={<ModernCppBestPracticesPage />} />
+          <Route path="/blog/in-memory-filesystem-implementation" element={<InMemoryFilesystemPage />} />
+          <Route path="/blog/java-jdbc-best-practices" element={<JavaJdbcBestPracticesPage />} />
+          {/* Keep the dynamic route as fallback for any other blog posts */}
           <Route path="/blog/:slug" element={<BlogPost />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
