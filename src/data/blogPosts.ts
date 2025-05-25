@@ -1,3 +1,4 @@
+
 export type BlogPost = {
   id: number;
   slug: string;
@@ -20,6 +21,8 @@ export const blogPosts: BlogPost[] = [
 # Modern C++ Best Practices Every Developer Should Know
 
 C++ has evolved significantly over the years, with C++11, C++14, C++17, and C++20 introducing many features that make the language more powerful, safer, and easier to use. In this article, I'll share some best practices that I've learned from my experience with modern C++ development.
+
+[video](https://www.youtube.com/watch?v=dQw4w9WgXcQ) "Introduction to Modern C++ - YouTube Tutorial"
 
 ## Use Smart Pointers
 
@@ -49,6 +52,8 @@ std::vector<int> createAndFill() {
 
 auto vec = createAndFill(); // No unnecessary copying
 \`\`\`
+
+[video](https://www.youtube.com/watch?v=IOkgBrXCtfo) "C++ Move Semantics Explained"
 
 ## Use auto for Type Inference
 

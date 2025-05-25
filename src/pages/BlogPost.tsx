@@ -1,4 +1,3 @@
-
 import { useParams, Link, useNavigate } from "react-router-dom";
 import { useEffect } from "react";
 import NavBar from "@/components/NavBar";
@@ -7,7 +6,7 @@ import { blogPosts } from "@/data/blogPosts";
 import { ArrowLeft, Calendar, Clock, Tag, User } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import Markdown from "react-markdown";
+import MarkdownRenderer from "@/components/MarkdownRenderer";
 
 const BlogPost = () => {
   const { slug } = useParams();
@@ -94,14 +93,10 @@ const BlogPost = () => {
               prose-h1:mb-6 prose-h2:mb-4 prose-h2:mt-12 prose-h3:mb-3 prose-h3:mt-8
               prose-p:text-foreground/90 prose-p:leading-7 prose-p:mb-6
               prose-strong:text-foreground prose-strong:font-semibold
-              prose-code:bg-muted prose-code:px-2 prose-code:py-1 prose-code:rounded prose-code:font-mono prose-code:text-sm
-              prose-code:before:content-none prose-code:after:content-none
-              prose-pre:bg-card prose-pre:border prose-pre:border-border prose-pre:rounded-lg prose-pre:p-4
-              prose-pre:overflow-x-auto prose-pre:font-mono prose-pre:text-sm
               prose-blockquote:border-l-4 prose-blockquote:border-primary prose-blockquote:pl-6 prose-blockquote:italic
               prose-ul:mb-6 prose-ol:mb-6 prose-li:mb-2
               prose-a:text-primary prose-a:no-underline hover:prose-a:underline">
-              <Markdown>{post.content}</Markdown>
+              <MarkdownRenderer content={post.content} />
             </div>
           </article>
           
