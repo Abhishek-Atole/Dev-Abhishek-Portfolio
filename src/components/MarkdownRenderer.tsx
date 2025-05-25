@@ -31,12 +31,13 @@ const MarkdownRenderer: React.FC<MarkdownRendererProps> = ({ content }) => {
         },
         
         // Enhanced code blocks
-        code: ({ node, className, children, ...props }) => {
+        code: ({ className, children, ...props }) => {
           const match = /language-(\w+)/.exec(className || '');
           const language = match ? match[1] : '';
           
-          // Check if this is an inline code block by checking if it's inside a pre tag
-          const isInline = !node?.parent || node.parent.tagName !== 'pre';
+          // Check if this is an inline code block by checking if className exists
+          // Block code elements typically have language- classes, inline ones don't
+          const isInline = !className || !className.startsWith('language-');
           
           if (!isInline) {
             return (
