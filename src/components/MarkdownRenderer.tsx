@@ -1,6 +1,7 @@
 
 import React from 'react';
 import Markdown from 'react-markdown';
+import { Copy } from 'lucide-react';
 import VideoEmbed from './VideoEmbed';
 
 interface MarkdownRendererProps {
@@ -8,6 +9,14 @@ interface MarkdownRendererProps {
 }
 
 const MarkdownRenderer: React.FC<MarkdownRendererProps> = ({ content }) => {
+  const copyToClipboard = async (text: string) => {
+    try {
+      await navigator.clipboard.writeText(text);
+    } catch (err) {
+      console.error('Failed to copy text: ', err);
+    }
+  };
+
   return (
     <Markdown
       components={{
@@ -40,12 +49,21 @@ const MarkdownRenderer: React.FC<MarkdownRendererProps> = ({ content }) => {
           const isInline = !className || !className.startsWith('language-');
           
           if (!isInline) {
+            const codeString = String(children).replace(/\n$/, '');
+            
             return (
               <div className="relative group">
-                <div className="absolute top-3 right-3 z-10">
+                <div className="absolute top-3 right-3 z-10 flex items-center gap-2">
                   <span className="text-xs text-muted-foreground bg-muted px-2 py-1 rounded font-mono">
                     {language || 'code'}
                   </span>
+                  <button
+                    onClick={() => copyToClipboard(codeString)}
+                    className="p-2 rounded bg-muted hover:bg-muted/80 transition-colors opacity-0 group-hover:opacity-100"
+                    title="Copy code"
+                  >
+                    <Copy size={14} />
+                  </button>
                 </div>
                 <pre className="bg-card border border-border rounded-lg p-4 overflow-x-auto font-mono text-sm">
                   <code className={className} {...props}>
