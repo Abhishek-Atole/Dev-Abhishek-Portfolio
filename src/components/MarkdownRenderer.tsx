@@ -13,14 +13,17 @@ const MarkdownRenderer: React.FC<MarkdownRendererProps> = ({ content }) => {
       components={{
         // Custom component for handling video embeds
         p: ({ children }) => {
-          const child = React.Children.only(children);
+          // Handle case where children might be an array or multiple elements
+          const childrenArray = React.Children.toArray(children);
           
-          // Check if this is a video embed (look for [video] syntax)
-          if (typeof child === 'string' && child.includes('[video]')) {
-            const videoMatch = child.match(/\[video\]\((.*?)\)(?:\s*"(.*?)")?/);
-            if (videoMatch) {
-              const [, url, title] = videoMatch;
-              return <VideoEmbed url={url} title={title} />;
+          // Check if any child contains video embed syntax
+          for (const child of childrenArray) {
+            if (typeof child === 'string' && child.includes('[video]')) {
+              const videoMatch = child.match(/\[video\]\((.*?)\)(?:\s*"(.*?)")?/);
+              if (videoMatch) {
+                const [, url, title] = videoMatch;
+                return <VideoEmbed url={url} title={title} />;
+              }
             }
           }
           
@@ -28,11 +31,14 @@ const MarkdownRenderer: React.FC<MarkdownRendererProps> = ({ content }) => {
         },
         
         // Enhanced code blocks
-        code: ({ node, inline, className, children, ...props }) => {
+        code: ({ node, className, children, ...props }) => {
           const match = /language-(\w+)/.exec(className || '');
           const language = match ? match[1] : '';
           
-          if (!inline) {
+          // Check if this is an inline code block by checking if it's inside a pre tag
+          const isInline = !node?.parent || node.parent.tagName !== 'pre';
+          
+          if (!isInline) {
             return (
               <div className="relative group">
                 <div className="absolute top-3 right-3 z-10">
