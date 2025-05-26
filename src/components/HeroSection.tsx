@@ -84,6 +84,18 @@ const HeroSection = () => {
     <section id="home" className="min-h-screen relative flex flex-col justify-center items-center pt-16">
       <div className="container mx-auto grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
         <div className="z-10 flex flex-col justify-center animate-fade-in">
+          {/* Professional Photo */}
+          <div className="mb-6 flex justify-center md:justify-start">
+            <div className="relative group">
+              <div className="absolute -inset-1 bg-gradient-to-r from-primary to-accent rounded-full blur opacity-25 group-hover:opacity-75 transition duration-1000 group-hover:duration-200"></div>
+              <img 
+                src="/lovable-uploads/c5dd3c17-c8a7-47a3-a576-a245e2a0a459.png" 
+                alt="Abhishek Atole - Professional Photo" 
+                className="relative w-32 h-32 md:w-40 md:h-40 rounded-full object-cover border-4 border-background shadow-2xl group-hover:scale-105 transition-transform duration-300"
+              />
+            </div>
+          </div>
+          
           <p className="font-mono text-primary mb-2">Hi, my name is</p>
           <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold mb-4">
             Abhishek Atole

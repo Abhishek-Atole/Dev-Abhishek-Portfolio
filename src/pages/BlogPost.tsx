@@ -1,4 +1,3 @@
-
 import { useParams, Link, useNavigate } from "react-router-dom";
 import { useEffect } from "react";
 import NavBar from "@/components/NavBar";
@@ -76,7 +75,11 @@ const BlogPost = () => {
                     flex items-center justify-center group-hover:scale-110 transition-transform duration-300 
                     group-hover:shadow-2xl group-hover:shadow-primary/20 relative overflow-hidden">
                     <div className="absolute inset-0 bg-gradient-to-r from-primary/10 to-accent/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-                    <User size={24} className="text-primary relative z-10" />
+                    <img 
+                      src="/lovable-uploads/c5dd3c17-c8a7-47a3-a576-a245e2a0a459.png" 
+                      alt="Abhishek Atole" 
+                      className="w-full h-full object-cover rounded-2xl relative z-10"
+                    />
                   </div>
                   <div>
                     <p className="font-bold text-lg text-foreground group-hover:text-primary transition-colors duration-300 font-mono">
