@@ -118,7 +118,7 @@ const BlogPost = () => {
                       hover:from-primary/15 hover:to-accent/15 hover:text-primary hover:scale-110 
                       transition-all duration-300 cursor-pointer hover:shadow-xl hover:shadow-primary/20 
                       border border-border/50 hover:border-primary/40 group relative overflow-hidden"
-                    style={{ animationDelay: `${index * 100}ms` } as React.CSSProperties}
+                    style={{ animationDelay: `${index * 100}ms` }}
                   >
                     <div className="absolute inset-0 bg-gradient-to-r from-primary/5 to-accent/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
                     <Tag size={12} className="mr-2 relative z-10" />
@@ -187,7 +187,7 @@ const BlogPost = () => {
                       rounded-3xl p-6 transition-all duration-500 hover:shadow-2xl hover:shadow-primary/10 
                       hover:-translate-y-2 border border-border/30 hover:border-primary/40 relative overflow-hidden
                       bg-gradient-to-br from-card/50 to-muted/20 backdrop-blur-sm"
-                    style={{ animationDelay: `${index * 200}ms` } as React.CSSProperties}
+                    style={{ animationDelay: `${index * 200}ms` }}
                   >
                     {/* Card background decoration */}
                     <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-accent/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-3xl" />
