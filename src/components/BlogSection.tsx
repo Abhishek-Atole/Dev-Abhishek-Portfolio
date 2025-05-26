@@ -27,13 +27,33 @@ const BlogSection = () => {
               Technical articles on C++, Java, and systems programming
             </p>
           </div>
-          <Button variant="ghost" asChild className="mt-3 sm:mt-0 hover:bg-primary/10 hover:text-primary 
-            hover:scale-105 transition-all duration-300 group animate-fade-in border border-border/50 hover:border-primary/40 hover:shadow-xl hover:shadow-primary/20" style={{ animationDelay: '200ms' }}>
-            <Link to="/blog" className="flex items-center gap-2">
-              View All Posts
-              <ArrowRight size={16} className="group-hover:translate-x-1 transition-transform duration-300 group-hover:animate-bounce" />
-            </Link>
-          </Button>
+          
+          {/* Redesigned "View All Posts" Card */}
+          <div className="mt-6 sm:mt-0 relative group animate-fade-in" style={{ animationDelay: '200ms' }}>
+            <div className="absolute inset-0 bg-gradient-to-r from-primary/20 to-accent/20 rounded-2xl blur-xl opacity-0 group-hover:opacity-100 transition-all duration-500 scale-110" />
+            <div className="relative bg-gradient-to-r from-card/80 to-muted/40 backdrop-blur-sm border border-border/50 rounded-2xl p-6 shadow-lg hover:shadow-2xl hover:shadow-primary/10 transition-all duration-500 hover:scale-105 hover:border-primary/40">
+              <div className="text-center space-y-3">
+                <div className="text-2xl font-bold font-mono text-primary group-hover:animate-pulse">
+                  {blogPosts.length}
+                </div>
+                <div className="text-sm text-muted-foreground group-hover:text-foreground/80 transition-colors duration-300">
+                  Articles Published
+                </div>
+                <Button 
+                  variant="ghost" 
+                  asChild 
+                  className="w-full bg-gradient-to-r from-primary/10 to-accent/10 hover:from-primary/20 hover:to-accent/20 
+                    border border-primary/20 hover:border-primary/40 hover:scale-105 transition-all duration-300 
+                    hover:shadow-lg hover:shadow-primary/20 font-mono group/btn"
+                >
+                  <Link to="/blog" className="flex items-center justify-center gap-2">
+                    <span className="group-hover/btn:font-semibold transition-all duration-300">View All Posts</span>
+                    <ArrowRight size={16} className="group-hover/btn:translate-x-1 transition-transform duration-300 group-hover/btn:animate-bounce" />
+                  </Link>
+                </Button>
+              </div>
+            </div>
+          </div>
         </div>
         
         <div className="relative">

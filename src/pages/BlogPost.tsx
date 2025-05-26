@@ -1,13 +1,14 @@
-
 import { useParams, Link, useNavigate } from "react-router-dom";
 import { useEffect } from "react";
 import NavBar from "@/components/NavBar";
 import Footer from "@/components/Footer";
 import { blogPosts } from "@/data/blogPosts";
-import { ArrowLeft, Calendar, Clock, Tag, User, Share2, Bookmark, ExternalLink } from "lucide-react";
+import { ArrowLeft, Calendar, Clock, Tag, User, ExternalLink } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import MarkdownRenderer from "@/components/MarkdownRenderer";
+import ShareButton from "@/components/ShareButton";
+import SaveButton from "@/components/SaveButton";
 
 const BlogPost = () => {
   const { slug } = useParams();
@@ -99,26 +100,10 @@ const BlogPost = () => {
                   </div>
                 </div>
 
-                {/* Enhanced Action buttons */}
+                {/* Enhanced Action buttons with working functionality */}
                 <div className="flex items-center gap-3 ml-auto">
-                  <Button 
-                    variant="ghost" 
-                    size="sm" 
-                    className="hover:bg-gradient-to-r hover:from-primary/10 hover:to-accent/10 
-                      hover:text-primary transition-all duration-300 hover:scale-110 hover:shadow-lg 
-                      hover:shadow-primary/20 border border-border/50 hover:border-primary/40"
-                  >
-                    <Share2 size={16} />
-                  </Button>
-                  <Button 
-                    variant="ghost" 
-                    size="sm" 
-                    className="hover:bg-gradient-to-r hover:from-primary/10 hover:to-accent/10 
-                      hover:text-primary transition-all duration-300 hover:scale-110 hover:shadow-lg 
-                      hover:shadow-primary/20 border border-border/50 hover:border-primary/40"
-                  >
-                    <Bookmark size={16} />
-                  </Button>
+                  <ShareButton title={post.title} />
+                  <SaveButton postId={post.id} postTitle={post.title} />
                 </div>
               </div>
               
