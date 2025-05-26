@@ -14,6 +14,7 @@ import BlogPost from "./pages/BlogPost";
 import ModernCppBestPracticesPage from "./pages/blog/ModernCppBestPracticesPage";
 import InMemoryFilesystemPage from "./pages/blog/InMemoryFilesystemPage";
 import JavaJdbcBestPracticesPage from "./pages/blog/JavaJdbcBestPracticesPage";
+import CppBasicsForBeginnersPage from "./pages/blog/CppBasicsForBeginnersPage";
 
 const queryClient = new QueryClient();
 
@@ -34,6 +35,7 @@ const App = () => (
           <Route path="/blog/modern-cpp-best-practices" element={<ModernCppBestPracticesPage />} />
           <Route path="/blog/in-memory-filesystem-implementation" element={<InMemoryFilesystemPage />} />
           <Route path="/blog/java-jdbc-best-practices" element={<JavaJdbcBestPracticesPage />} />
+          <Route path="/blog/cpp-basics-for-beginners-part-1" element={<CppBasicsForBeginnersPage />} />
           {/* Keep the dynamic route as fallback for any other blog posts */}
           <Route path="/blog/:slug" element={<BlogPost />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
