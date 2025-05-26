@@ -110,27 +110,21 @@ const BlogPost = () => {
               
               {/* Enhanced Tags */}
               <div className="flex flex-wrap gap-3 mb-10">
-                {post.tags.map((tag, index) => {
-                  const tagStyle: React.CSSProperties = {
-                    animationDelay: `${index * 100}ms`
-                  };
-                  
-                  return (
-                    <Badge 
-                      key={tag} 
-                      variant="secondary" 
-                      className="font-mono text-sm px-4 py-2 bg-gradient-to-r from-muted/40 to-muted/60 
-                        hover:from-primary/15 hover:to-accent/15 hover:text-primary hover:scale-110 
-                        transition-all duration-300 cursor-pointer hover:shadow-xl hover:shadow-primary/20 
-                        border border-border/50 hover:border-primary/40 group relative overflow-hidden"
-                      style={tagStyle}
-                    >
-                      <div className="absolute inset-0 bg-gradient-to-r from-primary/5 to-accent/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-                      <Tag size={12} className="mr-2 relative z-10" />
-                      <span className="relative z-10 font-semibold">{tag}</span>
-                    </Badge>
-                  );
-                })}
+                {post.tags.map((tag, index) => (
+                  <Badge 
+                    key={tag} 
+                    variant="secondary" 
+                    className="font-mono text-sm px-4 py-2 bg-gradient-to-r from-muted/40 to-muted/60 
+                      hover:from-primary/15 hover:to-accent/15 hover:text-primary hover:scale-110 
+                      transition-all duration-300 cursor-pointer hover:shadow-xl hover:shadow-primary/20 
+                      border border-border/50 hover:border-primary/40 group relative overflow-hidden"
+                    style={{ animationDelay: `${index * 100}ms` } as React.CSSProperties}
+                  >
+                    <div className="absolute inset-0 bg-gradient-to-r from-primary/5 to-accent/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                    <Tag size={12} className="mr-2 relative z-10" />
+                    <span className="relative z-10 font-semibold">{tag}</span>
+                  </Badge>
+                ))}
               </div>
             </header>
             
@@ -185,60 +179,54 @@ const BlogPost = () => {
               {blogPosts
                 .filter(p => p.id !== post.id)
                 .slice(0, 2)
-                .map((relatedPost, index) => {
-                  const cardStyle: React.CSSProperties = {
-                    animationDelay: `${index * 200}ms`
-                  };
-                  
-                  return (
-                    <Link 
-                      key={relatedPost.id}
-                      to={`/blog/${relatedPost.slug}`}
-                      className="block group hover:bg-gradient-to-br hover:from-muted/30 hover:to-muted/10 
-                        rounded-3xl p-6 transition-all duration-500 hover:shadow-2xl hover:shadow-primary/10 
-                        hover:-translate-y-2 border border-border/30 hover:border-primary/40 relative overflow-hidden
-                        bg-gradient-to-br from-card/50 to-muted/20 backdrop-blur-sm"
-                      style={cardStyle}
-                    >
-                      {/* Card background decoration */}
-                      <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-accent/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-3xl" />
+                .map((relatedPost, index) => (
+                  <Link 
+                    key={relatedPost.id}
+                    to={`/blog/${relatedPost.slug}`}
+                    className="block group hover:bg-gradient-to-br hover:from-muted/30 hover:to-muted/10 
+                      rounded-3xl p-6 transition-all duration-500 hover:shadow-2xl hover:shadow-primary/10 
+                      hover:-translate-y-2 border border-border/30 hover:border-primary/40 relative overflow-hidden
+                      bg-gradient-to-br from-card/50 to-muted/20 backdrop-blur-sm"
+                    style={{ animationDelay: `${index * 200}ms` } as React.CSSProperties}
+                  >
+                    {/* Card background decoration */}
+                    <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-accent/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-3xl" />
+                    
+                    <div className="aspect-video rounded-2xl overflow-hidden mb-6 relative shadow-lg">
+                      <img 
+                        src={relatedPost.coverImage}
+                        alt={relatedPost.title}
+                        className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110 brightness-95 group-hover:brightness-105"
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent opacity-60 group-hover:opacity-30 transition-opacity duration-500" />
                       
-                      <div className="aspect-video rounded-2xl overflow-hidden mb-6 relative shadow-lg">
-                        <img 
-                          src={relatedPost.coverImage}
-                          alt={relatedPost.title}
-                          className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110 brightness-95 group-hover:brightness-105"
-                        />
-                        <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent opacity-60 group-hover:opacity-30 transition-opacity duration-500" />
-                        
-                        {/* Read more indicator */}
-                        <div className="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-all duration-300 transform translate-x-4 group-hover:translate-x-0">
-                          <div className="bg-black/80 backdrop-blur-sm text-white p-2 rounded-full">
-                            <ExternalLink size={16} />
-                          </div>
+                      {/* Read more indicator */}
+                      <div className="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-all duration-300 transform translate-x-4 group-hover:translate-x-0">
+                        <div className="bg-black/80 backdrop-blur-sm text-white p-2 rounded-full">
+                          <ExternalLink size={16} />
                         </div>
                       </div>
-                      
-                      <h4 className="font-bold text-xl mb-3 group-hover:text-primary transition-colors duration-300 font-mono
-                        group-hover:tracking-wide leading-tight relative z-10">
-                        {relatedPost.title}
-                      </h4>
-                      <p className="text-muted-foreground text-base line-clamp-2 mb-4 group-hover:text-foreground/80 transition-colors duration-300 leading-relaxed relative z-10">
-                        {relatedPost.excerpt}
-                      </p>
-                      <div className="flex items-center gap-4 text-sm text-muted-foreground relative z-10">
-                        <span className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-muted/40 group-hover:bg-muted/60 transition-colors duration-300">
-                          <Calendar size={12} className="text-primary" />
-                          <span className="font-mono">{relatedPost.publishedDate}</span>
-                        </span>
-                        <span className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-muted/40 group-hover:bg-muted/60 transition-colors duration-300">
-                          <Clock size={12} className="text-primary" />
-                          <span className="font-mono">{relatedPost.readTime} min</span>
-                        </span>
-                      </div>
-                    </Link>
-                  );
-                })
+                    </div>
+                    
+                    <h4 className="font-bold text-xl mb-3 group-hover:text-primary transition-colors duration-300 font-mono
+                      group-hover:tracking-wide leading-tight relative z-10">
+                      {relatedPost.title}
+                    </h4>
+                    <p className="text-muted-foreground text-base line-clamp-2 mb-4 group-hover:text-foreground/80 transition-colors duration-300 leading-relaxed relative z-10">
+                      {relatedPost.excerpt}
+                    </p>
+                    <div className="flex items-center gap-4 text-sm text-muted-foreground relative z-10">
+                      <span className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-muted/40 group-hover:bg-muted/60 transition-colors duration-300">
+                        <Calendar size={12} className="text-primary" />
+                        <span className="font-mono">{relatedPost.publishedDate}</span>
+                      </span>
+                      <span className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-muted/40 group-hover:bg-muted/60 transition-colors duration-300">
+                        <Clock size={12} className="text-primary" />
+                        <span className="font-mono">{relatedPost.readTime} min</span>
+                      </span>
+                    </div>
+                  </Link>
+                ))
               }
             </div>
           </div>
