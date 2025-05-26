@@ -84,18 +84,6 @@ const HeroSection = () => {
     <section id="home" className="min-h-screen relative flex flex-col justify-center items-center pt-16">
       <div className="container mx-auto grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
         <div className="z-10 flex flex-col justify-center animate-fade-in">
-          {/* Professional Photo */}
-          <div className="mb-6 flex justify-center md:justify-start">
-            <div className="relative group">
-              <div className="absolute -inset-1 bg-gradient-to-r from-primary to-accent rounded-full blur opacity-25 group-hover:opacity-75 transition duration-1000 group-hover:duration-200"></div>
-              <img 
-                src="/lovable-uploads/c5dd3c17-c8a7-47a3-a576-a245e2a0a459.png" 
-                alt="Abhishek Atole - Professional Photo" 
-                className="relative w-32 h-32 md:w-40 md:h-40 rounded-full object-cover border-4 border-background shadow-2xl group-hover:scale-105 transition-transform duration-300"
-              />
-            </div>
-          </div>
-          
           <p className="font-mono text-primary mb-2">Hi, my name is</p>
           <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold mb-4">
             Abhishek Atole
@@ -115,13 +103,28 @@ const HeroSection = () => {
             </Button>
           </div>
         </div>
-        <div className={cn(
-          "h-[40vh] sm:h-[50vh] md:h-[60vh] w-full order-first md:order-last",
-          "animate-fade-in transition-all duration-700 ease-out"
-        )}>
-          <Canvas camera={{ position: [0, 0, 5], fov: 50 }}>
-            <CubeScene />
-          </Canvas>
+
+        {/* Right side content with professional photo and 3D cube */}
+        <div className="z-10 flex flex-col items-center justify-center space-y-8 animate-fade-in">
+          {/* Professional Photo */}
+          <div className="relative group">
+            <div className="absolute -inset-1 bg-gradient-to-r from-primary to-accent rounded-full blur opacity-25 group-hover:opacity-75 transition duration-1000 group-hover:duration-200"></div>
+            <img 
+              src="/lovable-uploads/c5dd3c17-c8a7-47a3-a576-a245e2a0a459.png" 
+              alt="Abhishek Atole - Professional Photo" 
+              className="relative w-32 h-32 md:w-40 md:h-40 rounded-full object-cover border-4 border-background shadow-2xl group-hover:scale-105 transition-transform duration-300"
+            />
+          </div>
+
+          {/* 3D Tech Stack Cube */}
+          <div className={cn(
+            "h-[30vh] sm:h-[35vh] md:h-[40vh] w-full",
+            "transition-all duration-700 ease-out"
+          )}>
+            <Canvas camera={{ position: [0, 0, 5], fov: 50 }}>
+              <CubeScene />
+            </Canvas>
+          </div>
         </div>
       </div>
       
