@@ -108,7 +108,7 @@ const BlogPost = () => {
                 {/* Enhanced Action buttons with working functionality */}
                 <div className="flex items-center gap-3 ml-auto">
                   <ShareButton title={post.title} />
-                  <SaveButton postId={post.id} postTitle={post.title} />
+                  <SaveButton postId={post.id.toString()} postTitle={post.title} />
                 </div>
               </div>
               
