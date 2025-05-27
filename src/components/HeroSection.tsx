@@ -249,10 +249,49 @@ const HeroSection = () => {
                   <CubeScene />
                 </Canvas>
                 
-                {/* Tech stack label */}
-                <div className="absolute bottom-4 left-4 bg-background/90 backdrop-blur-md 
-                  px-4 py-2 rounded-xl border border-border/50">
-                  <span className="text-sm font-mono font-medium text-muted-foreground">Tech Stack</span>
+                {/* Enhanced Tech stack label with details */}
+                <div className="absolute bottom-4 left-4 right-4 bg-background/90 backdrop-blur-md 
+                  px-4 py-3 rounded-xl border border-border/50 space-y-2">
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm font-mono font-bold text-primary">Core Technologies</span>
+                    <span className="text-xs text-muted-foreground">Click & Drag to Explore</span>
+                  </div>
+                  <div className="grid grid-cols-2 gap-2 text-xs">
+                    <div>
+                      <span className="text-[#00599C] font-semibold">C++14/17/20</span>
+                      <p className="text-muted-foreground">High-performance applications</p>
+                    </div>
+                    <div>
+                      <span className="text-[#f89820] font-semibold">Java</span>
+                      <p className="text-muted-foreground">Enterprise solutions</p>
+                    </div>
+                    <div>
+                      <span className="text-[#FCC624] font-semibold">Linux</span>
+                      <p className="text-muted-foreground">System programming</p>
+                    </div>
+                    <div>
+                      <span className="text-[#F05032] font-semibold">Git</span>
+                      <p className="text-muted-foreground">Version control</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              
+              {/* Additional Tech Stack Info */}
+              <div className="mt-6 grid grid-cols-2 gap-3">
+                <div className="bg-card/50 backdrop-blur-sm border border-border/30 rounded-lg p-3 hover:border-primary/40 transition-colors">
+                  <div className="text-xs font-mono font-semibold text-primary mb-1">Frameworks</div>
+                  <div className="text-xs space-y-1">
+                    <div className="text-muted-foreground">Qt6, STL, CGAL</div>
+                    <div className="text-muted-foreground">Modern C++ Standards</div>
+                  </div>
+                </div>
+                <div className="bg-card/50 backdrop-blur-sm border border-border/30 rounded-lg p-3 hover:border-primary/40 transition-colors">
+                  <div className="text-xs font-mono font-semibold text-accent mb-1">Concepts</div>
+                  <div className="text-xs space-y-1">
+                    <div className="text-muted-foreground">File Systems, OOP</div>
+                    <div className="text-muted-foreground">Memory Management</div>
+                  </div>
                 </div>
               </div>
             </div>
