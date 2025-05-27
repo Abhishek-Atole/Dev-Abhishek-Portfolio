@@ -79,20 +79,20 @@ const CubeScene = () => {
 // Hero Section Component
 const HeroSection = () => {
   return (
-    <section id="home" className="min-h-screen relative overflow-hidden bg-gradient-to-br from-background via-background/95 to-background/90">
+    <section id="home" className="min-h-screen relative overflow-hidden bg-gradient-to-br from-background via-background/95 to-background/90 group">
       {/* Enhanced Background Elements */}
       <div className="absolute inset-0">
-        <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-primary/10 rounded-full blur-3xl animate-pulse" />
-        <div className="absolute bottom-1/3 right-1/3 w-80 h-80 bg-accent/8 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '2s' }} />
-        <div className="absolute top-2/3 left-1/2 w-64 h-64 bg-primary/5 rounded-full blur-2xl animate-pulse" style={{ animationDelay: '4s' }} />
+        <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-primary/10 rounded-full blur-3xl animate-pulse group-hover:bg-primary/15 transition-all duration-700" />
+        <div className="absolute bottom-1/3 right-1/3 w-80 h-80 bg-accent/8 rounded-full blur-3xl animate-pulse group-hover:bg-accent/12 transition-all duration-700" style={{ animationDelay: '2s' }} />
+        <div className="absolute top-2/3 left-1/2 w-64 h-64 bg-primary/5 rounded-full blur-2xl animate-pulse group-hover:bg-primary/8 transition-all duration-700" style={{ animationDelay: '4s' }} />
       </div>
       
       {/* Floating geometric shapes */}
       <div className="absolute inset-0 pointer-events-none">
-        <div className="absolute top-20 left-10 w-4 h-4 bg-primary/20 rotate-45 animate-float" />
-        <div className="absolute top-40 right-20 w-6 h-6 bg-accent/20 rounded-full animate-float" style={{ animationDelay: '1s' }} />
-        <div className="absolute bottom-40 left-20 w-3 h-3 bg-primary/30 rotate-45 animate-float" style={{ animationDelay: '3s' }} />
-        <div className="absolute bottom-20 right-10 w-5 h-5 bg-accent/25 rounded-full animate-float" style={{ animationDelay: '2s' }} />
+        <div className="absolute top-20 left-10 w-4 h-4 bg-primary/20 rotate-45 animate-float group-hover:bg-primary/30 transition-colors duration-500" />
+        <div className="absolute top-40 right-20 w-6 h-6 bg-accent/20 rounded-full animate-float group-hover:bg-accent/30 transition-colors duration-500" style={{ animationDelay: '1s' }} />
+        <div className="absolute bottom-40 left-20 w-3 h-3 bg-primary/30 rotate-45 animate-float group-hover:bg-primary/40 transition-colors duration-500" style={{ animationDelay: '3s' }} />
+        <div className="absolute bottom-20 right-10 w-5 h-5 bg-accent/25 rounded-full animate-float group-hover:bg-accent/35 transition-colors duration-500" style={{ animationDelay: '2s' }} />
       </div>
       
       <div className="container mx-auto min-h-screen flex items-center relative z-10 pt-16">
@@ -103,7 +103,8 @@ const HeroSection = () => {
             
             {/* Status Badge */}
             <div className="inline-flex items-center gap-3 bg-gradient-to-r from-primary/10 to-accent/10 
-              border border-primary/20 rounded-full px-6 py-3 backdrop-blur-sm">
+              border border-primary/20 rounded-full px-6 py-3 backdrop-blur-sm hover:border-primary/40 
+              hover:bg-gradient-to-r hover:from-primary/15 hover:to-accent/15 transition-all duration-300">
               <div className="w-3 h-3 bg-green-500 rounded-full animate-pulse" />
               <span className="font-mono text-sm font-medium text-foreground/80">Available for opportunities</span>
             </div>
@@ -243,54 +244,59 @@ const HeroSection = () => {
               <div className={cn(
                 "relative h-[35vh] sm:h-[40vh] lg:h-[45vh] w-full rounded-2xl overflow-hidden",
                 "border border-border/30 bg-gradient-to-br from-card/50 to-muted/20 backdrop-blur-sm",
-                "hover:border-primary/40 hover:shadow-2xl hover:shadow-primary/10 transition-all duration-700"
+                "hover:border-primary/40 hover:shadow-2xl hover:shadow-primary/10 transition-all duration-700 group"
               )}>
                 <Canvas camera={{ position: [0, 0, 5], fov: 50 }}>
                   <CubeScene />
                 </Canvas>
                 
-                {/* Enhanced Tech stack label with details */}
+                {/* Enhanced Tech stack label with comprehensive details */}
                 <div className="absolute bottom-4 left-4 right-4 bg-background/90 backdrop-blur-md 
-                  px-4 py-3 rounded-xl border border-border/50 space-y-2">
+                  px-4 py-4 rounded-xl border border-border/50 space-y-3 group-hover:border-primary/40 transition-all duration-300">
                   <div className="flex items-center justify-between">
                     <span className="text-sm font-mono font-bold text-primary">Core Technologies</span>
                     <span className="text-xs text-muted-foreground">Click & Drag to Explore</span>
                   </div>
-                  <div className="grid grid-cols-2 gap-2 text-xs">
-                    <div>
+                  
+                  {/* Main Technologies Grid */}
+                  <div className="grid grid-cols-2 gap-3 text-xs">
+                    <div className="space-y-1">
                       <span className="text-[#00599C] font-semibold">C++14/17/20</span>
-                      <p className="text-muted-foreground">High-performance applications</p>
+                      <p className="text-muted-foreground">High-performance apps</p>
                     </div>
-                    <div>
+                    <div className="space-y-1">
                       <span className="text-[#f89820] font-semibold">Java</span>
                       <p className="text-muted-foreground">Enterprise solutions</p>
                     </div>
-                    <div>
+                    <div className="space-y-1">
                       <span className="text-[#FCC624] font-semibold">Linux</span>
                       <p className="text-muted-foreground">System programming</p>
                     </div>
-                    <div>
+                    <div className="space-y-1">
                       <span className="text-[#F05032] font-semibold">Git</span>
                       <p className="text-muted-foreground">Version control</p>
                     </div>
                   </div>
-                </div>
-              </div>
-              
-              {/* Additional Tech Stack Info */}
-              <div className="mt-6 grid grid-cols-2 gap-3">
-                <div className="bg-card/50 backdrop-blur-sm border border-border/30 rounded-lg p-3 hover:border-primary/40 transition-colors">
-                  <div className="text-xs font-mono font-semibold text-primary mb-1">Frameworks</div>
-                  <div className="text-xs space-y-1">
-                    <div className="text-muted-foreground">Qt6, STL, CGAL</div>
-                    <div className="text-muted-foreground">Modern C++ Standards</div>
-                  </div>
-                </div>
-                <div className="bg-card/50 backdrop-blur-sm border border-border/30 rounded-lg p-3 hover:border-primary/40 transition-colors">
-                  <div className="text-xs font-mono font-semibold text-accent mb-1">Concepts</div>
-                  <div className="text-xs space-y-1">
-                    <div className="text-muted-foreground">File Systems, OOP</div>
-                    <div className="text-muted-foreground">Memory Management</div>
+
+                  {/* Separator */}
+                  <div className="border-t border-border/30"></div>
+
+                  {/* Frameworks and Concepts */}
+                  <div className="grid grid-cols-2 gap-3 text-xs">
+                    <div className="space-y-1">
+                      <div className="font-mono font-semibold text-primary mb-1">Frameworks</div>
+                      <div className="space-y-1">
+                        <div className="text-muted-foreground">Qt6, STL, CGAL</div>
+                        <div className="text-muted-foreground">Modern C++ Standards</div>
+                      </div>
+                    </div>
+                    <div className="space-y-1">
+                      <div className="font-mono font-semibold text-accent mb-1">Concepts</div>
+                      <div className="space-y-1">
+                        <div className="text-muted-foreground">File Systems, OOP</div>
+                        <div className="text-muted-foreground">Memory Management</div>
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -300,8 +306,8 @@ const HeroSection = () => {
       </div>
       
       {/* Enhanced Scroll Indicator */}
-      <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 flex flex-col items-center gap-3 animate-bounce">
-        <div className="w-6 h-10 border-2 border-primary/50 rounded-full relative">
+      <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 flex flex-col items-center gap-3 animate-bounce group">
+        <div className="w-6 h-10 border-2 border-primary/50 rounded-full relative group-hover:border-primary transition-colors duration-300">
           <div className="w-1 h-3 bg-primary rounded-full absolute top-2 left-1/2 transform -translate-x-1/2 animate-pulse" />
         </div>
         <a 
