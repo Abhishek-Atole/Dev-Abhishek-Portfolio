@@ -13,6 +13,7 @@ import ProjectsPage from "./pages/ProjectsPage";
 import BlogPage from "./pages/BlogPage";
 import BlogPost from "./pages/BlogPost";
 import AdminDashboard from "./pages/AdminDashboard";
+import CertificatesPage from "./pages/CertificatesPage";
 import ModernCppBestPracticesPage from "./pages/blog/ModernCppBestPracticesPage";
 import InMemoryFilesystemPage from "./pages/blog/InMemoryFilesystemPage";
 import JavaJdbcBestPracticesPage from "./pages/blog/JavaJdbcBestPracticesPage";
@@ -32,6 +33,7 @@ const App = () => (
           <Route path="/contact" element={<ContactPage />} />
           <Route path="/education" element={<EducationPage />} />
           <Route path="/projects" element={<ProjectsPage />} />
+          <Route path="/certificates" element={<CertificatesPage />} />
           <Route path="/blog" element={<BlogPage />} />
           <Route path="/admin" element={<AdminDashboard />} />
           {/* Static blog post routes */}

@@ -119,6 +119,42 @@ export type Database = {
         }
         Relationships: []
       }
+      certificates: {
+        Row: {
+          created_at: string | null
+          description: string | null
+          id: string
+          image_url: string | null
+          issue_date: string | null
+          issuer: string
+          title: string
+          updated_at: string | null
+          verification_link: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          image_url?: string | null
+          issue_date?: string | null
+          issuer: string
+          title: string
+          updated_at?: string | null
+          verification_link?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          image_url?: string | null
+          issue_date?: string | null
+          issuer?: string
+          title?: string
+          updated_at?: string | null
+          verification_link?: string | null
+        }
+        Relationships: []
+      }
       media_uploads: {
         Row: {
           blog_post_id: string | null

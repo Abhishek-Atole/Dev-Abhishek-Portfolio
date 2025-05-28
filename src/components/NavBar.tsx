@@ -1,6 +1,6 @@
 
 import { useState, useEffect } from "react";
-import { Menu, X, Home, User, Mail, BookOpen, Code, FileText } from "lucide-react";
+import { Menu, X, Home, User, Mail, BookOpen, Code, FileText, Award } from "lucide-react";
 import { cn } from "@/lib/utils";
 import ThemeSwitcher from "./ThemeSwitcher";
 import { Button } from "@/components/ui/button";
@@ -11,6 +11,7 @@ const navItems = [
   { label: "About", href: "/about", icon: User },
   { label: "Projects", href: "/projects", icon: Code },
   { label: "Education", href: "/education", icon: BookOpen },
+  { label: "Certificates", href: "/certificates", icon: Award },
   { label: "Blog", href: "/blog", icon: FileText },
   { label: "Contact", href: "/contact", icon: Mail },
 ];

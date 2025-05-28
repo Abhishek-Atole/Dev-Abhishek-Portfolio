@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -42,7 +41,7 @@ const CertificationManager = () => {
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
-  // Fetch certificates
+  // Fetch certificates with proper typing
   const { data: certificates, isLoading } = useQuery({
     queryKey: ["certificates"],
     queryFn: async () => {
@@ -61,8 +60,12 @@ const CertificationManager = () => {
       const { data, error } = await supabase
         .from("certificates")
         .insert({
-          ...certData,
-          issue_date: certData.issue_date || null
+          title: certData.title,
+          issuer: certData.issuer,
+          verification_link: certData.verification_link || null,
+          issue_date: certData.issue_date || null,
+          description: certData.description || null,
+          image_url: certData.image_url || null
         })
         .select()
         .single();
@@ -71,6 +74,8 @@ const CertificationManager = () => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["certificates"] });
+      queryClient.invalidateQueries({ queryKey: ["certificates-home"] });
+      queryClient.invalidateQueries({ queryKey: ["certificates-all"] });
       setIsAddingCert(false);
       setNewCert({
         title: "",
@@ -99,12 +104,21 @@ const CertificationManager = () => {
     mutationFn: async ({ id, data }: { id: string; data: Partial<Certificate> }) => {
       const { error } = await supabase
         .from("certificates")
-        .update(data)
+        .update({
+          title: data.title,
+          issuer: data.issuer,
+          verification_link: data.verification_link || null,
+          issue_date: data.issue_date || null,
+          description: data.description || null,
+          image_url: data.image_url || null
+        })
         .eq("id", id);
       if (error) throw error;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["certificates"] });
+      queryClient.invalidateQueries({ queryKey: ["certificates-home"] });
+      queryClient.invalidateQueries({ queryKey: ["certificates-all"] });
       setEditingCert(null);
       toast({
         title: "Certificate updated",
@@ -131,6 +145,8 @@ const CertificationManager = () => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["certificates"] });
+      queryClient.invalidateQueries({ queryKey: ["certificates-home"] });
+      queryClient.invalidateQueries({ queryKey: ["certificates-all"] });
       toast({
         title: "Certificate deleted",
         description: "The certificate has been successfully deleted.",
@@ -152,42 +168,48 @@ const CertificationManager = () => {
       issuer: "LinkedIn Learning",
       verification_link: "https://www.linkedin.com/learning/certificates/8cbed9814a163b91f00feac525839739085741dd84c32f2e3e6565c290c2420e?trk=share_certificate",
       issue_date: "2025-03-24",
-      description: "Complete Guide to C Programming Foundations"
+      description: "Complete Guide to C Programming Foundations",
+      image_url: ""
     },
     {
       title: "Master C++ Programming From Beginner To Advance 2025 Edition",
       issuer: "Udemy",
       verification_link: "https://www.udemy.com/certificate/UC-5f7e3c2a-9296-46a2-af0f-d3e7b7b2ccc1/",
       issue_date: "2025-03-24",
-      description: "Comprehensive C++ programming course covering advanced concepts"
+      description: "Comprehensive C++ programming course covering advanced concepts",
+      image_url: ""
     },
     {
       title: "C Programming for Embedded Applications",
       issuer: "LinkedIn Learning",
       verification_link: "https://www.linkedin.com/learning/certificates/446728be8710513dd52a7b731e6152e99033d17d30cdd82f2330ccf7a1344b9c?trk=share_certificate",
       issue_date: "2025-03-24",
-      description: "Specialized course for embedded systems programming"
+      description: "Specialized course for embedded systems programming",
+      image_url: ""
     },
     {
       title: "Getting Started with Linux",
       issuer: "LinkedIn Learning",
       verification_link: "https://www.linkedin.com/learning/paths/getting-started-with-linux",
       issue_date: "2025-03-16",
-      description: "Learning Path for Linux System Administration"
+      description: "Learning Path for Linux System Administration",
+      image_url: ""
     },
     {
       title: "Heterogeneous Parallel Programming using CUDA and OpenCL",
       issuer: "AstroMediComp",
       verification_link: "https://astromedicomp.org/Certificate/StudentCertificate.php?cuid=HPP-2025-ILTOCF649M",
       issue_date: "2025-03-16",
-      description: "Certificate of Attendance for parallel programming seminar"
+      description: "Certificate of Attendance for parallel programming seminar",
+      image_url: ""
     },
     {
       title: "Introduction to Cybersecurity",
       issuer: "Cisco Networking Academy",
       verification_link: "https://www.credly.com/badges/c7ee13ea-2f69-4cae-815e-dd15b6e068ad/public_url",
       issue_date: "2023-12-29",
-      description: "Cybersecurity Foundation course through Cisco program"
+      description: "Cybersecurity Foundation course through Cisco program",
+      image_url: ""
     }
   ];
 
