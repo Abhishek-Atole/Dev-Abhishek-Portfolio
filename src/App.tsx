@@ -1,3 +1,4 @@
+
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -11,6 +12,7 @@ import EducationPage from "./pages/EducationPage";
 import ProjectsPage from "./pages/ProjectsPage";
 import BlogPage from "./pages/BlogPage";
 import BlogPost from "./pages/BlogPost";
+import AdminDashboard from "./pages/AdminDashboard";
 import ModernCppBestPracticesPage from "./pages/blog/ModernCppBestPracticesPage";
 import InMemoryFilesystemPage from "./pages/blog/InMemoryFilesystemPage";
 import JavaJdbcBestPracticesPage from "./pages/blog/JavaJdbcBestPracticesPage";
@@ -31,6 +33,7 @@ const App = () => (
           <Route path="/education" element={<EducationPage />} />
           <Route path="/projects" element={<ProjectsPage />} />
           <Route path="/blog" element={<BlogPage />} />
+          <Route path="/admin" element={<AdminDashboard />} />
           {/* Static blog post routes */}
           <Route path="/blog/modern-cpp-best-practices" element={<ModernCppBestPracticesPage />} />
           <Route path="/blog/in-memory-filesystem-implementation" element={<InMemoryFilesystemPage />} />

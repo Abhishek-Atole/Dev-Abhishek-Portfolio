@@ -9,7 +9,178 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
-      [_ in never]: never
+      admin_blog_post_tags: {
+        Row: {
+          blog_post_id: string | null
+          id: string
+          tag_id: string | null
+        }
+        Insert: {
+          blog_post_id?: string | null
+          id?: string
+          tag_id?: string | null
+        }
+        Update: {
+          blog_post_id?: string | null
+          id?: string
+          tag_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "admin_blog_post_tags_blog_post_id_fkey"
+            columns: ["blog_post_id"]
+            isOneToOne: false
+            referencedRelation: "admin_blog_posts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "admin_blog_post_tags_tag_id_fkey"
+            columns: ["tag_id"]
+            isOneToOne: false
+            referencedRelation: "tags"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      admin_blog_posts: {
+        Row: {
+          category_id: string | null
+          content: string
+          cover_image: string | null
+          created_at: string
+          excerpt: string | null
+          id: string
+          published_date: string | null
+          read_time: number | null
+          slug: string
+          status: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          category_id?: string | null
+          content: string
+          cover_image?: string | null
+          created_at?: string
+          excerpt?: string | null
+          id?: string
+          published_date?: string | null
+          read_time?: number | null
+          slug: string
+          status?: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          category_id?: string | null
+          content?: string
+          cover_image?: string | null
+          created_at?: string
+          excerpt?: string | null
+          id?: string
+          published_date?: string | null
+          read_time?: number | null
+          slug?: string
+          status?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "admin_blog_posts_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "categories"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      categories: {
+        Row: {
+          created_at: string
+          description: string | null
+          id: string
+          name: string
+          slug: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          name: string
+          slug: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          name?: string
+          slug?: string
+        }
+        Relationships: []
+      }
+      media_uploads: {
+        Row: {
+          blog_post_id: string | null
+          created_at: string
+          file_size: number
+          file_type: string
+          filename: string
+          id: string
+          original_name: string
+          url: string
+        }
+        Insert: {
+          blog_post_id?: string | null
+          created_at?: string
+          file_size: number
+          file_type: string
+          filename: string
+          id?: string
+          original_name: string
+          url: string
+        }
+        Update: {
+          blog_post_id?: string | null
+          created_at?: string
+          file_size?: number
+          file_type?: string
+          filename?: string
+          id?: string
+          original_name?: string
+          url?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "media_uploads_blog_post_id_fkey"
+            columns: ["blog_post_id"]
+            isOneToOne: false
+            referencedRelation: "admin_blog_posts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      tags: {
+        Row: {
+          created_at: string
+          id: string
+          name: string
+          slug: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          name: string
+          slug: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          name?: string
+          slug?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
