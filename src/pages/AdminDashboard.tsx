@@ -61,12 +61,9 @@ const AdminDashboard = () => {
     setEditingPostId(null);
   };
 
-  const handlePostSaved = () => {
-    toast({
-      title: "Success",
-      description: "Blog post saved successfully!",
-    });
+  const handleBackToList = () => {
     setCurrentView("list");
+    setEditingPostId(null);
   };
 
   const renderDashboard = () => (
@@ -155,9 +152,8 @@ const AdminDashboard = () => {
       case "editor":
         return (
           <AdminBlogEditor
-            postId={editingPostId}
-            onSave={handlePostSaved}
-            onCancel={handleBackToDashboard}
+            postId={editingPostId || undefined}
+            onBack={currentView === "editor" && editingPostId ? handleBackToList : handleBackToDashboard}
           />
         );
       case "list":

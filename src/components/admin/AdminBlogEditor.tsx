@@ -66,7 +66,12 @@ const AdminBlogEditor = ({ postId, onBack }: AdminBlogEditorProps) => {
 
   useEffect(() => {
     if (existingPost) {
-      setPost(existingPost);
+      // Ensure status is properly typed
+      const typedPost: Partial<BlogPost> = {
+        ...existingPost,
+        status: existingPost.status as "draft" | "published" | "unpublished"
+      };
+      setPost(typedPost);
     }
   }, [existingPost]);
 
@@ -83,13 +88,24 @@ const AdminBlogEditor = ({ postId, onBack }: AdminBlogEditorProps) => {
     mutationFn: async (postData: Partial<BlogPost>) => {
       const slug = postData.slug || generateSlug(postData.title || "");
       
+      // Ensure required fields are present
+      const dataToSave = {
+        title: postData.title || "",
+        content: postData.content || "",
+        excerpt: postData.excerpt,
+        slug,
+        status: postData.status || "draft",
+        cover_image: postData.cover_image,
+        published_date: postData.published_date,
+        read_time: postData.read_time || 5
+      };
+
       if (postId) {
         // Update existing post
         const { data, error } = await supabase
           .from("admin_blog_posts")
           .update({
-            ...postData,
-            slug,
+            ...dataToSave,
             updated_at: new Date().toISOString()
           })
           .eq("id", postId)
@@ -101,10 +117,7 @@ const AdminBlogEditor = ({ postId, onBack }: AdminBlogEditorProps) => {
         // Create new post
         const { data, error } = await supabase
           .from("admin_blog_posts")
-          .insert({
-            ...postData,
-            slug
-          })
+          .insert(dataToSave)
           .select()
           .single();
         if (error) throw error;
@@ -251,9 +264,8 @@ const AdminBlogEditor = ({ postId, onBack }: AdminBlogEditorProps) => {
           <div>
             <label className="block text-sm font-medium mb-2">Content</label>
             <RichTextEditor
-              value={post.content || ""}
+              content={post.content || ""}
               onChange={(content) => setPost({ ...post, content })}
-              preview={showPreview}
             />
           </div>
         </CardContent>
