@@ -28,16 +28,42 @@ const Index = () => {
     <div className="min-h-screen bg-background">
       <NavBar />
       
-      <main>
-        <HeroSection />
-        <AboutSection />
-        <ProjectsSection />
-        <ResumeSection />
-        <SkillsSection />
-        <CertificatesSection />
-        <EducationSection />
-        <BlogSection />
-        <ContactSection />
+      <main className="w-full overflow-x-hidden">
+        <div id="home">
+          <HeroSection />
+        </div>
+        
+        <div id="about" className="scroll-mt-20">
+          <AboutSection />
+        </div>
+        
+        <div id="projects" className="scroll-mt-20">
+          <ProjectsSection />
+        </div>
+        
+        <div id="resume" className="scroll-mt-20">
+          <ResumeSection />
+        </div>
+        
+        <div id="skills" className="scroll-mt-20">
+          <SkillsSection />
+        </div>
+        
+        <div id="certificates" className="scroll-mt-20">
+          <CertificatesSection />
+        </div>
+        
+        <div id="education" className="scroll-mt-20">
+          <EducationSection />
+        </div>
+        
+        <div id="blog" className="scroll-mt-20">
+          <BlogSection />
+        </div>
+        
+        <div id="contact" className="scroll-mt-20">
+          <ContactSection />
+        </div>
       </main>
       
       <Footer />
