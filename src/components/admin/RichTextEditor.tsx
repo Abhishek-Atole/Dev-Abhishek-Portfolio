@@ -184,7 +184,7 @@ const RichTextEditor = ({ content, onChange }: RichTextEditorProps) => {
         {/* Help Text */}
         <div className="text-xs text-muted-foreground space-y-1">
           <p><strong>Markdown shortcuts:</strong></p>
-          <p>**bold** | *italic* | `code` | [link](url) | # Heading | > Quote | - List</p>
+          <p>**bold** | *italic* | `code` | [link](url) | # Heading | &gt; Quote | - List</p>
           <p>Use the toolbar buttons or type markdown directly</p>
         </div>
       </CardContent>
