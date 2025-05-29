@@ -23,7 +23,10 @@ serve(async (req) => {
     const { username, password } = await req.json();
 
     if (!username || !password) {
-      return new Response(JSON.stringify({ error: 'Missing credentials' }), { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
+      return new Response(
+        JSON.stringify({ error: 'Missing credentials' }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
     }
 
 // Initialize Supabase client
@@ -122,6 +125,9 @@ return new Response(
 )
 
   } catch (error) {
-    return new Response(JSON.stringify({ error: 'Internal server error' }), { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
+    return new Response(
+      JSON.stringify({ error: 'Internal server error' }),
+      { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+    );
   }
 });
