@@ -84,7 +84,7 @@ export const AdminAuthProvider: React.FC<AdminAuthProviderProps> = ({ children }
       setIsLoading(true);
 
       // Call login edge function
-      const response = await fetch('/api/admin-login', {
+      const response = await fetch('https://4cafcc9d-e285-4cd6-ba66-0247a5f03a74.functions.supabase.co/admin-login', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
