@@ -95,6 +95,74 @@ export type Database = {
           },
         ]
       }
+      admin_sessions: {
+        Row: {
+          admin_user_id: string | null
+          created_at: string
+          expires_at: string
+          id: string
+          session_token: string
+        }
+        Insert: {
+          admin_user_id?: string | null
+          created_at?: string
+          expires_at: string
+          id?: string
+          session_token: string
+        }
+        Update: {
+          admin_user_id?: string | null
+          created_at?: string
+          expires_at?: string
+          id?: string
+          session_token?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "admin_sessions_admin_user_id_fkey"
+            columns: ["admin_user_id"]
+            isOneToOne: false
+            referencedRelation: "admin_users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      admin_users: {
+        Row: {
+          created_at: string
+          email: string | null
+          failed_login_attempts: number | null
+          id: string
+          last_login: string | null
+          locked_until: string | null
+          password_hash: string
+          updated_at: string
+          username: string
+        }
+        Insert: {
+          created_at?: string
+          email?: string | null
+          failed_login_attempts?: number | null
+          id?: string
+          last_login?: string | null
+          locked_until?: string | null
+          password_hash: string
+          updated_at?: string
+          username: string
+        }
+        Update: {
+          created_at?: string
+          email?: string | null
+          failed_login_attempts?: number | null
+          id?: string
+          last_login?: string | null
+          locked_until?: string | null
+          password_hash?: string
+          updated_at?: string
+          username?: string
+        }
+        Relationships: []
+      }
       categories: {
         Row: {
           created_at: string
@@ -121,8 +189,10 @@ export type Database = {
       }
       certificates: {
         Row: {
+          certificate_id: string | null
           created_at: string | null
           description: string | null
+          expiration_date: string | null
           id: string
           image_url: string | null
           issue_date: string | null
@@ -132,8 +202,10 @@ export type Database = {
           verification_link: string | null
         }
         Insert: {
+          certificate_id?: string | null
           created_at?: string | null
           description?: string | null
+          expiration_date?: string | null
           id?: string
           image_url?: string | null
           issue_date?: string | null
@@ -143,8 +215,10 @@ export type Database = {
           verification_link?: string | null
         }
         Update: {
+          certificate_id?: string | null
           created_at?: string | null
           description?: string | null
+          expiration_date?: string | null
           id?: string
           image_url?: string | null
           issue_date?: string | null

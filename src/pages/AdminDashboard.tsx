@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -11,6 +10,8 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Plus, FileText, Eye, Tag, Award } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import AdminProtectedRoute from "@/components/admin/AdminProtectedRoute";
+import { useAdminAuth } from "@/contexts/AdminAuthContext";
 
 type View = "dashboard" | "editor" | "list" | "certificates";
 
@@ -18,6 +19,7 @@ const AdminDashboard = () => {
   const [currentView, setCurrentView] = useState<View>("dashboard");
   const [editingPostId, setEditingPostId] = useState<string | null>(null);
   const { toast } = useToast();
+  const { adminUser, logout } = useAdminAuth();
 
   useEffect(() => {
     document.title = "Admin Dashboard | Blog Management";
@@ -69,12 +71,27 @@ const AdminDashboard = () => {
     setEditingPostId(null);
   };
 
+  const handleLogout = async () => {
+    await logout();
+    toast({
+      title: "Logged out",
+      description: "You have been successfully logged out.",
+    });
+  };
+
   const renderDashboard = () => (
     <div className="space-y-8">
       {/* Header */}
-      <div>
-        <h1 className="text-2xl sm:text-3xl font-bold mb-2">Admin Dashboard</h1>
-        <p className="text-muted-foreground">Manage your blog posts, categories, and content</p>
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-2xl sm:text-3xl font-bold mb-2">Admin Dashboard</h1>
+          <p className="text-muted-foreground">
+            Welcome back, {adminUser?.username}! Manage your blog posts, categories, and content
+          </p>
+        </div>
+        <Button variant="outline" onClick={handleLogout} size="sm">
+          Logout
+        </Button>
       </div>
 
       {/* Stats Cards */}
@@ -197,15 +214,17 @@ const AdminDashboard = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background">
-      <NavBar />
-      <main className="pt-20 sm:pt-24 pb-12 sm:pb-16">
-        <div className="container mx-auto max-w-7xl px-3 sm:px-4 lg:px-6">
-          {renderContent()}
-        </div>
-      </main>
-      <Footer />
-    </div>
+    <AdminProtectedRoute>
+      <div className="min-h-screen bg-background">
+        <NavBar />
+        <main className="pt-20 sm:pt-24 pb-12 sm:pb-16">
+          <div className="container mx-auto max-w-7xl px-3 sm:px-4 lg:px-6">
+            {renderContent()}
+          </div>
+        </main>
+        <Footer />
+      </div>
+    </AdminProtectedRoute>
   );
 };
 
