@@ -1,5 +1,5 @@
 
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { Menu, X, Home, User, Mail, BookOpen, Code, FileText, Award } from "lucide-react";
 import { cn } from "@/lib/utils";
 import ThemeSwitcher from "./ThemeSwitcher";

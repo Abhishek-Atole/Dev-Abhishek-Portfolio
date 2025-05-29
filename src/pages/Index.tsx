@@ -1,4 +1,5 @@
 
+import React, { useEffect } from "react";
 import NavBar from "@/components/NavBar";
 import HeroSection from "@/components/HeroSection";
 import AboutSection from "@/components/AboutSection";
@@ -10,7 +11,6 @@ import ContactSection from "@/components/ContactSection";
 import Footer from "@/components/Footer";
 import ResumeSection from "@/components/ResumeSection";
 import CertificatesSection from "@/components/CertificatesSection";
-import { useEffect } from "react";
 
 const Index = () => {
   // Set meta tags for SEO
