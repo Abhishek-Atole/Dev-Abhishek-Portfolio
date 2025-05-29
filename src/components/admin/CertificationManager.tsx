@@ -1,18 +1,17 @@
+
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
 import { 
-  Plus, X, Award, ExternalLink, Edit, Trash2, 
-  Calendar, Building, Link as LinkIcon 
+  Plus, Award, ExternalLink, Edit, Trash2, 
+  Calendar, Building, Link as LinkIcon, ArrowLeft 
 } from "lucide-react";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import CertificateForm from "./CertificateForm";
 
 interface Certificate {
   id: string;
@@ -22,21 +21,15 @@ interface Certificate {
   issue_date?: string;
   description?: string;
   image_url?: string;
+  certificate_id?: string;
+  expiration_date?: string;
   created_at: string;
   updated_at: string;
 }
 
 const CertificationManager = () => {
-  const [isAddingCert, setIsAddingCert] = useState(false);
+  const [currentView, setCurrentView] = useState<"list" | "add" | "edit">("list");
   const [editingCert, setEditingCert] = useState<Certificate | null>(null);
-  const [newCert, setNewCert] = useState({
-    title: "",
-    issuer: "",
-    verification_link: "",
-    issue_date: "",
-    description: "",
-    image_url: ""
-  });
 
   const { toast } = useToast();
   const queryClient = useQueryClient();
@@ -56,7 +49,7 @@ const CertificationManager = () => {
 
   // Create certificate mutation
   const createCertMutation = useMutation({
-    mutationFn: async (certData: typeof newCert) => {
+    mutationFn: async (certData: any) => {
       const { data, error } = await supabase
         .from("certificates")
         .insert({
@@ -65,7 +58,9 @@ const CertificationManager = () => {
           verification_link: certData.verification_link || null,
           issue_date: certData.issue_date || null,
           description: certData.description || null,
-          image_url: certData.image_url || null
+          image_url: certData.image_url || null,
+          certificate_id: certData.certificate_id || null,
+          expiration_date: certData.expiration_date || null
         })
         .select()
         .single();
@@ -76,15 +71,7 @@ const CertificationManager = () => {
       queryClient.invalidateQueries({ queryKey: ["certificates"] });
       queryClient.invalidateQueries({ queryKey: ["certificates-home"] });
       queryClient.invalidateQueries({ queryKey: ["certificates-all"] });
-      setIsAddingCert(false);
-      setNewCert({
-        title: "",
-        issuer: "",
-        verification_link: "",
-        issue_date: "",
-        description: "",
-        image_url: ""
-      });
+      setCurrentView("list");
       toast({
         title: "Certificate added",
         description: "The certificate has been successfully added.",
@@ -101,7 +88,7 @@ const CertificationManager = () => {
 
   // Update certificate mutation
   const updateCertMutation = useMutation({
-    mutationFn: async ({ id, data }: { id: string; data: Partial<Certificate> }) => {
+    mutationFn: async ({ id, data }: { id: string; data: any }) => {
       const { error } = await supabase
         .from("certificates")
         .update({
@@ -110,7 +97,9 @@ const CertificationManager = () => {
           verification_link: data.verification_link || null,
           issue_date: data.issue_date || null,
           description: data.description || null,
-          image_url: data.image_url || null
+          image_url: data.image_url || null,
+          certificate_id: data.certificate_id || null,
+          expiration_date: data.expiration_date || null
         })
         .eq("id", id);
       if (error) throw error;
@@ -119,6 +108,7 @@ const CertificationManager = () => {
       queryClient.invalidateQueries({ queryKey: ["certificates"] });
       queryClient.invalidateQueries({ queryKey: ["certificates-home"] });
       queryClient.invalidateQueries({ queryKey: ["certificates-all"] });
+      setCurrentView("list");
       setEditingCert(null);
       toast({
         title: "Certificate updated",
@@ -161,100 +151,70 @@ const CertificationManager = () => {
     }
   });
 
-  // Predefined certificates data
-  const predefinedCertificates = [
-    {
-      title: "C Programming",
-      issuer: "LinkedIn Learning",
-      verification_link: "https://www.linkedin.com/learning/certificates/8cbed9814a163b91f00feac525839739085741dd84c32f2e3e6565c290c2420e?trk=share_certificate",
-      issue_date: "2025-03-24",
-      description: "Complete Guide to C Programming Foundations",
-      image_url: ""
-    },
-    {
-      title: "Master C++ Programming From Beginner To Advance 2025 Edition",
-      issuer: "Udemy",
-      verification_link: "https://www.udemy.com/certificate/UC-5f7e3c2a-9296-46a2-af0f-d3e7b7b2ccc1/",
-      issue_date: "2025-03-24",
-      description: "Comprehensive C++ programming course covering advanced concepts",
-      image_url: ""
-    },
-    {
-      title: "C Programming for Embedded Applications",
-      issuer: "LinkedIn Learning",
-      verification_link: "https://www.linkedin.com/learning/certificates/446728be8710513dd52a7b731e6152e99033d17d30cdd82f2330ccf7a1344b9c?trk=share_certificate",
-      issue_date: "2025-03-24",
-      description: "Specialized course for embedded systems programming",
-      image_url: ""
-    },
-    {
-      title: "Getting Started with Linux",
-      issuer: "LinkedIn Learning",
-      verification_link: "https://www.linkedin.com/learning/paths/getting-started-with-linux",
-      issue_date: "2025-03-16",
-      description: "Learning Path for Linux System Administration",
-      image_url: ""
-    },
-    {
-      title: "Heterogeneous Parallel Programming using CUDA and OpenCL",
-      issuer: "AstroMediComp",
-      verification_link: "https://astromedicomp.org/Certificate/StudentCertificate.php?cuid=HPP-2025-ILTOCF649M",
-      issue_date: "2025-03-16",
-      description: "Certificate of Attendance for parallel programming seminar",
-      image_url: ""
-    },
-    {
-      title: "Introduction to Cybersecurity",
-      issuer: "Cisco Networking Academy",
-      verification_link: "https://www.credly.com/badges/c7ee13ea-2f69-4cae-815e-dd15b6e068ad/public_url",
-      issue_date: "2023-12-29",
-      description: "Cybersecurity Foundation course through Cisco program",
-      image_url: ""
-    }
-  ];
-
-  const handleAddPredefinedCertificates = async () => {
-    try {
-      for (const cert of predefinedCertificates) {
-        await createCertMutation.mutateAsync(cert);
-      }
-      toast({
-        title: "Success",
-        description: "All predefined certificates have been added.",
-      });
-    } catch (error) {
-      toast({
-        title: "Error",
-        description: "Failed to add some certificates. Please try again.",
-        variant: "destructive"
-      });
-    }
-  };
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!newCert.title || !newCert.issuer) {
-      toast({
-        title: "Validation Error",
-        description: "Title and Issuer are required fields.",
-        variant: "destructive"
-      });
-      return;
-    }
-    createCertMutation.mutate(newCert);
-  };
-
   const handleEdit = (cert: Certificate) => {
     setEditingCert(cert);
+    setCurrentView("edit");
   };
 
-  const handleUpdate = () => {
-    if (!editingCert) return;
-    updateCertMutation.mutate({
-      id: editingCert.id,
-      data: editingCert
-    });
+  const handleFormSubmit = (formData: any) => {
+    if (currentView === "edit" && editingCert) {
+      updateCertMutation.mutate({ id: editingCert.id, data: formData });
+    } else {
+      createCertMutation.mutate(formData);
+    }
   };
+
+  const handleCancel = () => {
+    setCurrentView("list");
+    setEditingCert(null);
+  };
+
+  if (currentView === "add") {
+    return (
+      <div className="space-y-6">
+        <div className="flex items-center gap-3">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={handleCancel}
+          >
+            <ArrowLeft size={16} className="mr-2" />
+            Back to List
+          </Button>
+          <h2 className="text-2xl font-bold">Add New Certificate</h2>
+        </div>
+        <CertificateForm
+          onSubmit={handleFormSubmit}
+          isLoading={createCertMutation.isPending}
+          onCancel={handleCancel}
+        />
+      </div>
+    );
+  }
+
+  if (currentView === "edit" && editingCert) {
+    return (
+      <div className="space-y-6">
+        <div className="flex items-center gap-3">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={handleCancel}
+          >
+            <ArrowLeft size={16} className="mr-2" />
+            Back to List
+          </Button>
+          <h2 className="text-2xl font-bold">Edit Certificate</h2>
+        </div>
+        <CertificateForm
+          onSubmit={handleFormSubmit}
+          isLoading={updateCertMutation.isPending}
+          initialData={editingCert}
+          onCancel={handleCancel}
+        />
+      </div>
+    );
+  }
 
   if (isLoading) {
     return <div className="p-4">Loading certificates...</div>;
@@ -268,108 +228,13 @@ const CertificationManager = () => {
             <Award size={20} />
             Certification Management
           </CardTitle>
-          <div className="flex gap-2">
-            {(!certificates || certificates.length === 0) && (
-              <Button
-                onClick={handleAddPredefinedCertificates}
-                variant="outline"
-                size="sm"
-                disabled={createCertMutation.isPending}
-              >
-                Add Sample Certificates
-              </Button>
-            )}
-            <Dialog open={isAddingCert} onOpenChange={setIsAddingCert}>
-              <DialogTrigger asChild>
-                <Button size="sm">
-                  <Plus size={16} className="mr-1" />
-                  Add Certificate
-                </Button>
-              </DialogTrigger>
-              <DialogContent className="max-w-2xl">
-                <DialogHeader>
-                  <DialogTitle>Add New Certificate</DialogTitle>
-                </DialogHeader>
-                <form onSubmit={handleSubmit} className="space-y-4">
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <Label htmlFor="title">Certificate Title *</Label>
-                      <Input
-                        id="title"
-                        value={newCert.title}
-                        onChange={(e) => setNewCert({ ...newCert, title: e.target.value })}
-                        placeholder="e.g., Master C++ Programming"
-                        required
-                      />
-                    </div>
-                    <div>
-                      <Label htmlFor="issuer">Issuer *</Label>
-                      <Input
-                        id="issuer"
-                        value={newCert.issuer}
-                        onChange={(e) => setNewCert({ ...newCert, issuer: e.target.value })}
-                        placeholder="e.g., Udemy, LinkedIn Learning"
-                        required
-                      />
-                    </div>
-                  </div>
-                  
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <Label htmlFor="verification_link">Verification Link</Label>
-                      <Input
-                        id="verification_link"
-                        type="url"
-                        value={newCert.verification_link}
-                        onChange={(e) => setNewCert({ ...newCert, verification_link: e.target.value })}
-                        placeholder="https://..."
-                      />
-                    </div>
-                    <div>
-                      <Label htmlFor="issue_date">Issue Date</Label>
-                      <Input
-                        id="issue_date"
-                        type="date"
-                        value={newCert.issue_date}
-                        onChange={(e) => setNewCert({ ...newCert, issue_date: e.target.value })}
-                      />
-                    </div>
-                  </div>
-
-                  <div>
-                    <Label htmlFor="image_url">Certificate Image URL</Label>
-                    <Input
-                      id="image_url"
-                      type="url"
-                      value={newCert.image_url}
-                      onChange={(e) => setNewCert({ ...newCert, image_url: e.target.value })}
-                      placeholder="https://..."
-                    />
-                  </div>
-
-                  <div>
-                    <Label htmlFor="description">Description</Label>
-                    <Textarea
-                      id="description"
-                      value={newCert.description}
-                      onChange={(e) => setNewCert({ ...newCert, description: e.target.value })}
-                      placeholder="Brief description of the certificate..."
-                      rows={3}
-                    />
-                  </div>
-
-                  <div className="flex justify-end gap-2">
-                    <Button type="button" variant="outline" onClick={() => setIsAddingCert(false)}>
-                      Cancel
-                    </Button>
-                    <Button type="submit" disabled={createCertMutation.isPending}>
-                      {createCertMutation.isPending ? "Adding..." : "Add Certificate"}
-                    </Button>
-                  </div>
-                </form>
-              </DialogContent>
-            </Dialog>
-          </div>
+          <Button
+            onClick={() => setCurrentView("add")}
+            size="sm"
+          >
+            <Plus size={16} className="mr-1" />
+            Add Certificate
+          </Button>
         </div>
       </CardHeader>
       <CardContent>
@@ -417,12 +282,36 @@ const CertificationManager = () => {
                       <p className="text-sm text-muted-foreground mb-2">{cert.description}</p>
                     )}
 
+                    {cert.certificate_id && (
+                      <p className="text-xs text-muted-foreground mb-2">
+                        ID: {cert.certificate_id}
+                      </p>
+                    )}
+
+                    {cert.image_url && (
+                      <div className="mb-3">
+                        <img 
+                          src={cert.image_url} 
+                          alt={`${cert.title} certificate`}
+                          className="w-32 h-24 object-cover rounded border"
+                          onError={(e) => {
+                            e.currentTarget.style.display = 'none';
+                          }}
+                        />
+                      </div>
+                    )}
+
                     <div className="flex items-center gap-2">
                       <Badge variant="secondary">{cert.issuer}</Badge>
                       {cert.verification_link && (
                         <Badge variant="outline" className="flex items-center gap-1">
                           <LinkIcon size={12} />
                           Verified
+                        </Badge>
+                      )}
+                      {cert.expiration_date && (
+                        <Badge variant="outline" className="text-xs">
+                          Expires: {new Date(cert.expiration_date).toLocaleDateString()}
                         </Badge>
                       )}
                     </div>
@@ -452,87 +341,6 @@ const CertificationManager = () => {
             ))}
           </div>
         )}
-
-        {/* Edit Dialog */}
-        <Dialog open={!!editingCert} onOpenChange={() => setEditingCert(null)}>
-          <DialogContent className="max-w-2xl">
-            <DialogHeader>
-              <DialogTitle>Edit Certificate</DialogTitle>
-            </DialogHeader>
-            {editingCert && (
-              <div className="space-y-4">
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <Label htmlFor="edit-title">Certificate Title</Label>
-                    <Input
-                      id="edit-title"
-                      value={editingCert.title}
-                      onChange={(e) => setEditingCert({ ...editingCert, title: e.target.value })}
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor="edit-issuer">Issuer</Label>
-                    <Input
-                      id="edit-issuer"
-                      value={editingCert.issuer}
-                      onChange={(e) => setEditingCert({ ...editingCert, issuer: e.target.value })}
-                    />
-                  </div>
-                </div>
-                
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <Label htmlFor="edit-verification">Verification Link</Label>
-                    <Input
-                      id="edit-verification"
-                      type="url"
-                      value={editingCert.verification_link || ""}
-                      onChange={(e) => setEditingCert({ ...editingCert, verification_link: e.target.value })}
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor="edit-date">Issue Date</Label>
-                    <Input
-                      id="edit-date"
-                      type="date"
-                      value={editingCert.issue_date || ""}
-                      onChange={(e) => setEditingCert({ ...editingCert, issue_date: e.target.value })}
-                    />
-                  </div>
-                </div>
-
-                <div>
-                  <Label htmlFor="edit-image">Certificate Image URL</Label>
-                  <Input
-                    id="edit-image"
-                    type="url"
-                    value={editingCert.image_url || ""}
-                    onChange={(e) => setEditingCert({ ...editingCert, image_url: e.target.value })}
-                  />
-                </div>
-
-                <div>
-                  <Label htmlFor="edit-description">Description</Label>
-                  <Textarea
-                    id="edit-description"
-                    value={editingCert.description || ""}
-                    onChange={(e) => setEditingCert({ ...editingCert, description: e.target.value })}
-                    rows={3}
-                  />
-                </div>
-
-                <div className="flex justify-end gap-2">
-                  <Button variant="outline" onClick={() => setEditingCert(null)}>
-                    Cancel
-                  </Button>
-                  <Button onClick={handleUpdate} disabled={updateCertMutation.isPending}>
-                    {updateCertMutation.isPending ? "Updating..." : "Update Certificate"}
-                  </Button>
-                </div>
-              </div>
-            )}
-          </DialogContent>
-        </Dialog>
       </CardContent>
     </Card>
   );
