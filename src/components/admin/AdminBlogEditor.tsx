@@ -95,7 +95,7 @@ const AdminBlogEditor = ({ postId, onBack }: AdminBlogEditorProps) => {
         slug,
         status: postData.status || "draft",
         cover_image: postData.cover_image,
-        published_date: postData.published_date,
+        published_date: postData.published_date && postData.published_date.trim() !== "" ? postData.published_date : null,
         read_time: postData.read_time || 5
       };
 
