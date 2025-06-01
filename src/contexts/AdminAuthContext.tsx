@@ -48,6 +48,8 @@ export const AdminAuthProvider: React.FC<AdminAuthProviderProps> = ({ children }
         return;
       }
 
+      console.log('Checking admin session with token:', sessionToken);
+
       // Verify session token
       const { data: session, error } = await supabase
         .from('admin_sessions')
@@ -65,11 +67,13 @@ export const AdminAuthProvider: React.FC<AdminAuthProviderProps> = ({ children }
         .single();
 
       if (error || !session) {
+        console.log('Session check failed:', error);
         localStorage.removeItem('admin_session_token');
         setIsLoading(false);
         return;
       }
 
+      console.log('Session valid:', session);
       setAdminUser(session.admin_users as AdminUser);
     } catch (error) {
       console.error('Session check error:', error);
@@ -82,9 +86,10 @@ export const AdminAuthProvider: React.FC<AdminAuthProviderProps> = ({ children }
   const login = async (username: string, password: string): Promise<{ success: boolean; error?: string }> => {
     try {
       setIsLoading(true);
+      console.log('Attempting admin login for username:', username);
 
-      // Call login edge function
-      const response = await fetch('https://4cafcc9d-e285-4cd6-ba66-0247a5f03a74.functions.supabase.co/admin-login', {
+      // Call login edge function with correct URL
+      const response = await fetch('https://kjphoudvjejgzhzohzwu.supabase.co/functions/v1/admin-login', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -92,7 +97,10 @@ export const AdminAuthProvider: React.FC<AdminAuthProviderProps> = ({ children }
         body: JSON.stringify({ username, password }),
       });
 
+      console.log('Login response status:', response.status);
+      
       const result = await response.json();
+      console.log('Login response data:', result);
 
       if (!response.ok) {
         return { success: false, error: result.error || 'Login failed' };
@@ -102,6 +110,7 @@ export const AdminAuthProvider: React.FC<AdminAuthProviderProps> = ({ children }
       localStorage.setItem('admin_session_token', result.sessionToken);
       setAdminUser(result.user);
 
+      console.log('Login successful, user:', result.user);
       return { success: true };
     } catch (error) {
       console.error('Login error:', error);
@@ -115,6 +124,7 @@ export const AdminAuthProvider: React.FC<AdminAuthProviderProps> = ({ children }
     try {
       const sessionToken = localStorage.getItem('admin_session_token');
       if (sessionToken) {
+        console.log('Logging out admin user');
         // Delete session from database
         await supabase
           .from('admin_sessions')
