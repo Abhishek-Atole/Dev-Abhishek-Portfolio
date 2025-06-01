@@ -1,10 +1,9 @@
-
 import { serve } from 'https://deno.land/std@0.168.0/http/server.ts'
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 import { compare } from 'https://deno.land/x/bcrypt@v0.4.1/mod.ts'
 
 const allowedOrigins = [
-  'https://abhiatole.netlify.app',
+  'https://abhishekatole.netlify.app', // <-- updated domain
   'https://preview--abhishekatole.lovable.app',
   'http://127.0.0.1:8081',
   'http://localhost:8081',
@@ -26,7 +25,12 @@ serve(async (req) => {
   }
 
   try {
-    const { username, password } = await req.json();
+    // Debug: log raw body for troubleshooting
+    const rawBody = await req.text();
+    console.log('Raw request body:', rawBody);
+
+    // Parse JSON body
+    const { username, password } = JSON.parse(rawBody);
     console.log('Login attempt for username:', username);
 
     if (!username || !password) {
@@ -72,13 +76,10 @@ serve(async (req) => {
 
     // Verify password - handle both the default password and bcrypt hashes
     let isValidPassword = false;
-    
-    // For the default admin user with username 'admin', check for plain text 'admin123' first
     if (username === 'admin' && password === 'admin123') {
       isValidPassword = true;
       console.log('Default admin login successful');
     } else {
-      // For all other cases, use bcrypt comparison
       try {
         isValidPassword = await compare(password, adminUser.password_hash);
         console.log('Password validation result:', isValidPassword);
