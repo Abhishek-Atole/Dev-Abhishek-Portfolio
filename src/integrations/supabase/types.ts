@@ -95,6 +95,54 @@ export type Database = {
           },
         ]
       }
+      admin_invitations: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          email: string
+          expires_at: string
+          id: string
+          invitation_code: string
+          used_at: string | null
+          used_by: string | null
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          email: string
+          expires_at?: string
+          id?: string
+          invitation_code: string
+          used_at?: string | null
+          used_by?: string | null
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          email?: string
+          expires_at?: string
+          id?: string
+          invitation_code?: string
+          used_at?: string | null
+          used_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "admin_invitations_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "admin_users"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "admin_invitations_used_by_fkey"
+            columns: ["used_by"]
+            isOneToOne: false
+            referencedRelation: "admin_users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       admin_sessions: {
         Row: {
           admin_user_id: string | null
@@ -133,6 +181,8 @@ export type Database = {
           email: string | null
           failed_login_attempts: number | null
           id: string
+          invited_by: string | null
+          is_verified: boolean
           last_login: string | null
           locked_until: string | null
           password_hash: string
@@ -144,6 +194,8 @@ export type Database = {
           email?: string | null
           failed_login_attempts?: number | null
           id?: string
+          invited_by?: string | null
+          is_verified?: boolean
           last_login?: string | null
           locked_until?: string | null
           password_hash: string
@@ -155,13 +207,23 @@ export type Database = {
           email?: string | null
           failed_login_attempts?: number | null
           id?: string
+          invited_by?: string | null
+          is_verified?: boolean
           last_login?: string | null
           locked_until?: string | null
           password_hash?: string
           updated_at?: string
           username?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "admin_users_invited_by_fkey"
+            columns: ["invited_by"]
+            isOneToOne: false
+            referencedRelation: "admin_users"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       categories: {
         Row: {
