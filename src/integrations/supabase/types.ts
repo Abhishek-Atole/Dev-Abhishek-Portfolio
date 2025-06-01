@@ -40,6 +40,20 @@ export type Database = {
             referencedRelation: "tags"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "fk_blog_post_tags_post"
+            columns: ["blog_post_id"]
+            isOneToOne: false
+            referencedRelation: "admin_blog_posts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fk_blog_post_tags_tag"
+            columns: ["tag_id"]
+            isOneToOne: false
+            referencedRelation: "tags"
+            referencedColumns: ["id"]
+          },
         ]
       }
       admin_blog_posts: {
@@ -93,6 +107,13 @@ export type Database = {
             referencedRelation: "categories"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "fk_blog_posts_category"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "categories"
+            referencedColumns: ["id"]
+          },
         ]
       }
       admin_invitations: {
@@ -141,6 +162,20 @@ export type Database = {
             referencedRelation: "admin_users"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "fk_admin_invitations_creator"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "admin_users"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fk_admin_invitations_used_by"
+            columns: ["used_by"]
+            isOneToOne: false
+            referencedRelation: "admin_users"
+            referencedColumns: ["id"]
+          },
         ]
       }
       admin_sessions: {
@@ -168,6 +203,13 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "admin_sessions_admin_user_id_fkey"
+            columns: ["admin_user_id"]
+            isOneToOne: false
+            referencedRelation: "admin_users"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fk_admin_sessions_user"
             columns: ["admin_user_id"]
             isOneToOne: false
             referencedRelation: "admin_users"
@@ -218,6 +260,13 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "admin_users_invited_by_fkey"
+            columns: ["invited_by"]
+            isOneToOne: false
+            referencedRelation: "admin_users"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fk_admin_users_invited_by"
             columns: ["invited_by"]
             isOneToOne: false
             referencedRelation: "admin_users"
@@ -323,6 +372,13 @@ export type Database = {
           url?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "fk_media_uploads_post"
+            columns: ["blog_post_id"]
+            isOneToOne: false
+            referencedRelation: "admin_blog_posts"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "media_uploads_blog_post_id_fkey"
             columns: ["blog_post_id"]

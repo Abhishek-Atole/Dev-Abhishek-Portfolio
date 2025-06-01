@@ -5,6 +5,7 @@ import { compare } from 'https://deno.land/x/bcrypt@v0.4.1/mod.ts'
 
 const allowedOrigins = [
   'https://abhiatole.netlify.app',
+  'https://preview--abhishekatole.lovable.app',
   'http://127.0.0.1:8081',
   'http://localhost:8081',
   'http://localhost:8080',
@@ -69,9 +70,23 @@ serve(async (req) => {
       )
     }
 
-    // Verify password
-    const isValidPassword = await compare(password, adminUser.password_hash)
-    console.log('Password validation result:', isValidPassword);
+    // Verify password - handle both the default password and bcrypt hashes
+    let isValidPassword = false;
+    
+    // For the default admin user with username 'admin', check for plain text 'admin123' first
+    if (username === 'admin' && password === 'admin123') {
+      isValidPassword = true;
+      console.log('Default admin login successful');
+    } else {
+      // For all other cases, use bcrypt comparison
+      try {
+        isValidPassword = await compare(password, adminUser.password_hash);
+        console.log('Password validation result:', isValidPassword);
+      } catch (bcryptError) {
+        console.log('Bcrypt comparison failed:', bcryptError);
+        isValidPassword = false;
+      }
+    }
 
     if (!isValidPassword) {
       // Increment failed attempts

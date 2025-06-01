@@ -64,7 +64,7 @@ export const AdminAuthProvider: React.FC<AdminAuthProviderProps> = ({ children }
         `)
         .eq('session_token', sessionToken)
         .gt('expires_at', new Date().toISOString())
-        .single();
+        .maybeSingle();
 
       if (error || !session) {
         console.log('Session check failed:', error);

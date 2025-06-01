@@ -5,6 +5,7 @@ import { hash } from 'https://deno.land/x/bcrypt@v0.4.1/mod.ts'
 
 const allowedOrigins = [
   'https://abhiatole.netlify.app',
+  'https://preview--abhishekatole.lovable.app',
   'http://127.0.0.1:8081',
   'http://localhost:8081',
   'http://localhost:8080',
@@ -72,11 +73,11 @@ serve(async (req) => {
     }
 
     // Check if username already exists
-    const { data: existingUser, error: existingUserError } = await supabase
+    const { data: existingUser } = await supabase
       .from('admin_users')
       .select('id')
       .eq('username', username)
-      .single()
+      .maybeSingle()
 
     if (existingUser) {
       console.log('Username already exists:', username);
@@ -87,11 +88,11 @@ serve(async (req) => {
     }
 
     // Check if email already exists
-    const { data: existingEmail, error: existingEmailError } = await supabase
+    const { data: existingEmail } = await supabase
       .from('admin_users')
       .select('id')
       .eq('email', email)
-      .single()
+      .maybeSingle()
 
     if (existingEmail) {
       console.log('Email already registered:', email);
