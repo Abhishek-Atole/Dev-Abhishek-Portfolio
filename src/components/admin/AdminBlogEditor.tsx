@@ -85,8 +85,19 @@ const AdminBlogEditor = ({ postId, onBack }: AdminBlogEditorProps) => {
   // Save/Update post mutation
   const savePostMutation = useMutation({
     mutationFn: async (postData: Partial<BlogPost>) => {
-      const slug = postData.slug || generateSlug(postData.title || "");
-      
+      let baseSlug = generateSlug(postData.title || "");
+      let slug = baseSlug;
+      let counter = 1;
+      while (true) {
+        const { data: existing } = await supabase
+          .from("admin_blog_posts")
+          .select("id")
+          .eq("slug", slug)
+          .single();
+        if (!existing) break;
+        slug = `${baseSlug}-${counter++}`;
+      }
+
       // Ensure required fields are present
       const dataToSave = {
         title: postData.title || "",
@@ -128,9 +139,16 @@ const AdminBlogEditor = ({ postId, onBack }: AdminBlogEditorProps) => {
       });
     },
     onError: (error: any) => {
+      let message = error.message;
+      if (
+        message.includes("duplicate key value") &&
+        message.includes("admin_blog_posts_slug_key")
+      ) {
+        message = "A post with this slug already exists. Please choose a different slug.";
+      }
       toast({
         title: "Error",
-        description: error.message,
+        description: message,
         variant: "destructive"
       });
     }
