@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -104,10 +103,7 @@ const AdminBlogEditor = ({ postId, onBack }: AdminBlogEditorProps) => {
         // Update existing post
         const { data, error } = await supabase
           .from("admin_blog_posts")
-          .update({
-            ...dataToSave,
-            updated_at: new Date().toISOString()
-          })
+          .update({ ...dataToSave, updated_at: new Date().toISOString() })
           .eq("id", postId)
           .select()
           .single();

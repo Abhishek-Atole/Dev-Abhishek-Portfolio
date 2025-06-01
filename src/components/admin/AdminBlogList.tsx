@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -39,11 +38,9 @@ const AdminBlogList = ({ onEditPost, onNewPost, onBackToDashboard }: AdminBlogLi
       if (searchTerm) {
         query = query.ilike("title", `%${searchTerm}%`);
       }
-
       if (statusFilter !== "all") {
         query = query.eq("status", statusFilter);
       }
-
       const { data, error } = await query;
       if (error) throw error;
       return data;
