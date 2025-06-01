@@ -54,7 +54,7 @@ export const AdminAuthProvider: React.FC<AdminAuthProviderProps> = ({ children }
         .from('admin_sessions')
         .select(`
           *,
-          admin_users (
+          admin_users!admin_sessions_admin_user_id_fkey (
             id,
             username,
             email,
