@@ -137,6 +137,14 @@ const AdminBlogEditor = ({ postId, onBack }: AdminBlogEditorProps) => {
   });
 
   const handleSave = (status: "draft" | "published" | "unpublished" = "draft") => {
+    if (!post.title || !post.content || !post.slug) {
+      toast({
+        title: "Error",
+        description: "Title, content, and slug are required.",
+        variant: "destructive"
+      });
+      return;
+    }
     const postData = {
       ...post,
       status,
