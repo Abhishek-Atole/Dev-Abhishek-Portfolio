@@ -1,4 +1,3 @@
-
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 
@@ -93,6 +92,8 @@ export const AdminAuthProvider: React.FC<AdminAuthProviderProps> = ({ children }
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          // Add this if you want to use the anon key as a bearer token:
+          'Authorization': `Bearer ${import.meta.env.VITE_SUPABASE_ANON_KEY}`,
         },
         body: JSON.stringify({ username, password }),
       });

@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -71,17 +70,14 @@ const AdminRegister: React.FC<AdminRegisterProps> = ({ onBackToLogin }) => {
     setIsSubmitting(true);
 
     try {
-      const response = await fetch('https://kjphoudvjejgzhzohzwu.supabase.co/functions/v1/admin-register', {
+      const response = await fetch('https://kjphoudvjejgzhzohzwu.supabase.co/functions/v1/admin-login', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          // Add this if you want to use the anon key as a bearer token:
+          'Authorization': `Bearer ${import.meta.env.VITE_SUPABASE_ANON_KEY}`,
         },
-        body: JSON.stringify({
-          invitationCode: formData.invitationCode.trim(),
-          username: formData.username.trim(),
-          email: formData.email.trim(),
-          password: formData.password
-        }),
+        body: JSON.stringify({ username, password }),
       });
 
       const result = await response.json();
