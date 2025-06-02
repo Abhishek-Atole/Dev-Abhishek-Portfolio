@@ -27,8 +27,8 @@ const AnalyticsPanel = () => {
   // Calculate top tags
   const tagCounts: Record<string, number> = {};
   (posts || []).forEach(post => {
-    (post.tags || []).forEach(tag => {
-      tagCounts[tag] = (tagCounts[tag] || 0) + 1;
+    (typeof post.tags === "string" ? post.tags.split(",") : post.tags || []).forEach(tag => {
+      tagCounts[tag.trim()] = (tagCounts[tag.trim()] || 0) + 1;
     });
   });
   const topTags = Object.entries(tagCounts)

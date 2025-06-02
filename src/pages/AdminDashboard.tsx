@@ -15,8 +15,9 @@ import { useToast } from "@/hooks/use-toast";
 import AdminProtectedRoute from "@/components/admin/AdminProtectedRoute";
 import { useAdminAuth } from "@/contexts/AdminAuthContext";
 import AnalyticsPanel from "@/components/admin/AnalyticsPanel";
+import MediaLibrary from "@/components/admin/MediaLibrary";
 
-type View = "dashboard" | "editor" | "list" | "certificates" | "categories" | "projects" | "analytics";
+type View = "dashboard" | "editor" | "list" | "certificates" | "categories" | "projects" | "analytics" | "media";
 
 const AdminDashboard = () => {
   const [currentView, setCurrentView] = useState<View>("dashboard");
@@ -216,7 +217,11 @@ const AdminDashboard = () => {
               <FileText size={20} className="sm:w-6 sm:h-6" />
               <span>Analytics</span>
             </Button>
-            <Button variant="outline" className="h-auto p-3 sm:p-4 flex flex-col items-center gap-2 text-sm opacity-50 cursor-not-allowed">
+            <Button
+              variant="outline"
+              onClick={() => setCurrentView("media")}
+              className="h-auto p-3 sm:p-4 flex flex-col items-center gap-2 text-sm"
+            >
               <Eye size={20} className="sm:w-6 sm:h-6" />
               <span>Media Library</span>
             </Button>
@@ -289,6 +294,18 @@ const AdminDashboard = () => {
               </Button>
             </div>
             <AnalyticsPanel />
+          </div>
+        );
+      case "media":
+        return (
+          <div className="space-y-6">
+            <div className="flex items-center justify-between">
+              <h1 className="text-2xl sm:text-3xl font-bold">Media Library</h1>
+              <Button variant="outline" onClick={handleBackToDashboard} size="sm">
+                Back to Dashboard
+              </Button>
+            </div>
+            <MediaLibrary />
           </div>
         );
       default:
