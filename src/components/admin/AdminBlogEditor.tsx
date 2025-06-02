@@ -7,7 +7,6 @@ import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 import { ArrowLeft, Save, Eye, EyeOff } from "lucide-react";
-import { Link } from "react-router-dom";
 import RichTextEditor from "./RichTextEditor";
 import TagsManager from "./TagsManager";
 
@@ -52,12 +51,17 @@ const AdminBlogEditor = ({ postId, onBack }: AdminBlogEditorProps) => {
     queryKey: ["blog-post", postId],
     queryFn: async () => {
       if (!postId) return null;
+      console.log("Fetching post for editing:", postId);
       const { data, error } = await supabase
         .from("admin_blog_posts")
         .select("*")
         .eq("id", postId)
         .single();
-      if (error) throw error;
+      if (error) {
+        console.error("Error fetching post:", error);
+        throw error;
+      }
+      console.log("Fetched post:", data);
       return data;
     },
     enabled: !!postId
@@ -65,7 +69,6 @@ const AdminBlogEditor = ({ postId, onBack }: AdminBlogEditorProps) => {
 
   useEffect(() => {
     if (existingPost) {
-      // Ensure status is properly typed
       const typedPost: Partial<BlogPost> = {
         ...existingPost,
         status: existingPost.status as "draft" | "published" | "unpublished"
@@ -74,101 +77,163 @@ const AdminBlogEditor = ({ postId, onBack }: AdminBlogEditorProps) => {
     }
   }, [existingPost]);
 
-  // Generate slug from title
-  const generateSlug = (title: string) => {
-    return title
-      .toLowerCase()
-      .replace(/[^a-z0-9]+/g, "-")
-      .replace(/(^-|-$)/g, "");
-  };
+  // Auto-generate slug from title
+  useEffect(() => {
+    if (post.title && !postId) {
+      const generatedSlug = post.title
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, "-")
+        .replace(/(^-|-$)/g, "");
+      setPost(prev => ({ ...prev, slug: generatedSlug }));
+    }
+  }, [post.title, postId]);
 
   // Save/Update post mutation
   const savePostMutation = useMutation({
     mutationFn: async (postData: Partial<BlogPost>) => {
-      let baseSlug = generateSlug(postData.title || "");
-      let slug = baseSlug;
-      let counter = 1;
-      while (true) {
+      console.log("Saving post data:", postData);
+      
+      // Validate required fields
+      if (!postData.title || !postData.content || !postData.slug) {
+        throw new Error("Title, content, and slug are required.");
+      }
+
+      // Check for slug uniqueness if creating new post or changing slug
+      if (!postId || postData.slug !== existingPost?.slug) {
         const { data: existing } = await supabase
           .from("admin_blog_posts")
           .select("id")
-          .eq("slug", slug)
-          .single();
-        if (!existing) break;
-        slug = `${baseSlug}-${counter++}`;
+          .eq("slug", postData.slug)
+          .neq("id", postId || "")
+          .maybeSingle();
+        
+        if (existing) {
+          throw new Error("A post with this slug already exists. Please choose a different slug.");
+        }
       }
 
-      // Ensure required fields are present
       const dataToSave = {
-        title: postData.title || "",
-        content: postData.content || "",
-        excerpt: postData.excerpt,
-        slug,
+        title: postData.title,
+        content: postData.content,
+        excerpt: postData.excerpt || null,
+        slug: postData.slug,
         status: postData.status || "draft",
-        cover_image: postData.cover_image,
-        published_date: postData.published_date ? postData.published_date : null,
+        cover_image: postData.cover_image || null,
+        published_date: postData.published_date || null,
         read_time: postData.read_time || 5
       };
 
       if (postId) {
         // Update existing post
+        console.log("Updating existing post:", postId);
         const { data, error } = await supabase
           .from("admin_blog_posts")
           .update({ ...dataToSave, updated_at: new Date().toISOString() })
           .eq("id", postId)
           .select()
           .single();
-        if (error) throw error;
+        
+        if (error) {
+          console.error("Error updating post:", error);
+          throw error;
+        }
+        console.log("Post updated successfully:", data);
         return data;
       } else {
         // Create new post
+        console.log("Creating new post");
         const { data, error } = await supabase
           .from("admin_blog_posts")
           .insert(dataToSave)
           .select()
           .single();
-        if (error) throw error;
+        
+        if (error) {
+          console.error("Error creating post:", error);
+          throw error;
+        }
+        console.log("Post created successfully:", data);
         return data;
       }
     },
-    onSuccess: () => {
+    onSuccess: (data) => {
+      console.log("Post save successful, invalidating queries");
       queryClient.invalidateQueries({ queryKey: ["admin-blog-posts"] });
+      queryClient.invalidateQueries({ queryKey: ["admin-stats"] });
+      queryClient.invalidateQueries({ queryKey: ["blog-post", postId] });
+      
       toast({
         title: "Success",
         description: `Post ${postId ? "updated" : "created"} successfully`,
       });
+      
+      // Update local state with returned data ensuring proper typing
+      if (data) {
+        const typedData: Partial<BlogPost> = {
+          ...data,
+          status: data.status as "draft" | "published" | "unpublished"
+        };
+        setPost(typedData);
+      }
     },
     onError: (error: any) => {
-      let message = error.message;
-      if (
-        message.includes("duplicate key value") &&
-        message.includes("admin_blog_posts_slug_key")
-      ) {
-        message = "A post with this slug already exists. Please choose a different slug.";
-      }
+      console.error("Post save error:", error);
       toast({
         title: "Error",
-        description: message,
+        description: error.message,
         variant: "destructive"
       });
     }
   });
 
   const handleSave = (status: "draft" | "published" | "unpublished" = "draft") => {
-    if (!post.title || !post.content || !post.slug) {
+    console.log("Handling save with status:", status);
+    
+    if (!post.title?.trim()) {
       toast({
         title: "Error",
-        description: "Title, content, and slug are required.",
+        description: "Title is required.",
         variant: "destructive"
       });
       return;
     }
+    
+    if (!post.content?.trim()) {
+      toast({
+        title: "Error",
+        description: "Content is required.",
+        variant: "destructive"
+      });
+      return;
+    }
+    
+    if (!post.slug?.trim()) {
+      toast({
+        title: "Error",
+        description: "Slug is required.",
+        variant: "destructive"
+      });
+      return;
+    }
+
     const postData = {
       ...post,
       status,
       published_date: status === "published" ? new Date().toISOString().split('T')[0] : post.published_date
     };
+    
+    console.log("Calling save mutation with data:", postData);
     savePostMutation.mutate(postData);
+  };
+
+  const handlePreview = () => {
+    if (post.slug && post.status === "published") {
+      // Open the live blog post in a new tab
+      window.open(`/blog/${post.slug}`, "_blank");
+    } else {
+      // Show preview modal or toggle preview mode
+      setShowPreview(!showPreview);
+    }
   };
 
   if (isLoading) {
@@ -186,11 +251,11 @@ const AdminBlogEditor = ({ postId, onBack }: AdminBlogEditorProps) => {
         <div className="flex items-center gap-2">
           <Button
             variant="outline"
-            onClick={() => setShowPreview(!showPreview)}
+            onClick={handlePreview}
             className="flex items-center gap-2"
           >
-            {showPreview ? <EyeOff size={16} /> : <Eye size={16} />}
-            {showPreview ? "Hide Preview" : "Show Preview"}
+            {post.status === "published" ? <Eye size={16} /> : showPreview ? <EyeOff size={16} /> : <Eye size={16} />}
+            {post.status === "published" ? "View Live" : (showPreview ? "Hide Preview" : "Show Preview")}
           </Button>
           
           <Button
@@ -206,7 +271,7 @@ const AdminBlogEditor = ({ postId, onBack }: AdminBlogEditorProps) => {
             onClick={() => handleSave("published")}
             disabled={savePostMutation.isPending}
           >
-            Publish
+            {savePostMutation.isPending ? "Saving..." : "Publish"}
           </Button>
         </div>
       </div>
@@ -217,7 +282,7 @@ const AdminBlogEditor = ({ postId, onBack }: AdminBlogEditorProps) => {
         </CardHeader>
         <CardContent className="space-y-4">
           <div>
-            <label className="block text-sm font-medium mb-2">Title</label>
+            <label className="block text-sm font-medium mb-2">Title *</label>
             <Input
               value={post.title || ""}
               onChange={(e) => setPost({ ...post, title: e.target.value })}
@@ -226,7 +291,7 @@ const AdminBlogEditor = ({ postId, onBack }: AdminBlogEditorProps) => {
           </div>
 
           <div>
-            <label className="block text-sm font-medium mb-2">Slug</label>
+            <label className="block text-sm font-medium mb-2">Slug *</label>
             <Input
               value={post.slug || ""}
               onChange={(e) => setPost({ ...post, slug: e.target.value })}
@@ -284,7 +349,7 @@ const AdminBlogEditor = ({ postId, onBack }: AdminBlogEditorProps) => {
           />
 
           <div>
-            <label className="block text-sm font-medium mb-2">Content</label>
+            <label className="block text-sm font-medium mb-2">Content *</label>
             <RichTextEditor
               content={post.content || ""}
               onChange={(content) => setPost({ ...post, content })}
