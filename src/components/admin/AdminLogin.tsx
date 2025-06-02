@@ -133,12 +133,6 @@ const AdminLogin = () => {
               </Button>
             </div>
           </form>
-          
-          <div className="mt-6 text-center text-sm text-muted-foreground">
-            <p>Default credentials:</p>
-            <p className="font-mono text-xs">Username: admin | Password: admin123</p>
-            <p className="text-xs mt-1">⚠️ Change these in production</p>
-          </div>
         </CardContent>
       </Card>
     </div>
