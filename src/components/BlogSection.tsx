@@ -2,10 +2,53 @@
 import { ArrowRight, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
-import { blogPosts } from "@/data/blogPosts";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
 import BlogList from "./BlogList";
 
 const BlogSection = () => {
+  // Fetch published blog posts from database
+  const { data: blogPosts, isLoading } = useQuery({
+    queryKey: ["published-blog-posts"],
+    queryFn: async () => {
+      console.log("Fetching published blog posts for website...");
+      const { data, error } = await supabase
+        .from("admin_blog_posts")
+        .select("*")
+        .eq("status", "published")
+        .order("created_at", { ascending: false });
+      
+      if (error) {
+        console.error("Error fetching blog posts:", error);
+        throw error;
+      }
+      
+      console.log("Fetched published posts:", data);
+      
+      // Transform database posts to match BlogPost interface
+      return data?.map(post => ({
+        id: post.id,
+        title: post.title,
+        excerpt: post.excerpt || "",
+        slug: post.slug,
+        publishedDate: post.published_date || post.created_at.split('T')[0],
+        readTime: post.read_time || 5,
+        coverImage: post.cover_image || "/placeholder.svg",
+        tags: ["Programming"] // Default tags for now, will be improved later
+      })) || [];
+    }
+  });
+
+  if (isLoading) {
+    return (
+      <section id="blog" className="py-16">
+        <div className="container mx-auto">
+          <div className="text-center">Loading blog posts...</div>
+        </div>
+      </section>
+    );
+  }
+
   return (
     <section id="blog" className="py-16 relative overflow-hidden">
       {/* Enhanced Background gradient with animations */}
@@ -34,7 +77,7 @@ const BlogSection = () => {
             <div className="relative bg-gradient-to-r from-card/80 to-muted/40 backdrop-blur-sm border border-border/50 rounded-2xl p-6 shadow-lg hover:shadow-2xl hover:shadow-primary/10 transition-all duration-500 hover:scale-105 hover:border-primary/40">
               <div className="text-center space-y-3">
                 <div className="text-2xl font-bold font-mono text-primary group-hover:animate-pulse">
-                  {blogPosts.length}
+                  {blogPosts?.length || 0}
                 </div>
                 <div className="text-sm text-muted-foreground group-hover:text-foreground/80 transition-colors duration-300">
                   Articles Published
@@ -57,7 +100,13 @@ const BlogSection = () => {
         </div>
         
         <div className="relative">
-          <BlogList posts={blogPosts} limit={3} />
+          {blogPosts && blogPosts.length > 0 ? (
+            <BlogList posts={blogPosts} limit={3} />
+          ) : (
+            <div className="text-center py-12">
+              <p className="text-muted-foreground">No published blog posts yet.</p>
+            </div>
+          )}
           
           {/* Enhanced bottom fade with animation */}
           <div className="absolute bottom-0 left-0 right-0 h-8 bg-gradient-to-t from-background to-transparent pointer-events-none opacity-0 animate-fade-in" style={{ animationDelay: '800ms', animationFillMode: 'forwards' }} />

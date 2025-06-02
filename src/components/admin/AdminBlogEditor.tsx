@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -168,9 +167,13 @@ const AdminBlogEditor = ({ postId, onBack }: AdminBlogEditorProps) => {
         description: `Post ${postId ? "updated" : "created"} successfully`,
       });
       
-      // Update local state with returned data
+      // Update local state with returned data ensuring proper typing
       if (data) {
-        setPost(data);
+        const typedData: Partial<BlogPost> = {
+          ...data,
+          status: data.status as "draft" | "published" | "unpublished"
+        };
+        setPost(typedData);
       }
     },
     onError: (error: any) => {
@@ -223,6 +226,16 @@ const AdminBlogEditor = ({ postId, onBack }: AdminBlogEditorProps) => {
     savePostMutation.mutate(postData);
   };
 
+  const handlePreview = () => {
+    if (post.slug && post.status === "published") {
+      // Open the live blog post in a new tab
+      window.open(`/blog/${post.slug}`, "_blank");
+    } else {
+      // Show preview modal or toggle preview mode
+      setShowPreview(!showPreview);
+    }
+  };
+
   if (isLoading) {
     return <div className="p-4">Loading...</div>;
   }
@@ -238,11 +251,11 @@ const AdminBlogEditor = ({ postId, onBack }: AdminBlogEditorProps) => {
         <div className="flex items-center gap-2">
           <Button
             variant="outline"
-            onClick={() => setShowPreview(!showPreview)}
+            onClick={handlePreview}
             className="flex items-center gap-2"
           >
-            {showPreview ? <EyeOff size={16} /> : <Eye size={16} />}
-            {showPreview ? "Hide Preview" : "Show Preview"}
+            {post.status === "published" ? <Eye size={16} /> : showPreview ? <EyeOff size={16} /> : <Eye size={16} />}
+            {post.status === "published" ? "View Live" : (showPreview ? "Hide Preview" : "Show Preview")}
           </Button>
           
           <Button
