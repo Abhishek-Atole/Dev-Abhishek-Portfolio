@@ -1,177 +1,133 @@
-
-import { useState } from "react";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { useToast } from "@/hooks/use-toast";
-import { Plus, X, Tag } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
 
-interface TagsManagerProps {
-  selectedTags: string[];
-  onTagsChange: (tags: string[]) => void;
-}
+const TagsManager = () => {
+  const [tags, setTags] = useState<{ id: string; name: string; count: number }[]>([]);
+  const [newTag, setNewTag] = useState("");
+  const [editingTag, setEditingTag] = useState<string | null>(null);
+  const [editValue, setEditValue] = useState("");
+  const [loading, setLoading] = useState(false);
 
-const TagsManager = ({ selectedTags, onTagsChange }: TagsManagerProps) => {
-  const [newTagName, setNewTagName] = useState("");
-  const { toast } = useToast();
-  const queryClient = useQueryClient();
-
-  // Fetch all tags
-  const { data: tags } = useQuery({
-    queryKey: ["tags"],
-    queryFn: async () => {
-      const { data, error } = await supabase.from("tags").select("*").order("name");
-      if (error) throw error;
-      return data;
-    }
-  });
-
-  // Create new tag mutation
-  const createTagMutation = useMutation({
-    mutationFn: async (name: string) => {
-      const slug = name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)+/g, "");
-      const { data, error } = await supabase
-        .from("tags")
-        .insert({ name, slug })
-        .select()
-        .single();
-      if (error) throw error;
-      return data;
-    },
-    onSuccess: (newTag) => {
-      queryClient.invalidateQueries({ queryKey: ["tags"] });
-      onTagsChange([...selectedTags, newTag.id]);
-      setNewTagName("");
-      toast({
-        title: "Tag created",
-        description: `"${newTag.name}" has been created and added.`,
+  // Fetch tags and usage count
+  const fetchTags = async () => {
+    setLoading(true);
+    // Get all tags
+    const { data: tagData } = await supabase.from("tags").select("*");
+    // Get tag usage counts from blog posts
+    const { data: posts } = await supabase.from("admin_blog_posts").select("tags");
+    const tagCounts: Record<string, number> = {};
+    (posts || []).forEach(post => {
+      (typeof post.tags === "string" ? post.tags.split(",") : post.tags || []).forEach(tag => {
+        const t = tag.trim();
+        if (t) tagCounts[t] = (tagCounts[t] || 0) + 1;
       });
-    },
-    onError: (error: any) => {
-      toast({
-        title: "Error",
-        description: error.message,
-        variant: "destructive"
-      });
-    }
-  });
-
-  const handleCreateTag = () => {
-    if (!newTagName.trim()) return;
-    
-    // Check if tag already exists
-    const existingTag = tags?.find(tag => 
-      tag.name.toLowerCase() === newTagName.trim().toLowerCase()
+    });
+    setTags(
+      (tagData || []).map((tag: any) => ({
+        id: tag.id,
+        name: tag.name,
+        count: tagCounts[tag.name] || 0,
+      }))
     );
-    
-    if (existingTag) {
-      if (!selectedTags.includes(existingTag.id)) {
-        onTagsChange([...selectedTags, existingTag.id]);
-      }
-      setNewTagName("");
-      return;
-    }
-
-    createTagMutation.mutate(newTagName.trim());
+    setLoading(false);
   };
 
-  const handleToggleTag = (tagId: string) => {
-    if (selectedTags.includes(tagId)) {
-      onTagsChange(selectedTags.filter(id => id !== tagId));
-    } else {
-      onTagsChange([...selectedTags, tagId]);
-    }
+  useEffect(() => {
+    fetchTags();
+  }, []);
+
+  // Add tag
+  const handleAddTag = async () => {
+    if (!newTag.trim()) return;
+    await supabase.from("tags").insert([{ name: newTag.trim() }]);
+    setNewTag("");
+    fetchTags();
   };
 
-  const handleRemoveTag = (tagId: string) => {
-    onTagsChange(selectedTags.filter(id => id !== tagId));
+  // Delete tag
+  const handleDeleteTag = async (id: string) => {
+    await supabase.from("tags").delete().eq("id", id);
+    fetchTags();
   };
 
-  const handleKeyPress = (e: React.KeyboardEvent) => {
-    if (e.key === "Enter") {
-      e.preventDefault();
-      handleCreateTag();
-    }
+  // Edit tag
+  const handleEditTag = async (id: string) => {
+    if (!editValue.trim()) return;
+    await supabase.from("tags").update({ name: editValue.trim() }).eq("id", id);
+    setEditingTag(null);
+    setEditValue("");
+    fetchTags();
   };
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle className="flex items-center gap-2">
-          <Tag size={20} />
-          Tags
-        </CardTitle>
-      </CardHeader>
-      <CardContent className="space-y-4">
-        {/* Selected Tags */}
-        {selectedTags.length > 0 && (
-          <div className="space-y-2">
-            <p className="text-sm font-medium">Selected Tags:</p>
-            <div className="flex flex-wrap gap-2">
-              {selectedTags.map(tagId => {
-                const tag = tags?.find(t => t.id === tagId);
-                return tag ? (
-                  <Badge key={tagId} variant="default" className="flex items-center gap-1">
-                    {tag.name}
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      className="h-auto w-auto p-0 ml-1"
-                      onClick={() => handleRemoveTag(tagId)}
-                    >
-                      <X size={12} />
-                    </Button>
-                  </Badge>
-                ) : null;
-              })}
-            </div>
-          </div>
-        )}
-
-        {/* Add New Tag */}
-        <div className="space-y-2">
-          <p className="text-sm font-medium">Add New Tag:</p>
-          <div className="flex gap-2">
-            <Input
-              value={newTagName}
-              onChange={(e) => setNewTagName(e.target.value)}
-              onKeyPress={handleKeyPress}
-              placeholder="Enter tag name..."
-              className="flex-1"
-            />
-            <Button 
-              onClick={handleCreateTag}
-              disabled={!newTagName.trim() || createTagMutation.isPending}
-              size="sm"
-            >
-              <Plus size={16} />
-            </Button>
-          </div>
-        </div>
-
-        {/* Available Tags */}
-        {tags && tags.length > 0 && (
-          <div className="space-y-2">
-            <p className="text-sm font-medium">Available Tags:</p>
-            <div className="flex flex-wrap gap-2 max-h-32 overflow-y-auto">
+    <div className="space-y-6">
+      <div className="flex gap-2">
+        <input
+          className="border border-border bg-muted text-foreground placeholder:text-muted-foreground px-2 py-1 rounded"
+          placeholder="New tag name"
+          value={newTag}
+          onChange={e => setNewTag(e.target.value)}
+        />
+        <Button onClick={handleAddTag} disabled={loading || !newTag.trim()}>
+          Add Tag
+        </Button>
+      </div>
+      <div>
+        {loading ? (
+          <div>Loading...</div>
+        ) : (
+          <table className="min-w-full text-sm border">
+            <thead>
+              <tr className="bg-muted">
+                <th className="p-2 text-left">Tag</th>
+                <th className="p-2 text-left">Used</th>
+                <th className="p-2 text-left">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
               {tags.map(tag => (
-                <Badge
-                  key={tag.id}
-                  variant={selectedTags.includes(tag.id) ? "default" : "outline"}
-                  className="cursor-pointer hover:bg-primary/20"
-                  onClick={() => handleToggleTag(tag.id)}
-                >
-                  {tag.name}
-                </Badge>
+                <tr key={tag.id} className="border-t">
+                  <td className="p-2">
+                    {editingTag === tag.id ? (
+                      <input
+                        className="border px-2 py-1 rounded"
+                        value={editValue}
+                        onChange={e => setEditValue(e.target.value)}
+                      />
+                    ) : (
+                      tag.name
+                    )}
+                  </td>
+                  <td className="p-2">{tag.count}</td>
+                  <td className="p-2 flex gap-2">
+                    {editingTag === tag.id ? (
+                      <>
+                        <Button size="sm" onClick={() => handleEditTag(tag.id)}>
+                          Save
+                        </Button>
+                        <Button size="sm" variant="ghost" onClick={() => setEditingTag(null)}>
+                          Cancel
+                        </Button>
+                      </>
+                    ) : (
+                      <>
+                        <Button size="sm" variant="outline" onClick={() => { setEditingTag(tag.id); setEditValue(tag.name); }}>
+                          Edit
+                        </Button>
+                        <Button size="sm" variant="destructive" onClick={() => handleDeleteTag(tag.id)}>
+                          Delete
+                        </Button>
+                      </>
+                    )}
+                  </td>
+                </tr>
               ))}
-            </div>
-          </div>
+            </tbody>
+          </table>
         )}
-      </CardContent>
-    </Card>
+      </div>
+    </div>
   );
 };
 

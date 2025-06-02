@@ -16,8 +16,9 @@ import AdminProtectedRoute from "@/components/admin/AdminProtectedRoute";
 import { useAdminAuth } from "@/contexts/AdminAuthContext";
 import AnalyticsPanel from "@/components/admin/AnalyticsPanel";
 import MediaLibrary from "@/components/admin/MediaLibrary";
+import TagsManager from "@/components/admin/TagsManager";
 
-type View = "dashboard" | "editor" | "list" | "certificates" | "categories" | "projects" | "analytics" | "media";
+type View = "dashboard" | "editor" | "list" | "certificates" | "categories" | "projects" | "analytics" | "media" | "tags";
 
 const AdminDashboard = () => {
   const [currentView, setCurrentView] = useState<View>("dashboard");
@@ -90,13 +91,13 @@ const AdminDashboard = () => {
   };
 
   const renderDashboard = () => (
-    <div className="space-y-8">
+    <div className="space-y-10">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl sm:text-3xl font-bold mb-2">Admin Dashboard</h1>
-          <p className="text-muted-foreground">
-            Welcome back, {adminUser?.username}! Manage your content, projects, and portfolio
+          <h1 className="text-3xl font-bold mb-1 tracking-tight">Admin Dashboard</h1>
+          <p className="text-muted-foreground text-base">
+            Welcome back, <span className="font-semibold">{adminUser?.username}</span>! Manage your content, projects, and portfolio.
           </p>
         </div>
         <Button variant="outline" onClick={handleLogout} size="sm">
@@ -105,69 +106,69 @@ const AdminDashboard = () => {
       </div>
 
       {/* Stats Cards */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-4 sm:gap-6">
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-xs sm:text-sm font-medium">Total Posts</CardTitle>
+      <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-4">
+        <Card className="text-center">
+          <CardHeader className="pb-1">
+            <CardTitle className="text-xs font-medium">Total Posts</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-xl sm:text-2xl font-bold">{stats?.totalPosts || 0}</div>
+            <div className="text-2xl font-bold">{stats?.totalPosts || 0}</div>
           </CardContent>
         </Card>
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-xs sm:text-sm font-medium">Published</CardTitle>
+        <Card className="text-center">
+          <CardHeader className="pb-1">
+            <CardTitle className="text-xs font-medium">Published</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-xl sm:text-2xl font-bold text-green-600">{stats?.publishedPosts || 0}</div>
+            <div className="text-2xl font-bold text-green-600">{stats?.publishedPosts || 0}</div>
           </CardContent>
         </Card>
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-xs sm:text-sm font-medium">Drafts</CardTitle>
+        <Card className="text-center">
+          <CardHeader className="pb-1">
+            <CardTitle className="text-xs font-medium">Drafts</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-xl sm:text-2xl font-bold text-yellow-600">{stats?.draftPosts || 0}</div>
+            <div className="text-2xl font-bold text-yellow-600">{stats?.draftPosts || 0}</div>
           </CardContent>
         </Card>
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-xs sm:text-sm font-medium">Categories</CardTitle>
+        <Card className="text-center">
+          <CardHeader className="pb-1">
+            <CardTitle className="text-xs font-medium">Categories</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-xl sm:text-2xl font-bold">{stats?.totalCategories || 0}</div>
+            <div className="text-2xl font-bold">{stats?.totalCategories || 0}</div>
           </CardContent>
         </Card>
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-xs sm:text-sm font-medium">Tags</CardTitle>
+        <Card className="text-center">
+          <CardHeader className="pb-1">
+            <CardTitle className="text-xs font-medium">Tags</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-xl sm:text-2xl font-bold">{stats?.totalTags || 0}</div>
+            <div className="text-2xl font-bold">{stats?.totalTags || 0}</div>
           </CardContent>
         </Card>
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-xs sm:text-sm font-medium">Projects</CardTitle>
+        <Card className="text-center">
+          <CardHeader className="pb-1">
+            <CardTitle className="text-xs font-medium">Projects</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-xl sm:text-2xl font-bold text-blue-600">{stats?.totalProjects || 0}</div>
+            <div className="text-2xl font-bold text-blue-600">{stats?.totalProjects || 0}</div>
           </CardContent>
         </Card>
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-xs sm:text-sm font-medium">Live Projects</CardTitle>
+        <Card className="text-center">
+          <CardHeader className="pb-1">
+            <CardTitle className="text-xs font-medium">Live Projects</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-xl sm:text-2xl font-bold text-green-600">{stats?.publishedProjects || 0}</div>
+            <div className="text-2xl font-bold text-green-600">{stats?.publishedProjects || 0}</div>
           </CardContent>
         </Card>
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-xs sm:text-sm font-medium">Certificates</CardTitle>
+        <Card className="text-center">
+          <CardHeader className="pb-1">
+            <CardTitle className="text-xs font-medium">Certificates</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-xl sm:text-2xl font-bold text-primary">{stats?.totalCertificates || 0}</div>
+            <div className="text-2xl font-bold text-primary">{stats?.totalCertificates || 0}</div>
           </CardContent>
         </Card>
       </div>
@@ -175,54 +176,46 @@ const AdminDashboard = () => {
       {/* Quick Actions */}
       <Card>
         <CardHeader>
-          <CardTitle className="flex items-center gap-2 text-lg sm:text-xl">
+          <CardTitle className="flex items-center gap-2 text-lg">
             <FileText size={20} />
             Quick Actions
           </CardTitle>
           <CardDescription>Manage your blog, projects, and portfolio content</CardDescription>
         </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
-            <Button onClick={handleNewPost} className="h-auto p-3 sm:p-4 flex flex-col items-center gap-2 text-sm">
-              <Plus size={20} className="sm:w-6 sm:h-6" />
+        <CardContent className="space-y-6">
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+            <Button onClick={handleNewPost} className="h-auto p-4 flex flex-col items-center gap-2 text-sm font-medium shadow-sm">
+              <Plus size={22} />
               <span>Create New Post</span>
             </Button>
-            <Button variant="outline" onClick={() => setCurrentView("list")} className="h-auto p-3 sm:p-4 flex flex-col items-center gap-2 text-sm">
-              <Eye size={20} className="sm:w-6 sm:h-6" />
+            <Button variant="outline" onClick={() => setCurrentView("list")} className="h-auto p-4 flex flex-col items-center gap-2 text-sm font-medium">
+              <Eye size={22} />
               <span>View All Posts</span>
             </Button>
-            <Button variant="outline" onClick={() => setCurrentView("projects")} className="h-auto p-3 sm:p-4 flex flex-col items-center gap-2 text-sm">
-              <FolderOpen size={20} className="sm:w-6 sm:h-6" />
+            <Button variant="outline" onClick={() => setCurrentView("projects")} className="h-auto p-4 flex flex-col items-center gap-2 text-sm font-medium">
+              <FolderOpen size={22} />
               <span>Manage Projects</span>
             </Button>
-            <Button variant="outline" onClick={() => setCurrentView("certificates")} className="h-auto p-3 sm:p-4 flex flex-col items-center gap-2 text-sm">
-              <Award size={20} className="sm:w-6 sm:h-6" />
+            <Button variant="outline" onClick={() => setCurrentView("certificates")} className="h-auto p-4 flex flex-col items-center gap-2 text-sm font-medium">
+              <Award size={22} />
               <span>Manage Certificates</span>
             </Button>
           </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
-            <Button variant="outline" onClick={() => setCurrentView("categories")} className="h-auto p-3 sm:p-4 flex flex-col items-center gap-2 text-sm">
-              <Folder size={20} className="sm:w-6 sm:h-6" />
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+            <Button variant="outline" onClick={() => setCurrentView("categories")} className="h-auto p-4 flex flex-col items-center gap-2 text-sm font-medium">
+              <Folder size={22} />
               <span>Manage Categories</span>
             </Button>
-            <Button variant="outline" className="h-auto p-3 sm:p-4 flex flex-col items-center gap-2 text-sm">
-              <Tag size={20} className="sm:w-6 sm:h-6" />
+            <Button variant="outline" onClick={() => setCurrentView("tags")} className="h-auto p-4 flex flex-col items-center gap-2 text-sm font-medium">
+              <Tag size={22} />
               <span>Manage Tags</span>
             </Button>
-            <Button
-              variant="outline"
-              onClick={() => setCurrentView("analytics")}
-              className="h-auto p-3 sm:p-4 flex flex-col items-center gap-2 text-sm"
-            >
-              <FileText size={20} className="sm:w-6 sm:h-6" />
+            <Button variant="outline" onClick={() => setCurrentView("analytics")} className="h-auto p-4 flex flex-col items-center gap-2 text-sm font-medium">
+              <FileText size={22} />
               <span>Analytics</span>
             </Button>
-            <Button
-              variant="outline"
-              onClick={() => setCurrentView("media")}
-              className="h-auto p-3 sm:p-4 flex flex-col items-center gap-2 text-sm"
-            >
-              <Eye size={20} className="sm:w-6 sm:h-6" />
+            <Button variant="outline" onClick={() => setCurrentView("media")} className="h-auto p-4 flex flex-col items-center gap-2 text-sm font-medium">
+              <Eye size={22} />
               <span>Media Library</span>
             </Button>
           </div>
@@ -306,6 +299,18 @@ const AdminDashboard = () => {
               </Button>
             </div>
             <MediaLibrary />
+          </div>
+        );
+      case "tags":
+        return (
+          <div className="space-y-6">
+            <div className="flex items-center justify-between">
+              <h1 className="text-2xl sm:text-3xl font-bold">Tags Management</h1>
+              <Button variant="outline" onClick={handleBackToDashboard} size="sm">
+                Back to Dashboard
+              </Button>
+            </div>
+            <TagsManager />
           </div>
         );
       default:

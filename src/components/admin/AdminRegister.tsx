@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { useMutation } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -7,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 import { ArrowLeft } from "lucide-react";
+import bcrypt from "bcryptjs";
 
 interface AdminRegisterProps {
   onBackToLogin: () => void;
@@ -17,48 +17,25 @@ const AdminRegister = ({ onBackToLogin }: AdminRegisterProps) => {
     username: "",
     email: "",
     password: "",
-    confirmPassword: "",
-    invitationCode: ""
+    confirmPassword: ""
   });
   const { toast } = useToast();
 
   const registerMutation = useMutation({
     mutationFn: async (data: typeof formData) => {
-      // First verify the invitation code
-      const { data: invitation, error: inviteError } = await supabase
-        .from("admin_invitations")
-        .select("*")
-        .eq("invitation_code", data.invitationCode)
-        .is("used_at", null)
-        .gt("expires_at", new Date().toISOString())
-        .single();
-
-      if (inviteError || !invitation) {
-        throw new Error("Invalid or expired invitation code");
-      }
-
-      // Create the admin user
+      // Hash the password before storing
+      const hashedPassword = bcrypt.hashSync(data.password, 10);
       const { data: newUser, error: userError } = await supabase
         .from("admin_users")
         .insert({
           username: data.username,
           email: data.email,
-          password_hash: data.password, // In production, this should be properly hashed
-          invited_by: invitation.created_by
+          password_hash: hashedPassword
         })
         .select()
         .single();
 
       if (userError) throw userError;
-
-      // Mark invitation as used
-      await supabase
-        .from("admin_invitations")
-        .update({
-          used_at: new Date().toISOString(),
-          used_by: newUser.id
-        })
-        .eq("id", invitation.id);
 
       return newUser;
     },
@@ -80,7 +57,7 @@ const AdminRegister = ({ onBackToLogin }: AdminRegisterProps) => {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (formData.password !== formData.confirmPassword) {
       toast({
         title: "Error",
@@ -155,17 +132,6 @@ const AdminRegister = ({ onBackToLogin }: AdminRegisterProps) => {
               onChange={(e) => setFormData({ ...formData, confirmPassword: e.target.value })}
               required
               placeholder="Confirm password"
-            />
-          </div>
-          
-          <div>
-            <label className="block text-sm font-medium mb-2">Invitation Code</label>
-            <Input
-              type="text"
-              value={formData.invitationCode}
-              onChange={(e) => setFormData({ ...formData, invitationCode: e.target.value })}
-              required
-              placeholder="Enter invitation code"
             />
           </div>
           
