@@ -1,31 +1,110 @@
-
 import { useParams, Link, useNavigate } from "react-router-dom";
 import { useEffect } from "react";
 import NavBar from "@/components/NavBar";
 import Footer from "@/components/Footer";
-import { blogPosts } from "@/data/blogPosts";
-import { ArrowLeft, Calendar, Clock, Tag, User, ExternalLink } from "lucide-react";
+import { ArrowLeft, Calendar, Clock, Tag, ExternalLink } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import MarkdownRenderer from "@/components/MarkdownRenderer";
 import ShareButton from "@/components/ShareButton";
 import SaveButton from "@/components/SaveButton";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
+
+interface BlogPostType {
+  id: string;
+  title: string;
+  slug: string;
+  coverImage: string;
+  publishedDate: string;
+  readTime: number;
+  tags: string[];
+  content: string;
+  excerpt?: string;
+  status?: string;
+}
+
+const getExcerpt = (content: string, length = 120) =>
+  content.replace(/[#>*_`-]/g, "").slice(0, length) + "...";
+
+const fetchBlogPostBySlug = async (slug: string): Promise<BlogPostType> => {
+  const { data, error } = await supabase
+    .from("admin_blog_posts")
+    .select("*")
+    .eq("slug", slug)
+    .single();
+  if (error || !data) throw new Error("Blog post not found");
+  return {
+    ...data,
+    coverImage: data.cover_image || "/placeholder.svg",
+    publishedDate: data.published_date || data.created_at?.split("T")[0] || "",
+    readTime: data.read_time || 5,
+    tags: data.tags || [],
+    content: data.content || "",
+    excerpt: data.excerpt || getExcerpt(data.content || ""),
+  };
+};
+
+const fetchRelatedPosts = async (currentId: string): Promise<BlogPostType[]> => {
+  const { data, error } = await supabase
+    .from("admin_blog_posts")
+    .select("*")
+    .neq("id", currentId)
+    .eq("status", "published")
+    .order("created_at", { ascending: false })
+    .limit(2);
+  if (error) throw new Error("Failed to fetch related posts");
+  return (data || []).map((post: any) => ({
+    ...post,
+    coverImage: post.cover_image || "/placeholder.svg",
+    publishedDate: post.published_date || post.created_at?.split("T")[0] || "",
+    readTime: post.read_time || 5,
+    tags: post.tags || [],
+    content: post.content || "",
+    excerpt: post.excerpt || getExcerpt(post.content || ""),
+  }));
+};
 
 const BlogPost = () => {
   const { slug } = useParams();
   const navigate = useNavigate();
-  const post = blogPosts.find(p => p.slug === slug);
+
+  const { data: post, isLoading, isError, error } = useQuery({
+    queryKey: ["blogPost", slug],
+    queryFn: () => fetchBlogPostBySlug(slug!),
+    enabled: !!slug,
+  });
+
+  const {
+    data: relatedPosts,
+    isLoading: isRelatedLoading,
+  } = useQuery({
+    queryKey: ["relatedPosts", post?.id],
+    queryFn: () => fetchRelatedPosts(post.id),
+    enabled: !!post?.id,
+  });
 
   useEffect(() => {
-    if (!post) {
-      navigate("/blog", { replace: true });
-      return;
+    if (post) {
+      document.title = `${post.title} | Abhishek Atole`;
+      window.scrollTo(0, 0);
     }
+  }, [post]);
 
-    document.title = `${post.title} | Abhishek Atole`;
-    window.scrollTo(0, 0);
-  }, [post, navigate]);
+  useEffect(() => {
+    if (isError) {
+      // Optionally show a toast or error message
+      setTimeout(() => navigate("/blog", { replace: true }), 2000);
+    }
+  }, [isError, navigate]);
 
+  if (isLoading) return <div className="text-center py-20">Loading...</div>;
+  if (isError)
+    return (
+      <div className="text-center py-20 text-destructive">
+        Blog post not found. Redirecting...
+      </div>
+    );
   if (!post) return null;
 
   return (
@@ -34,14 +113,13 @@ const BlogPost = () => {
       <div className="absolute inset-0 bg-gradient-to-br from-primary/3 via-transparent to-accent/3 opacity-40" />
       <div className="absolute top-0 left-1/4 w-96 h-96 bg-primary/5 rounded-full blur-3xl" />
       <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-accent/5 rounded-full blur-3xl" />
-      
+
       <NavBar />
       <main className="pt-24 pb-16 relative z-10">
         <div className="container mx-auto max-w-4xl px-4">
-          {/* Enhanced Back Button */}
-          <Button 
-            variant="ghost" 
-            asChild 
+          <Button
+            variant="ghost"
+            asChild
             className="mb-8 hover:bg-gradient-to-r hover:from-primary/10 hover:to-accent/10 
               hover:scale-105 transition-all duration-300 group border border-border/50 
               hover:border-primary/30 hover:shadow-lg hover:shadow-primary/10"
@@ -51,34 +129,30 @@ const BlogPost = () => {
               <span className="font-mono font-medium">Back to all posts</span>
             </Link>
           </Button>
-          
-          {/* Enhanced Article Header */}
+
           <article className="prose prose-lg dark:prose-invert max-w-none">
             <header className="mb-12 not-prose relative">
-              {/* Floating decorative elements */}
               <div className="absolute -top-8 -left-8 w-16 h-16 bg-gradient-to-br from-primary/20 to-accent/20 rounded-full blur-xl opacity-50" />
               <div className="absolute -top-4 -right-4 w-8 h-8 bg-gradient-to-br from-accent/30 to-primary/30 rounded-full blur-lg opacity-40" />
-              
+
               <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold leading-tight mb-8 text-foreground 
                 bg-gradient-to-r from-foreground via-primary to-foreground bg-clip-text text-transparent 
                 animate-fade-in font-mono tracking-tight hover:tracking-wide transition-all duration-500">
                 {post.title}
               </h1>
-              
-              {/* Enhanced Author and Meta Info */}
+
               <div className="flex flex-col lg:flex-row items-start lg:items-center gap-6 mb-8 text-muted-foreground 
                 border border-border/30 rounded-2xl p-6 bg-gradient-to-r from-card/50 to-muted/20 
                 backdrop-blur-sm hover:border-primary/40 hover:shadow-xl hover:shadow-primary/5 
                 transition-all duration-500 hover:-translate-y-1">
-                
                 <div className="flex items-center gap-4 group">
                   <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-primary/20 via-accent/20 to-primary/20 
                     flex items-center justify-center group-hover:scale-110 transition-transform duration-300 
                     group-hover:shadow-2xl group-hover:shadow-primary/20 relative overflow-hidden">
                     <div className="absolute inset-0 bg-gradient-to-r from-primary/10 to-accent/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-                    <img 
-                      src="/lovable-uploads/c5dd3c17-c8a7-47a3-a576-a245e2a0a459.png" 
-                      alt="Abhishek Atole" 
+                    <img
+                      src="/lovable-uploads/c5dd3c17-c8a7-47a3-a576-a245e2a0a459.png"
+                      alt="Abhishek Atole"
                       className="w-full h-full object-cover rounded-2xl relative z-10"
                     />
                   </div>
@@ -91,7 +165,6 @@ const BlogPost = () => {
                     </p>
                   </div>
                 </div>
-                
                 <div className="flex items-center gap-4 text-sm flex-wrap">
                   <div className="flex items-center gap-2 px-4 py-2 rounded-xl bg-gradient-to-r from-muted/50 to-muted/30 
                     hover:from-primary/10 hover:to-accent/10 transition-all duration-300 hover:scale-105 hover:shadow-md">
@@ -104,20 +177,16 @@ const BlogPost = () => {
                     <span className="font-mono font-medium">{post.readTime} min read</span>
                   </div>
                 </div>
-
-                {/* Enhanced Action buttons with working functionality */}
                 <div className="flex items-center gap-3 ml-auto">
                   <ShareButton title={post.title} />
                   <SaveButton postId={post.id.toString()} postTitle={post.title} />
                 </div>
               </div>
-              
-              {/* Enhanced Tags */}
               <div className="flex flex-wrap gap-3 mb-10">
                 {post.tags.map((tag, index) => (
-                  <Badge 
-                    key={tag} 
-                    variant="secondary" 
+                  <Badge
+                    key={tag}
+                    variant="secondary"
                     className="font-mono text-sm px-4 py-2 bg-gradient-to-r from-muted/40 to-muted/60 
                       hover:from-primary/15 hover:to-accent/15 hover:text-primary hover:scale-110 
                       transition-all duration-300 cursor-pointer hover:shadow-xl hover:shadow-primary/20 
@@ -131,26 +200,20 @@ const BlogPost = () => {
                 ))}
               </div>
             </header>
-            
-            {/* Enhanced Featured Image */}
             <div className="relative aspect-video rounded-3xl overflow-hidden mb-16 not-prose group shadow-2xl shadow-black/20">
               <div className="absolute inset-0 bg-gradient-to-t from-black/30 via-transparent to-transparent z-10" />
-              <img 
-                src={post.coverImage} 
-                alt={post.title} 
+              <img
+                src={post.coverImage}
+                alt={post.title || "Blog cover"}
                 className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 brightness-95 group-hover:brightness-105"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent opacity-60 group-hover:opacity-30 transition-opacity duration-500" />
-              
-              {/* Reading indicator overlay */}
               <div className="absolute bottom-6 left-6 z-20 opacity-0 group-hover:opacity-100 transition-all duration-300 transform translate-y-4 group-hover:translate-y-0">
                 <div className="bg-black/80 backdrop-blur-md text-white px-6 py-3 rounded-2xl border border-white/20">
                   <p className="text-sm font-mono font-medium">Featured Article</p>
                 </div>
               </div>
             </div>
-            
-            {/* Enhanced Article Content */}
             <div className="prose prose-lg dark:prose-invert prose-slate max-w-none relative
               prose-headings:font-mono prose-headings:font-bold prose-headings:text-foreground
               prose-h1:text-4xl prose-h2:text-3xl prose-h3:text-2xl prose-h4:text-xl
@@ -161,30 +224,21 @@ const BlogPost = () => {
               prose-ul:mb-8 prose-ol:mb-8 prose-li:mb-3 prose-li:text-lg
               prose-a:text-primary prose-a:no-underline hover:prose-a:underline hover:prose-a:text-primary/80 prose-a:font-medium
               prose-img:rounded-2xl prose-img:shadow-xl prose-img:shadow-black/10">
-              
-              {/* Content background decoration */}
               <div className="absolute -inset-4 bg-gradient-to-r from-transparent via-primary/2 to-transparent rounded-3xl -z-10" />
-              
               <MarkdownRenderer content={post.content} />
             </div>
           </article>
-          
-          {/* Enhanced Related Posts */}
           <div className="mt-20 pt-12 border-t border-gradient-to-r from-transparent via-border to-transparent relative">
-            {/* Section decoration */}
             <div className="absolute top-0 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-16 h-0.5 bg-gradient-to-r from-primary to-accent" />
-            
             <h3 className="text-3xl font-bold mb-12 font-mono bg-gradient-to-r from-foreground via-primary to-foreground 
               bg-clip-text text-transparent text-center hover:tracking-wide transition-all duration-300">
               Continue Reading
             </h3>
-            
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-              {blogPosts
-                .filter(p => p.id !== post.id)
-                .slice(0, 2)
-                .map((relatedPost, index) => (
-                  <Link 
+              {isRelatedLoading && <div>Loading related posts...</div>}
+              {relatedPosts &&
+                relatedPosts.map((relatedPost, index) => (
+                  <Link
                     key={relatedPost.id}
                     to={`/blog/${relatedPost.slug}`}
                     className="block group hover:bg-gradient-to-br hover:from-muted/30 hover:to-muted/10 
@@ -193,25 +247,20 @@ const BlogPost = () => {
                       bg-gradient-to-br from-card/50 to-muted/20 backdrop-blur-sm"
                     style={{ animationDelay: `${index * 200}ms` }}
                   >
-                    {/* Card background decoration */}
                     <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-accent/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-3xl" />
-                    
                     <div className="aspect-video rounded-2xl overflow-hidden mb-6 relative shadow-lg">
-                      <img 
+                      <img
                         src={relatedPost.coverImage}
-                        alt={relatedPost.title}
+                        alt={relatedPost.title || "Related blog cover"}
                         className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110 brightness-95 group-hover:brightness-105"
                       />
                       <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent opacity-60 group-hover:opacity-30 transition-opacity duration-500" />
-                      
-                      {/* Read more indicator */}
                       <div className="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-all duration-300 transform translate-x-4 group-hover:translate-x-0">
                         <div className="bg-black/80 backdrop-blur-sm text-white p-2 rounded-full">
                           <ExternalLink size={16} />
                         </div>
                       </div>
                     </div>
-                    
                     <h4 className="font-bold text-xl mb-3 group-hover:text-primary transition-colors duration-300 font-mono
                       group-hover:tracking-wide leading-tight relative z-10">
                       {relatedPost.title}
@@ -230,8 +279,7 @@ const BlogPost = () => {
                       </span>
                     </div>
                   </Link>
-                ))
-              }
+                ))}
             </div>
           </div>
         </div>

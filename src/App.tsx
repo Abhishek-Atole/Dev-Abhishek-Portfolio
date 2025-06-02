@@ -11,10 +11,6 @@ import CertificatesPage from "@/pages/CertificatesPage";
 import ContactPage from "@/pages/ContactPage";
 import BlogPage from "@/pages/BlogPage";
 import BlogPost from "@/pages/BlogPost";
-import CppBasicsForBeginnersPage from "@/pages/blog/CppBasicsForBeginnersPage";
-import ModernCppBestPracticesPage from "@/pages/blog/ModernCppBestPracticesPage";
-import JavaJdbcBestPracticesPage from "@/pages/blog/JavaJdbcBestPracticesPage";
-import InMemoryFilesystemPage from "@/pages/blog/InMemoryFilesystemPage";
 import AdminDashboard from "@/pages/AdminDashboard";
 import NotFound from "@/pages/NotFound";
 import { AdminAuthProvider } from "@/contexts/AdminAuthContext";
@@ -36,10 +32,6 @@ function App() {
             <Route path="/contact" element={<ContactPage />} />
             <Route path="/blog" element={<BlogPage />} />
             <Route path="/blog/:slug" element={<BlogPost />} />
-            <Route path="/blog/cpp-basics-for-beginners" element={<CppBasicsForBeginnersPage />} />
-            <Route path="/blog/modern-cpp-best-practices" element={<ModernCppBestPracticesPage />} />
-            <Route path="/blog/java-jdbc-best-practices" element={<JavaJdbcBestPracticesPage />} />
-            <Route path="/blog/in-memory-filesystem" element={<InMemoryFilesystemPage />} />
             <Route path="/admin" element={<AdminDashboard />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
