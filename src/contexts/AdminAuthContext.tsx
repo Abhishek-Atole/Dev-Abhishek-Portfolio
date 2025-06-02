@@ -48,12 +48,14 @@ export const AdminAuthProvider: React.FC<AdminAuthProviderProps> = ({ children }
         return;
       }
 
+      console.log('Checking admin session with token:', sessionToken);
+
       // Verify session token
       const { data: session, error } = await supabase
         .from('admin_sessions')
         .select(`
           *,
-          admin_users (
+          admin_users!admin_sessions_admin_user_id_fkey (
             id,
             username,
             email,
@@ -62,15 +64,19 @@ export const AdminAuthProvider: React.FC<AdminAuthProviderProps> = ({ children }
         `)
         .eq('session_token', sessionToken)
         .gt('expires_at', new Date().toISOString())
-        .single();
+        .maybeSingle();
 
       if (error || !session) {
+        console.log('Session check failed:', error);
         localStorage.removeItem('admin_session_token');
         setIsLoading(false);
         return;
       }
 
-      setAdminUser(session.admin_users as AdminUser);
+      console.log('Session valid:', session);
+      if (session.admin_users) {
+        setAdminUser(session.admin_users as AdminUser);
+      }
     } catch (error) {
       console.error('Session check error:', error);
       localStorage.removeItem('admin_session_token');
@@ -82,17 +88,23 @@ export const AdminAuthProvider: React.FC<AdminAuthProviderProps> = ({ children }
   const login = async (username: string, password: string): Promise<{ success: boolean; error?: string }> => {
     try {
       setIsLoading(true);
+      console.log('Attempting admin login for username:', username);
 
-      // Call login edge function
-      const response = await fetch('/api/admin-login', {
+      // Call login edge function with correct URL
+      const response = await fetch('https://kjphoudvjejgzhzohzwu.supabase.co/functions/v1/admin-login', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          // Add this if you want to use the anon key as a bearer token:
+          'Authorization': `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtqcGhvdWR2amVqZ3poem9oend1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDgxOTYwNTgsImV4cCI6MjA2Mzc3MjA1OH0.bIBVdLoCiIA7IwE6d_LtAtFI02Re5njRK3nQvdjM24c`,
         },
         body: JSON.stringify({ username, password }),
       });
 
+      console.log('Login response status:', response.status);
+      
       const result = await response.json();
+      console.log('Login response data:', result);
 
       if (!response.ok) {
         return { success: false, error: result.error || 'Login failed' };
@@ -102,6 +114,7 @@ export const AdminAuthProvider: React.FC<AdminAuthProviderProps> = ({ children }
       localStorage.setItem('admin_session_token', result.sessionToken);
       setAdminUser(result.user);
 
+      console.log('Login successful, user:', result.user);
       return { success: true };
     } catch (error) {
       console.error('Login error:', error);
@@ -115,6 +128,7 @@ export const AdminAuthProvider: React.FC<AdminAuthProviderProps> = ({ children }
     try {
       const sessionToken = localStorage.getItem('admin_session_token');
       if (sessionToken) {
+        console.log('Logging out admin user');
         // Delete session from database
         await supabase
           .from('admin_sessions')

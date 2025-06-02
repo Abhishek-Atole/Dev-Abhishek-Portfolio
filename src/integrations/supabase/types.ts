@@ -40,6 +40,20 @@ export type Database = {
             referencedRelation: "tags"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "fk_blog_post_tags_post"
+            columns: ["blog_post_id"]
+            isOneToOne: false
+            referencedRelation: "admin_blog_posts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fk_blog_post_tags_tag"
+            columns: ["tag_id"]
+            isOneToOne: false
+            referencedRelation: "tags"
+            referencedColumns: ["id"]
+          },
         ]
       }
       admin_blog_posts: {
@@ -93,6 +107,75 @@ export type Database = {
             referencedRelation: "categories"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "fk_blog_posts_category"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "categories"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      admin_invitations: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          email: string
+          expires_at: string
+          id: string
+          invitation_code: string
+          used_at: string | null
+          used_by: string | null
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          email: string
+          expires_at?: string
+          id?: string
+          invitation_code: string
+          used_at?: string | null
+          used_by?: string | null
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          email?: string
+          expires_at?: string
+          id?: string
+          invitation_code?: string
+          used_at?: string | null
+          used_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "admin_invitations_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "admin_users"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "admin_invitations_used_by_fkey"
+            columns: ["used_by"]
+            isOneToOne: false
+            referencedRelation: "admin_users"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fk_admin_invitations_creator"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "admin_users"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fk_admin_invitations_used_by"
+            columns: ["used_by"]
+            isOneToOne: false
+            referencedRelation: "admin_users"
+            referencedColumns: ["id"]
+          },
         ]
       }
       admin_sessions: {
@@ -125,6 +208,13 @@ export type Database = {
             referencedRelation: "admin_users"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "fk_admin_sessions_user"
+            columns: ["admin_user_id"]
+            isOneToOne: false
+            referencedRelation: "admin_users"
+            referencedColumns: ["id"]
+          },
         ]
       }
       admin_users: {
@@ -133,6 +223,8 @@ export type Database = {
           email: string | null
           failed_login_attempts: number | null
           id: string
+          invited_by: string | null
+          is_verified: boolean
           last_login: string | null
           locked_until: string | null
           password_hash: string
@@ -144,6 +236,8 @@ export type Database = {
           email?: string | null
           failed_login_attempts?: number | null
           id?: string
+          invited_by?: string | null
+          is_verified?: boolean
           last_login?: string | null
           locked_until?: string | null
           password_hash: string
@@ -155,13 +249,30 @@ export type Database = {
           email?: string | null
           failed_login_attempts?: number | null
           id?: string
+          invited_by?: string | null
+          is_verified?: boolean
           last_login?: string | null
           locked_until?: string | null
           password_hash?: string
           updated_at?: string
           username?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "admin_users_invited_by_fkey"
+            columns: ["invited_by"]
+            isOneToOne: false
+            referencedRelation: "admin_users"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fk_admin_users_invited_by"
+            columns: ["invited_by"]
+            isOneToOne: false
+            referencedRelation: "admin_users"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       categories: {
         Row: {
@@ -261,6 +372,13 @@ export type Database = {
           url?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "fk_media_uploads_post"
+            columns: ["blog_post_id"]
+            isOneToOne: false
+            referencedRelation: "admin_blog_posts"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "media_uploads_blog_post_id_fkey"
             columns: ["blog_post_id"]

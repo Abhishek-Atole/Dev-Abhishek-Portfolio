@@ -7,6 +7,7 @@ import { Label } from '@/components/ui/label';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Lock, User, Eye, EyeOff } from 'lucide-react';
 import { useAdminAuth } from '@/contexts/AdminAuthContext';
+import AdminRegister from './AdminRegister';
 
 const AdminLogin = () => {
   const [username, setUsername] = useState('');
@@ -14,6 +15,7 @@ const AdminLogin = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [showRegister, setShowRegister] = useState(false);
   
   const { login } = useAdminAuth();
 
@@ -36,6 +38,10 @@ const AdminLogin = () => {
     
     setIsSubmitting(false);
   };
+
+  if (showRegister) {
+    return <AdminRegister onBackToLogin={() => setShowRegister(false)} />;
+  }
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-background to-muted p-4">
@@ -115,6 +121,18 @@ const AdminLogin = () => {
             >
               {isSubmitting ? 'Signing in...' : 'Sign In'}
             </Button>
+
+            <div className="text-center">
+              <Button
+                type="button"
+                variant="ghost"
+                onClick={() => setShowRegister(true)}
+                disabled={isSubmitting}
+                className="text-sm"
+              >
+                Need an account? Register with invitation code
+              </Button>
+            </div>
           </form>
           
           <div className="mt-6 text-center text-sm text-muted-foreground">

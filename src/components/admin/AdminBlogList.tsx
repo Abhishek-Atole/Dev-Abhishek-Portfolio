@@ -23,30 +23,33 @@ const AdminBlogList = ({ onEditPost, onNewPost, onBackToDashboard }: AdminBlogLi
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
-  // Fetch blog posts
-  const { data: posts, isLoading } = useQuery({
+  // Fetch blog posts with better error handling and simpler query
+  const { data: posts, isLoading, error } = useQuery({
     queryKey: ["admin-blog-posts", searchTerm, statusFilter],
     queryFn: async () => {
+      console.log("Fetching blog posts...");
+      
       let query = supabase
         .from("admin_blog_posts")
-        .select(`
-          *,
-          categories(name),
-          admin_blog_post_tags(tags(name))
-        `)
+        .select("*")
         .order("created_at", { ascending: false });
 
       if (searchTerm) {
         query = query.ilike("title", `%${searchTerm}%`);
       }
-
       if (statusFilter !== "all") {
         query = query.eq("status", statusFilter);
       }
-
+      
       const { data, error } = await query;
-      if (error) throw error;
-      return data;
+      console.log("Blog posts query result:", { data, error });
+      
+      if (error) {
+        console.error("Error fetching blog posts:", error);
+        throw error;
+      }
+      
+      return data || [];
     }
   });
 
@@ -91,6 +94,10 @@ const AdminBlogList = ({ onEditPost, onNewPost, onBackToDashboard }: AdminBlogLi
         return "bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200";
     }
   };
+
+  if (error) {
+    console.error("Query error:", error);
+  }
 
   return (
     <div className="space-y-6">
@@ -139,6 +146,15 @@ const AdminBlogList = ({ onEditPost, onNewPost, onBackToDashboard }: AdminBlogLi
         </CardContent>
       </Card>
 
+      {/* Debug Info */}
+      {error && (
+        <Card className="border-red-200 bg-red-50">
+          <CardContent className="pt-6">
+            <p className="text-red-700">Error loading posts: {error.message}</p>
+          </CardContent>
+        </Card>
+      )}
+
       {/* Posts List */}
       <div className="space-y-4">
         {isLoading ? (
@@ -148,91 +164,83 @@ const AdminBlogList = ({ onEditPost, onNewPost, onBackToDashboard }: AdminBlogLi
             </CardContent>
           </Card>
         ) : posts && posts.length > 0 ? (
-          posts.map((post) => (
-            <Card key={post.id} className="hover:shadow-md transition-shadow">
-              <CardContent className="pt-6">
-                <div className="flex items-start justify-between">
-                  <div className="flex-1 space-y-3">
-                    <div className="flex items-start justify-between">
-                      <div>
-                        <h3 className="text-lg font-semibold hover:text-primary cursor-pointer" 
-                            onClick={() => onEditPost(post.id)}>
-                          {post.title}
-                        </h3>
-                        <p className="text-sm text-muted-foreground">
-                          /{post.slug}
+          <>
+            <div className="text-sm text-muted-foreground mb-4">
+              Found {posts.length} post{posts.length !== 1 ? 's' : ''}
+            </div>
+            {posts.map((post) => (
+              <Card key={post.id} className="hover:shadow-md transition-shadow">
+                <CardContent className="pt-6">
+                  <div className="flex items-start justify-between">
+                    <div className="flex-1 space-y-3">
+                      <div className="flex items-start justify-between">
+                        <div>
+                          <h3 className="text-lg font-semibold hover:text-primary cursor-pointer" 
+                              onClick={() => onEditPost(post.id)}>
+                            {post.title}
+                          </h3>
+                          <p className="text-sm text-muted-foreground">
+                            /{post.slug}
+                          </p>
+                        </div>
+                        <Badge className={getStatusColor(post.status)}>
+                          {post.status}
+                        </Badge>
+                      </div>
+                      
+                      {post.excerpt && (
+                        <p className="text-muted-foreground text-sm line-clamp-2">
+                          {post.excerpt}
                         </p>
-                      </div>
-                      <Badge className={getStatusColor(post.status)}>
-                        {post.status}
-                      </Badge>
-                    </div>
-                    
-                    {post.excerpt && (
-                      <p className="text-muted-foreground text-sm line-clamp-2">
-                        {post.excerpt}
-                      </p>
-                    )}
+                      )}
 
-                    <div className="flex flex-wrap items-center gap-4 text-sm text-muted-foreground">
-                      <span>
-                        Created: {format(new Date(post.created_at), "MMM d, yyyy")}
-                      </span>
-                      {post.published_date && (
+                      <div className="flex flex-wrap items-center gap-4 text-sm text-muted-foreground">
                         <span>
-                          Published: {format(new Date(post.published_date), "MMM d, yyyy")}
+                          Created: {format(new Date(post.created_at), "MMM d, yyyy")}
                         </span>
-                      )}
-                      {post.categories && (
-                        <span>Category: {post.categories.name}</span>
-                      )}
-                      <span>{post.read_time} min read</span>
+                        {post.published_date && (
+                          <span>
+                            Published: {format(new Date(post.published_date), "MMM d, yyyy")}
+                          </span>
+                        )}
+                        <span>{post.read_time} min read</span>
+                      </div>
                     </div>
 
-                    {post.admin_blog_post_tags && post.admin_blog_post_tags.length > 0 && (
-                      <div className="flex flex-wrap gap-2">
-                        {post.admin_blog_post_tags.map((tagRel: any, index: number) => (
-                          <Badge key={index} variant="outline" className="text-xs">
-                            {tagRel.tags.name}
-                          </Badge>
-                        ))}
-                      </div>
-                    )}
-                  </div>
-
-                  <div className="flex items-center gap-2 ml-4">
-                    {post.status === "published" && (
+                    <div className="flex items-center gap-2 ml-4">
+                      {post.status === "published" && (
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => window.open(`/blog/${post.slug}`, "_blank")}
+                          title="View Post"
+                        >
+                          <Eye size={16} />
+                        </Button>
+                      )}
                       <Button
                         variant="outline"
                         size="sm"
-                        onClick={() => window.open(`/blog/${post.slug}`, "_blank")}
-                        title="View Post"
+                        onClick={() => onEditPost(post.id)}
+                        title="Edit Post"
                       >
-                        <Eye size={16} />
+                        <Edit size={16} />
                       </Button>
-                    )}
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => onEditPost(post.id)}
-                      title="Edit Post"
-                    >
-                      <Edit size={16} />
-                    </Button>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => handleDeletePost(post.id, post.title)}
-                      title="Delete Post"
-                      disabled={deletePostMutation.isPending}
-                    >
-                      <Trash2 size={16} />
-                    </Button>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => handleDeletePost(post.id, post.title)}
+                        title="Delete Post"
+                        disabled={deletePostMutation.isPending}
+                      >
+                        <Trash2 size={16} />
+                      </Button>
+                    </div>
                   </div>
-                </div>
-              </CardContent>
-            </Card>
-          ))
+                </CardContent>
+              </Card>
+            ))}
+          </>
         ) : (
           <Card>
             <CardContent className="pt-6">
