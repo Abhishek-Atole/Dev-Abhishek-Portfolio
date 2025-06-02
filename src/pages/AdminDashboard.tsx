@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -15,8 +14,9 @@ import { Plus, FileText, Eye, Tag, Award, Folder, FolderOpen } from "lucide-reac
 import { useToast } from "@/hooks/use-toast";
 import AdminProtectedRoute from "@/components/admin/AdminProtectedRoute";
 import { useAdminAuth } from "@/contexts/AdminAuthContext";
+import AnalyticsPanel from "@/components/admin/AnalyticsPanel";
 
-type View = "dashboard" | "editor" | "list" | "certificates" | "categories" | "projects";
+type View = "dashboard" | "editor" | "list" | "certificates" | "categories" | "projects" | "analytics";
 
 const AdminDashboard = () => {
   const [currentView, setCurrentView] = useState<View>("dashboard");
@@ -208,7 +208,11 @@ const AdminDashboard = () => {
               <Tag size={20} className="sm:w-6 sm:h-6" />
               <span>Manage Tags</span>
             </Button>
-            <Button variant="outline" className="h-auto p-3 sm:p-4 flex flex-col items-center gap-2 text-sm opacity-50 cursor-not-allowed">
+            <Button
+              variant="outline"
+              onClick={() => setCurrentView("analytics")}
+              className="h-auto p-3 sm:p-4 flex flex-col items-center gap-2 text-sm"
+            >
               <FileText size={20} className="sm:w-6 sm:h-6" />
               <span>Analytics</span>
             </Button>
@@ -273,6 +277,18 @@ const AdminDashboard = () => {
               </Button>
             </div>
             <ProjectsManager />
+          </div>
+        );
+      case "analytics":
+        return (
+          <div className="space-y-6">
+            <div className="flex items-center justify-between">
+              <h1 className="text-2xl sm:text-3xl font-bold">Analytics</h1>
+              <Button variant="outline" onClick={handleBackToDashboard} size="sm">
+                Back to Dashboard
+              </Button>
+            </div>
+            <AnalyticsPanel />
           </div>
         );
       default:
