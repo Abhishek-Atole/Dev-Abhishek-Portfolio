@@ -40,7 +40,8 @@ const BlogPage = () => {
         publishedDate: post.published_date || post.created_at.split('T')[0],
         readTime: post.read_time || 5,
         coverImage: post.cover_image || "/placeholder.svg",
-        tags: ["Programming"] // Default tags for now, will be improved later
+        tags: ["Programming"], // Default tags for now, will be improved later
+        content: post.content || "" // Add content field to fix TypeScript error
       })) || [];
     }
   });
