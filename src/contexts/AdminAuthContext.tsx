@@ -1,3 +1,4 @@
+
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 
@@ -73,7 +74,9 @@ export const AdminAuthProvider: React.FC<AdminAuthProviderProps> = ({ children }
       }
 
       console.log('Session valid:', session);
-      setAdminUser(session.admin_users as AdminUser);
+      if (session.admin_users) {
+        setAdminUser(session.admin_users as AdminUser);
+      }
     } catch (error) {
       console.error('Session check error:', error);
       localStorage.removeItem('admin_session_token');
@@ -93,7 +96,7 @@ export const AdminAuthProvider: React.FC<AdminAuthProviderProps> = ({ children }
         headers: {
           'Content-Type': 'application/json',
           // Add this if you want to use the anon key as a bearer token:
-          'Authorization': `Bearer ${import.meta.env.VITE_SUPABASE_ANON_KEY}`,
+          'Authorization': `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtqcGhvdWR2amVqZ3poem9oend1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDgxOTYwNTgsImV4cCI6MjA2Mzc3MjA1OH0.bIBVdLoCiIA7IwE6d_LtAtFI02Re5njRK3nQvdjM24c`,
         },
         body: JSON.stringify({ username, password }),
       });

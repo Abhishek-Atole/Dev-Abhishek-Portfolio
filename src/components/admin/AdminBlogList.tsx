@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -30,8 +31,8 @@ const AdminBlogList = ({ onEditPost, onNewPost, onBackToDashboard }: AdminBlogLi
         .from("admin_blog_posts")
         .select(`
           *,
-          categories(name),
-          admin_blog_post_tags(tags(name))
+          categories!admin_blog_posts_category_id_fkey(name),
+          admin_blog_post_tags(tags!admin_blog_post_tags_tag_id_fkey(name))
         `)
         .order("created_at", { ascending: false });
 
