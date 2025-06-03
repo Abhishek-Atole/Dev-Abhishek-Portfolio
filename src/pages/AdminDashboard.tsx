@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -8,9 +9,10 @@ import AdminBlogList from "@/components/admin/AdminBlogList";
 import CertificationManager from "@/components/admin/CertificationManager";
 import CategoriesManager from "@/components/admin/CategoriesManager";
 import ProjectsManager from "@/components/admin/ProjectsManager";
+import WorkExperienceManager from "@/components/admin/WorkExperienceManager";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Plus, FileText, Eye, Tag, Award, Folder, FolderOpen } from "lucide-react";
+import { Plus, FileText, Eye, Tag, Award, Folder, FolderOpen, Building2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import AdminProtectedRoute from "@/components/admin/AdminProtectedRoute";
 import { useAdminAuth } from "@/contexts/AdminAuthContext";
@@ -18,7 +20,7 @@ import AnalyticsPanel from "@/components/admin/AnalyticsPanel";
 import MediaLibrary from "@/components/admin/MediaLibrary";
 import TagsManager from "@/components/admin/TagsManager";
 
-type View = "dashboard" | "editor" | "list" | "certificates" | "categories" | "projects" | "analytics" | "media" | "tags";
+type View = "dashboard" | "editor" | "list" | "certificates" | "categories" | "projects" | "work-experience" | "analytics" | "media" | "tags";
 
 const AdminDashboard = () => {
   const [currentView, setCurrentView] = useState<View>("dashboard");
@@ -34,12 +36,13 @@ const AdminDashboard = () => {
   const { data: stats } = useQuery({
     queryKey: ["admin-stats"],
     queryFn: async () => {
-      const [postsResult, categoriesResult, tagsResult, certificatesResult, projectsResult] = await Promise.all([
+      const [postsResult, categoriesResult, tagsResult, certificatesResult, projectsResult, workExperiencesResult] = await Promise.all([
         supabase.from("admin_blog_posts").select("status", { count: "exact" }),
         supabase.from("categories").select("*", { count: "exact" }),
         supabase.from("tags").select("*", { count: "exact" }),
         supabase.from("certificates").select("*", { count: "exact" }),
-        supabase.from("projects").select("status", { count: "exact" })
+        supabase.from("projects").select("status", { count: "exact" }),
+        supabase.from("work_experiences").select("status", { count: "exact" })
       ]);
 
       const totalPosts = postsResult.count || 0;
@@ -49,6 +52,9 @@ const AdminDashboard = () => {
       const totalProjects = projectsResult.count || 0;
       const publishedProjects = projectsResult.data?.filter(p => p.status === "published").length || 0;
 
+      const totalWorkExperiences = workExperiencesResult.count || 0;
+      const publishedWorkExperiences = workExperiencesResult.data?.filter(p => p.status === "published").length || 0;
+
       return {
         totalPosts,
         publishedPosts,
@@ -57,7 +63,9 @@ const AdminDashboard = () => {
         totalTags: tagsResult.count || 0,
         totalCertificates: certificatesResult.count || 0,
         totalProjects,
-        publishedProjects
+        publishedProjects,
+        totalWorkExperiences,
+        publishedWorkExperiences
       };
     }
   });
@@ -157,10 +165,10 @@ const AdminDashboard = () => {
         </Card>
         <Card className="text-center">
           <CardHeader className="pb-1">
-            <CardTitle className="text-xs font-medium">Live Projects</CardTitle>
+            <CardTitle className="text-xs font-medium">Work Exp.</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-green-600">{stats?.publishedProjects || 0}</div>
+            <div className="text-2xl font-bold text-purple-600">{stats?.totalWorkExperiences || 0}</div>
           </CardContent>
         </Card>
         <Card className="text-center">
@@ -196,12 +204,16 @@ const AdminDashboard = () => {
               <FolderOpen size={22} />
               <span>Manage Projects</span>
             </Button>
+            <Button variant="outline" onClick={() => setCurrentView("work-experience")} className="h-auto p-4 flex flex-col items-center gap-2 text-sm font-medium">
+              <Building2 size={22} />
+              <span>Work Experience</span>
+            </Button>
+          </div>
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
             <Button variant="outline" onClick={() => setCurrentView("certificates")} className="h-auto p-4 flex flex-col items-center gap-2 text-sm font-medium">
               <Award size={22} />
               <span>Manage Certificates</span>
             </Button>
-          </div>
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
             <Button variant="outline" onClick={() => setCurrentView("categories")} className="h-auto p-4 flex flex-col items-center gap-2 text-sm font-medium">
               <Folder size={22} />
               <span>Manage Categories</span>
@@ -214,6 +226,8 @@ const AdminDashboard = () => {
               <FileText size={22} />
               <span>Analytics</span>
             </Button>
+          </div>
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
             <Button variant="outline" onClick={() => setCurrentView("media")} className="h-auto p-4 flex flex-col items-center gap-2 text-sm font-medium">
               <Eye size={22} />
               <span>Media Library</span>
@@ -275,6 +289,18 @@ const AdminDashboard = () => {
               </Button>
             </div>
             <ProjectsManager />
+          </div>
+        );
+      case "work-experience":
+        return (
+          <div className="space-y-6">
+            <div className="flex items-center justify-between">
+              <h1 className="text-2xl sm:text-3xl font-bold">Work Experience Management</h1>
+              <Button variant="outline" onClick={handleBackToDashboard} size="sm">
+                Back to Dashboard
+              </Button>
+            </div>
+            <WorkExperienceManager />
           </div>
         );
       case "analytics":

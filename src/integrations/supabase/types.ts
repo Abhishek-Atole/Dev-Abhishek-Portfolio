@@ -388,6 +388,45 @@ export type Database = {
           },
         ]
       }
+      projects: {
+        Row: {
+          created_at: string
+          demo_url: string | null
+          description: string
+          github_url: string
+          id: string
+          image_url: string | null
+          status: string
+          tags: string[] | null
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          demo_url?: string | null
+          description: string
+          github_url: string
+          id?: string
+          image_url?: string | null
+          status?: string
+          tags?: string[] | null
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          demo_url?: string | null
+          description?: string
+          github_url?: string
+          id?: string
+          image_url?: string | null
+          status?: string
+          tags?: string[] | null
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       tags: {
         Row: {
           created_at: string
@@ -409,12 +448,63 @@ export type Database = {
         }
         Relationships: []
       }
+      work_experiences: {
+        Row: {
+          company: string
+          created_at: string
+          description: string[]
+          display_order: number | null
+          duration: string
+          id: string
+          location: string
+          skills: string[]
+          status: string
+          timeframe: string
+          title: string
+          type: string
+          updated_at: string
+        }
+        Insert: {
+          company: string
+          created_at?: string
+          description?: string[]
+          display_order?: number | null
+          duration: string
+          id?: string
+          location: string
+          skills?: string[]
+          status?: string
+          timeframe: string
+          title: string
+          type: string
+          updated_at?: string
+        }
+        Update: {
+          company?: string
+          created_at?: string
+          description?: string[]
+          display_order?: number | null
+          duration?: string
+          id?: string
+          location?: string
+          skills?: string[]
+          status?: string
+          timeframe?: string
+          title?: string
+          type?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      update_admin_blog_posts_updated_at_column: {
+        Args: Record<PropertyKey, never>
+        Returns: undefined
+      }
     }
     Enums: {
       [_ in never]: never
