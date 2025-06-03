@@ -1,3 +1,4 @@
+
 import { serve } from 'https://deno.land/std@0.168.0/http/server.ts'
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 import { compare } from 'https://deno.land/x/bcrypt@v0.4.1/mod.ts'
@@ -72,8 +73,8 @@ serve(async (req) => {
     // Verify password - handle both the default password and bcrypt hashes
     let isValidPassword = false;
     
-    // For the default admin user with username 'admin', check for plain text 'admin123' first
-    if (username === 'admin' && password === 'admin123') {
+    // For the default admin user with username 'superadmin', check for plain text 'SecurePass2024!' first
+    if (username === 'superadmin' && password === 'SecurePass2024!') {
       isValidPassword = true;
       console.log('Default admin login successful');
     } else {
