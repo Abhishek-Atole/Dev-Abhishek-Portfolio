@@ -501,6 +501,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      is_admin_authenticated: {
+        Args: Record<PropertyKey, never>
+        Returns: boolean
+      }
       update_admin_blog_posts_updated_at_column: {
         Args: Record<PropertyKey, never>
         Returns: undefined
