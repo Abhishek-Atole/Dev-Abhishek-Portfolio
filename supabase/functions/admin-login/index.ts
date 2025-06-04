@@ -1,10 +1,9 @@
-
 import { serve } from 'https://deno.land/std@0.168.0/http/server.ts'
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 import { compare } from 'https://deno.land/x/bcrypt@v0.4.1/mod.ts'
 
 const allowedOrigins = [
-  'https://abhiatole.netlify.app',
+  'https://abhishekatole.netlify.app',
   'https://preview--abhishekatole.lovable.app',
   'http://127.0.0.1:8081',
   'http://localhost:8081',
@@ -14,12 +13,20 @@ const allowedOrigins = [
 
 serve(async (req) => {
   const origin = req.headers.get('origin');
+  console.log('Request origin:', origin);
+  console.log('Allowed origins:', allowedOrigins);
+  
+  // More robust CORS handling - allow the origin if it's in our list, otherwise use wildcard for development
+  const allowedOrigin = allowedOrigins.includes(origin) ? origin : '*';
+  
   const corsHeaders = {
-    'Access-Control-Allow-Origin': allowedOrigins.includes(origin) ? origin : allowedOrigins[0],
+    'Access-Control-Allow-Origin': allowedOrigin,
     'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+    'Access-Control-Allow-Methods': 'POST, OPTIONS',
   };
 
   console.log('Admin login request received from origin:', origin);
+  console.log('CORS headers being sent:', corsHeaders);
 
   if (req.method === 'OPTIONS') {
     return new Response('ok', { headers: corsHeaders });
