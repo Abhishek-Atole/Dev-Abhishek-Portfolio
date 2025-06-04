@@ -1,288 +1,157 @@
-import { useParams, Link, useNavigate } from "react-router-dom";
-import { useEffect } from "react";
-import NavBar from "@/components/NavBar";
-import Footer from "@/components/Footer";
-import { ArrowLeft, Calendar, Clock, Tag, ExternalLink } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import MarkdownRenderer from "@/components/MarkdownRenderer";
-import ShareButton from "@/components/ShareButton";
-import SaveButton from "@/components/SaveButton";
-import { useQuery } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
 
-interface BlogPostType {
-  id: string;
-  title: string;
-  slug: string;
-  coverImage: string;
-  publishedDate: string;
-  readTime: number;
-  tags: string[];
-  content: string;
-  excerpt?: string;
-  status?: string;
-}
-
-const getExcerpt = (content: string, length = 120) =>
-  content.replace(/[#>*_`-]/g, "").slice(0, length) + "...";
-
-const fetchBlogPostBySlug = async (slug: string): Promise<BlogPostType> => {
-  const { data, error } = await supabase
-    .from("admin_blog_posts")
-    .select("*")
-    .eq("slug", slug)
-    .single();
-  if (error || !data) throw new Error("Blog post not found");
-  return {
-    ...data,
-    coverImage: data.cover_image || "/placeholder.svg",
-    publishedDate: data.published_date || data.created_at?.split("T")[0] || "",
-    readTime: data.read_time || 5,
-    tags: data.tags || [],
-    content: data.content || "",
-    excerpt: data.excerpt || getExcerpt(data.content || ""),
-  };
-};
-
-const fetchRelatedPosts = async (currentId: string): Promise<BlogPostType[]> => {
-  const { data, error } = await supabase
-    .from("admin_blog_posts")
-    .select("*")
-    .neq("id", currentId)
-    .eq("status", "published")
-    .order("created_at", { ascending: false })
-    .limit(2);
-  if (error) throw new Error("Failed to fetch related posts");
-  return (data || []).map((post: any) => ({
-    ...post,
-    coverImage: post.cover_image || "/placeholder.svg",
-    publishedDate: post.published_date || post.created_at?.split("T")[0] || "",
-    readTime: post.read_time || 5,
-    tags: post.tags || [],
-    content: post.content || "",
-    excerpt: post.excerpt || getExcerpt(post.content || ""),
-  }));
-};
+import React from 'react';
+import { useParams, Navigate } from 'react-router-dom';
+import { useQuery } from '@tanstack/react-query';
+import { supabase } from '@/integrations/supabase/client';
+import NavBar from '@/components/NavBar';
+import Footer from '@/components/Footer';
+import MarkdownRenderer from '@/components/MarkdownRenderer';
+import ShareButton from '@/components/ShareButton';
+import SaveButton from '@/components/SaveButton';
+import { Calendar, Clock, ArrowLeft } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import { Button } from '@/components/ui/button';
 
 const BlogPost = () => {
-  const { slug } = useParams();
-  const navigate = useNavigate();
+  const { slug } = useParams<{ slug: string }>();
 
-  const { data: post, isLoading, isError, error } = useQuery({
-    queryKey: ["blogPost", slug],
-    queryFn: () => fetchBlogPostBySlug(slug!),
-    enabled: !!slug,
+  const { data: post, isLoading, error } = useQuery({
+    queryKey: ['blog-post', slug],
+    queryFn: async () => {
+      console.log('Fetching blog post with slug:', slug);
+      
+      const { data, error } = await supabase
+        .from('admin_blog_posts')
+        .select('*')
+        .eq('slug', slug)
+        .eq('status', 'published')
+        .single();
+
+      if (error) {
+        console.error('Error fetching blog post:', error);
+        throw error;
+      }
+
+      console.log('Fetched blog post:', data);
+      return data;
+    },
+    enabled: !!slug
   });
 
-  const {
-    data: relatedPosts,
-    isLoading: isRelatedLoading,
-  } = useQuery({
-    queryKey: ["relatedPosts", post?.id],
-    queryFn: () => fetchRelatedPosts(post.id),
-    enabled: !!post?.id,
-  });
-
-  useEffect(() => {
-    if (post) {
-      document.title = `${post.title} | Abhishek Atole`;
-      window.scrollTo(0, 0);
-    }
-  }, [post]);
-
-  useEffect(() => {
-    if (isError) {
-      // Optionally show a toast or error message
-      setTimeout(() => navigate("/blog", { replace: true }), 2000);
-    }
-  }, [isError, navigate]);
-
-  if (isLoading) return <div className="text-center py-20">Loading...</div>;
-  if (isError)
+  if (isLoading) {
     return (
-      <div className="text-center py-20 text-destructive">
-        Blog post not found. Redirecting...
-      </div>
-    );
-  if (!post) return null;
-
-  return (
-    <div className="min-h-screen bg-background relative overflow-hidden">
-      {/* Background gradients */}
-      <div className="absolute inset-0 bg-gradient-to-br from-primary/3 via-transparent to-accent/3 opacity-40" />
-      <div className="absolute top-0 left-1/4 w-96 h-96 bg-primary/5 rounded-full blur-3xl" />
-      <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-accent/5 rounded-full blur-3xl" />
-
-      <NavBar />
-      <main className="pt-24 pb-16 relative z-10">
-        <div className="container mx-auto max-w-4xl px-4">
-          <Button
-            variant="ghost"
-            asChild
-            className="mb-8 hover:bg-gradient-to-r hover:from-primary/10 hover:to-accent/10 
-              hover:scale-105 transition-all duration-300 group border border-border/50 
-              hover:border-primary/30 hover:shadow-lg hover:shadow-primary/10"
-          >
-            <Link to="/blog" className="flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors">
-              <ArrowLeft size={18} className="group-hover:-translate-x-1 transition-transform duration-300" />
-              <span className="font-mono font-medium">Back to all posts</span>
-            </Link>
-          </Button>
-
-          <article className="prose prose-lg dark:prose-invert max-w-none">
-            <header className="mb-12 not-prose relative">
-              <div className="absolute -top-8 -left-8 w-16 h-16 bg-gradient-to-br from-primary/20 to-accent/20 rounded-full blur-xl opacity-50" />
-              <div className="absolute -top-4 -right-4 w-8 h-8 bg-gradient-to-br from-accent/30 to-primary/30 rounded-full blur-lg opacity-40" />
-
-              <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold leading-tight mb-8 text-foreground 
-                bg-gradient-to-r from-foreground via-primary to-foreground bg-clip-text text-transparent 
-                animate-fade-in font-mono tracking-tight hover:tracking-wide transition-all duration-500">
-                {post.title}
-              </h1>
-
-              <div className="flex flex-col lg:flex-row items-start lg:items-center gap-6 mb-8 text-muted-foreground 
-                border border-border/30 rounded-2xl p-6 bg-gradient-to-r from-card/50 to-muted/20 
-                backdrop-blur-sm hover:border-primary/40 hover:shadow-xl hover:shadow-primary/5 
-                transition-all duration-500 hover:-translate-y-1">
-                <div className="flex items-center gap-4 group">
-                  <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-primary/20 via-accent/20 to-primary/20 
-                    flex items-center justify-center group-hover:scale-110 transition-transform duration-300 
-                    group-hover:shadow-2xl group-hover:shadow-primary/20 relative overflow-hidden">
-                    <div className="absolute inset-0 bg-gradient-to-r from-primary/10 to-accent/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-                    <img
-                      src="/lovable-uploads/c5dd3c17-c8a7-47a3-a576-a245e2a0a459.png"
-                      alt="Abhishek Atole"
-                      className="w-full h-full object-cover rounded-2xl relative z-10"
-                    />
-                  </div>
-                  <div>
-                    <p className="font-bold text-lg text-foreground group-hover:text-primary transition-colors duration-300 font-mono">
-                      Abhishek Atole
-                    </p>
-                    <p className="text-sm text-muted-foreground group-hover:text-foreground/80 transition-colors duration-300">
-                      Software Developer & Technical Writer
-                    </p>
-                  </div>
-                </div>
-                <div className="flex items-center gap-4 text-sm flex-wrap">
-                  <div className="flex items-center gap-2 px-4 py-2 rounded-xl bg-gradient-to-r from-muted/50 to-muted/30 
-                    hover:from-primary/10 hover:to-accent/10 transition-all duration-300 hover:scale-105 hover:shadow-md">
-                    <Calendar size={16} className="text-primary" />
-                    <span className="font-mono font-medium">{post.publishedDate}</span>
-                  </div>
-                  <div className="flex items-center gap-2 px-4 py-2 rounded-xl bg-gradient-to-r from-muted/50 to-muted/30 
-                    hover:from-primary/10 hover:to-accent/10 transition-all duration-300 hover:scale-105 hover:shadow-md">
-                    <Clock size={16} className="text-primary" />
-                    <span className="font-mono font-medium">{post.readTime} min read</span>
-                  </div>
-                </div>
-                <div className="flex items-center gap-3 ml-auto">
-                  <ShareButton title={post.title} />
-                  <SaveButton postId={post.id.toString()} postTitle={post.title} />
-                </div>
-              </div>
-              <div className="flex flex-wrap gap-3 mb-10">
-                {post.tags.map((tag, index) => (
-                  <Badge
-                    key={tag}
-                    variant="secondary"
-                    className="font-mono text-sm px-4 py-2 bg-gradient-to-r from-muted/40 to-muted/60 
-                      hover:from-primary/15 hover:to-accent/15 hover:text-primary hover:scale-110 
-                      transition-all duration-300 cursor-pointer hover:shadow-xl hover:shadow-primary/20 
-                      border border-border/50 hover:border-primary/40 group relative overflow-hidden"
-                    style={{ animationDelay: `${index * 100}ms` }}
-                  >
-                    <div className="absolute inset-0 bg-gradient-to-r from-primary/5 to-accent/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-                    <Tag size={12} className="mr-2 relative z-10" />
-                    <span className="relative z-10 font-semibold">{tag}</span>
-                  </Badge>
-                ))}
-              </div>
-            </header>
-            <div className="relative aspect-video rounded-3xl overflow-hidden mb-16 not-prose group shadow-2xl shadow-black/20">
-              <div className="absolute inset-0 bg-gradient-to-t from-black/30 via-transparent to-transparent z-10" />
-              <img
-                src={post.coverImage}
-                alt={post.title || "Blog cover"}
-                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 brightness-95 group-hover:brightness-105"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent opacity-60 group-hover:opacity-30 transition-opacity duration-500" />
-              <div className="absolute bottom-6 left-6 z-20 opacity-0 group-hover:opacity-100 transition-all duration-300 transform translate-y-4 group-hover:translate-y-0">
-                <div className="bg-black/80 backdrop-blur-md text-white px-6 py-3 rounded-2xl border border-white/20">
-                  <p className="text-sm font-mono font-medium">Featured Article</p>
-                </div>
-              </div>
-            </div>
-            <div className="prose prose-lg dark:prose-invert prose-slate max-w-none relative
-              prose-headings:font-mono prose-headings:font-bold prose-headings:text-foreground
-              prose-h1:text-4xl prose-h2:text-3xl prose-h3:text-2xl prose-h4:text-xl
-              prose-h1:mb-8 prose-h2:mb-6 prose-h2:mt-16 prose-h3:mb-4 prose-h3:mt-12 prose-h4:mb-3 prose-h4:mt-8
-              prose-p:text-foreground/90 prose-p:leading-8 prose-p:mb-8 prose-p:text-lg
-              prose-strong:text-foreground prose-strong:font-semibold prose-strong:text-primary
-              prose-blockquote:border-l-4 prose-blockquote:border-primary prose-blockquote:pl-8 prose-blockquote:italic prose-blockquote:bg-gradient-to-r prose-blockquote:from-muted/30 prose-blockquote:to-transparent prose-blockquote:py-4 prose-blockquote:rounded-r-lg
-              prose-ul:mb-8 prose-ol:mb-8 prose-li:mb-3 prose-li:text-lg
-              prose-a:text-primary prose-a:no-underline hover:prose-a:underline hover:prose-a:text-primary/80 prose-a:font-medium
-              prose-img:rounded-2xl prose-img:shadow-xl prose-img:shadow-black/10">
-              <div className="absolute -inset-4 bg-gradient-to-r from-transparent via-primary/2 to-transparent rounded-3xl -z-10" />
-              <MarkdownRenderer content={post.content} />
-            </div>
-          </article>
-          <div className="mt-20 pt-12 border-t border-gradient-to-r from-transparent via-border to-transparent relative">
-            <div className="absolute top-0 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-16 h-0.5 bg-gradient-to-r from-primary to-accent" />
-            <h3 className="text-3xl font-bold mb-12 font-mono bg-gradient-to-r from-foreground via-primary to-foreground 
-              bg-clip-text text-transparent text-center hover:tracking-wide transition-all duration-300">
-              Continue Reading
-            </h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-              {isRelatedLoading && <div>Loading related posts...</div>}
-              {relatedPosts &&
-                relatedPosts.map((relatedPost, index) => (
-                  <Link
-                    key={relatedPost.id}
-                    to={`/blog/${relatedPost.slug}`}
-                    className="block group hover:bg-gradient-to-br hover:from-muted/30 hover:to-muted/10 
-                      rounded-3xl p-6 transition-all duration-500 hover:shadow-2xl hover:shadow-primary/10 
-                      hover:-translate-y-2 border border-border/30 hover:border-primary/40 relative overflow-hidden
-                      bg-gradient-to-br from-card/50 to-muted/20 backdrop-blur-sm"
-                    style={{ animationDelay: `${index * 200}ms` }}
-                  >
-                    <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-accent/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-3xl" />
-                    <div className="aspect-video rounded-2xl overflow-hidden mb-6 relative shadow-lg">
-                      <img
-                        src={relatedPost.coverImage}
-                        alt={relatedPost.title || "Related blog cover"}
-                        className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110 brightness-95 group-hover:brightness-105"
-                      />
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent opacity-60 group-hover:opacity-30 transition-opacity duration-500" />
-                      <div className="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-all duration-300 transform translate-x-4 group-hover:translate-x-0">
-                        <div className="bg-black/80 backdrop-blur-sm text-white p-2 rounded-full">
-                          <ExternalLink size={16} />
-                        </div>
-                      </div>
-                    </div>
-                    <h4 className="font-bold text-xl mb-3 group-hover:text-primary transition-colors duration-300 font-mono
-                      group-hover:tracking-wide leading-tight relative z-10">
-                      {relatedPost.title}
-                    </h4>
-                    <p className="text-muted-foreground text-base line-clamp-2 mb-4 group-hover:text-foreground/80 transition-colors duration-300 leading-relaxed relative z-10">
-                      {relatedPost.excerpt}
-                    </p>
-                    <div className="flex items-center gap-4 text-sm text-muted-foreground relative z-10">
-                      <span className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-muted/40 group-hover:bg-muted/60 transition-colors duration-300">
-                        <Calendar size={12} className="text-primary" />
-                        <span className="font-mono">{relatedPost.publishedDate}</span>
-                      </span>
-                      <span className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-muted/40 group-hover:bg-muted/60 transition-colors duration-300">
-                        <Clock size={12} className="text-primary" />
-                        <span className="font-mono">{relatedPost.readTime} min</span>
-                      </span>
-                    </div>
-                  </Link>
-                ))}
+      <div className="min-h-screen bg-background">
+        <NavBar />
+        <main className="pt-20 pb-16">
+          <div className="container mx-auto px-4 max-w-4xl">
+            <div className="animate-pulse space-y-4">
+              <div className="h-8 bg-gray-200 rounded w-3/4"></div>
+              <div className="h-4 bg-gray-200 rounded w-1/2"></div>
+              <div className="h-64 bg-gray-200 rounded"></div>
             </div>
           </div>
-        </div>
+        </main>
+        <Footer />
+      </div>
+    );
+  }
+
+  if (error || !post) {
+    return <Navigate to="/404" replace />;
+  }
+
+  return (
+    <div className="min-h-screen bg-background">
+      <NavBar />
+      <main className="pt-20 pb-16">
+        <article className="container mx-auto px-4 max-w-4xl">
+          {/* Back button */}
+          <div className="mb-6">
+            <Button variant="ghost" asChild className="text-muted-foreground hover:text-foreground">
+              <Link to="/blog" className="flex items-center gap-2">
+                <ArrowLeft size={16} />
+                Back to Blog
+              </Link>
+            </Button>
+          </div>
+
+          {/* Cover Image */}
+          {post.cover_image && (
+            <div className="mb-8 rounded-lg overflow-hidden">
+              <img
+                src={post.cover_image}
+                alt={post.title}
+                className="w-full h-64 sm:h-80 lg:h-96 object-cover"
+                loading="lazy"
+              />
+            </div>
+          )}
+
+          {/* Article Header */}
+          <header className="mb-8">
+            <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold mb-4 leading-tight">
+              {post.title}
+            </h1>
+            
+            {post.excerpt && (
+              <p className="text-lg text-muted-foreground mb-6 leading-relaxed">
+                {post.excerpt}
+              </p>
+            )}
+
+            {/* Meta Information */}
+            <div className="flex flex-wrap items-center gap-4 text-sm text-muted-foreground mb-6">
+              {post.published_date && (
+                <div className="flex items-center gap-1">
+                  <Calendar size={16} />
+                  <span>{new Date(post.published_date).toLocaleDateString()}</span>
+                </div>
+              )}
+              
+              {post.read_time && (
+                <div className="flex items-center gap-1">
+                  <Clock size={16} />
+                  <span>{post.read_time} min read</span>
+                </div>
+              )}
+            </div>
+
+            {/* Action Buttons */}
+            <div className="flex gap-3 pb-6 border-b">
+              <ShareButton 
+                url={window.location.href}
+                title={post.title}
+                text={post.excerpt || `Check out this blog post: ${post.title}`}
+              />
+              <SaveButton 
+                postId={post.id}
+                title={post.title}
+              />
+            </div>
+          </header>
+
+          {/* Article Content */}
+          <div className="prose prose-lg max-w-none dark:prose-invert">
+            <MarkdownRenderer content={post.content} />
+          </div>
+
+          {/* Article Footer */}
+          <footer className="mt-12 pt-8 border-t">
+            <div className="flex justify-between items-center">
+              <ShareButton 
+                url={window.location.href}
+                title={post.title}
+                text={post.excerpt || `Check out this blog post: ${post.title}`}
+              />
+              
+              <Button variant="outline" asChild>
+                <Link to="/blog">
+                  More Articles
+                </Link>
+              </Button>
+            </div>
+          </footer>
+        </article>
       </main>
       <Footer />
     </div>

@@ -1,27 +1,34 @@
-import { useState, useEffect } from "react";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { useToast } from "@/hooks/use-toast";
-import { ArrowLeft, Save, Eye, EyeOff } from "lucide-react";
-import RichTextEditor from "./RichTextEditor";
-import TagsManager from "./TagsManager";
+import React, { useState, useEffect } from 'react';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { supabase } from '@/integrations/supabase/client';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { useToast } from '@/hooks/use-toast';
+import { ArrowLeft, Save, Eye, Upload } from 'lucide-react';
+import RichTextEditor from './RichTextEditor';
+import TagSelector from './TagSelector';
 
 interface BlogPost {
-  id: string;
+  id?: string;
   title: string;
-  content: string;
-  excerpt?: string;
   slug: string;
-  status: "draft" | "published" | "unpublished";
+  excerpt: string;
+  content: string;
   cover_image?: string;
+  category_id?: string;
+  status: 'draft' | 'published';
   published_date?: string;
   read_time?: number;
-  created_at: string;
-  updated_at: string;
+}
+
+interface Category {
+  id: string;
+  name: string;
+  slug: string;
 }
 
 interface AdminBlogEditorProps {
@@ -29,334 +36,439 @@ interface AdminBlogEditorProps {
   onBack: () => void;
 }
 
-const AdminBlogEditor = ({ postId, onBack }: AdminBlogEditorProps) => {
-  const [post, setPost] = useState<Partial<BlogPost>>({
-    title: "",
-    content: "",
-    excerpt: "",
-    slug: "",
-    status: "draft",
-    cover_image: "",
-    published_date: "",
+const AdminBlogEditor: React.FC<AdminBlogEditorProps> = ({ postId, onBack }) => {
+  const [formData, setFormData] = useState<BlogPost>({
+    title: '',
+    slug: '',
+    excerpt: '',
+    content: '',
+    cover_image: '',
+    category_id: '',
+    status: 'draft',
+    published_date: '',
     read_time: 5
   });
+  
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
-  const [showPreview, setShowPreview] = useState(false);
-
+  const [isUploading, setIsUploading] = useState(false);
   const { toast } = useToast();
   const queryClient = useQueryClient();
+  
+  // Fetch categories
+  const { data: categories = [] } = useQuery({
+    queryKey: ['categories'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('categories')
+        .select('*')
+        .order('name');
+      
+      if (error) throw error;
+      return data as Category[];
+    }
+  });
 
   // Fetch existing post if editing
   const { data: existingPost, isLoading } = useQuery({
-    queryKey: ["blog-post", postId],
+    queryKey: ['admin-blog-post', postId],
     queryFn: async () => {
       if (!postId) return null;
-      console.log("Fetching post for editing:", postId);
-      const { data, error } = await supabase
-        .from("admin_blog_posts")
-        .select("*")
-        .eq("id", postId)
+      
+      const { data: post, error } = await supabase
+        .from('admin_blog_posts')
+        .select('*')
+        .eq('id', postId)
         .single();
-      if (error) {
-        console.error("Error fetching post:", error);
-        throw error;
-      }
-      console.log("Fetched post:", data);
-      return data;
+      
+      if (error) throw error;
+      
+      // Fetch associated tags
+      const { data: tagData, error: tagError } = await supabase
+        .from('admin_blog_post_tags')
+        .select('tag_id')
+        .eq('blog_post_id', postId);
+      
+      if (tagError) throw tagError;
+      
+      return {
+        post,
+        tags: tagData.map(t => t.tag_id)
+      };
     },
     enabled: !!postId
   });
 
+  // Load existing post data
   useEffect(() => {
-    if (existingPost) {
-      const typedPost: Partial<BlogPost> = {
-        ...existingPost,
-        status: existingPost.status as "draft" | "published" | "unpublished"
-      };
-      setPost(typedPost);
+    if (existingPost?.post) {
+      setFormData(existingPost.post);
+      setSelectedTags(existingPost.tags || []);
     }
   }, [existingPost]);
 
-  // Auto-generate slug from title
-  useEffect(() => {
-    if (post.title && !postId) {
-      const generatedSlug = post.title
-        .toLowerCase()
-        .replace(/[^a-z0-9]+/g, "-")
-        .replace(/(^-|-$)/g, "");
-      setPost(prev => ({ ...prev, slug: generatedSlug }));
-    }
-  }, [post.title, postId]);
-
-  // Save/Update post mutation
-  const savePostMutation = useMutation({
-    mutationFn: async (postData: Partial<BlogPost>) => {
-      console.log("Saving post data:", postData);
+  const saveMutation = useMutation({
+    mutationFn: async (data: BlogPost & { tags: string[] }) => {
+      const { tags, ...postData } = data;
       
-      // Validate required fields
-      if (!postData.title || !postData.content || !postData.slug) {
-        throw new Error("Title, content, and slug are required.");
-      }
-
-      // Check for slug uniqueness if creating new post or changing slug
-      if (!postId || postData.slug !== existingPost?.slug) {
-        const { data: existing } = await supabase
-          .from("admin_blog_posts")
-          .select("id")
-          .eq("slug", postData.slug)
-          .neq("id", postId || "")
-          .maybeSingle();
-        
-        if (existing) {
-          throw new Error("A post with this slug already exists. Please choose a different slug.");
-        }
-      }
-
-      const dataToSave = {
-        title: postData.title,
-        content: postData.content,
-        excerpt: postData.excerpt || null,
-        slug: postData.slug,
-        status: postData.status || "draft",
-        cover_image: postData.cover_image || null,
-        published_date: postData.published_date || null,
-        read_time: postData.read_time || 5
-      };
-
       if (postId) {
         // Update existing post
-        console.log("Updating existing post:", postId);
-        const { data, error } = await supabase
-          .from("admin_blog_posts")
-          .update({ ...dataToSave, updated_at: new Date().toISOString() })
-          .eq("id", postId)
+        const { data: updatedPost, error } = await supabase
+          .from('admin_blog_posts')
+          .update(postData)
+          .eq('id', postId)
           .select()
           .single();
         
-        if (error) {
-          console.error("Error updating post:", error);
-          throw error;
+        if (error) throw error;
+        
+        // Update tags
+        await supabase
+          .from('admin_blog_post_tags')
+          .delete()
+          .eq('blog_post_id', postId);
+        
+        if (tags.length > 0) {
+          const tagInserts = tags.map(tagId => ({
+            blog_post_id: postId,
+            tag_id: tagId
+          }));
+          
+          await supabase
+            .from('admin_blog_post_tags')
+            .insert(tagInserts);
         }
-        console.log("Post updated successfully:", data);
-        return data;
+        
+        return updatedPost;
       } else {
         // Create new post
-        console.log("Creating new post");
-        const { data, error } = await supabase
-          .from("admin_blog_posts")
-          .insert(dataToSave)
+        const { data: newPost, error } = await supabase
+          .from('admin_blog_posts')
+          .insert([postData])
           .select()
           .single();
         
-        if (error) {
-          console.error("Error creating post:", error);
-          throw error;
+        if (error) throw error;
+        
+        // Insert tags
+        if (tags.length > 0) {
+          const tagInserts = tags.map(tagId => ({
+            blog_post_id: newPost.id,
+            tag_id: tagId
+          }));
+          
+          await supabase
+            .from('admin_blog_post_tags')
+            .insert(tagInserts);
         }
-        console.log("Post created successfully:", data);
-        return data;
+        
+        return newPost;
       }
     },
-    onSuccess: (data) => {
-      console.log("Post save successful, invalidating queries");
-      queryClient.invalidateQueries({ queryKey: ["admin-blog-posts"] });
-      queryClient.invalidateQueries({ queryKey: ["admin-stats"] });
-      queryClient.invalidateQueries({ queryKey: ["blog-post", postId] });
-      
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['admin-blog-posts'] });
       toast({
-        title: "Success",
-        description: `Post ${postId ? "updated" : "created"} successfully`,
+        title: 'Success',
+        description: `Blog post ${postId ? 'updated' : 'created'} successfully`
       });
-      
-      // Update local state with returned data ensuring proper typing
-      if (data) {
-        const typedData: Partial<BlogPost> = {
-          ...data,
-          status: data.status as "draft" | "published" | "unpublished"
-        };
-        setPost(typedData);
-      }
     },
     onError: (error: any) => {
-      console.error("Post save error:", error);
       toast({
-        title: "Error",
+        title: 'Error',
         description: error.message,
-        variant: "destructive"
+        variant: 'destructive'
       });
     }
   });
 
-  const handleSave = (status: "draft" | "published" | "unpublished" = "draft") => {
-    console.log("Handling save with status:", status);
-    
-    if (!post.title?.trim()) {
-      toast({
-        title: "Error",
-        description: "Title is required.",
-        variant: "destructive"
-      });
-      return;
-    }
-    
-    if (!post.content?.trim()) {
-      toast({
-        title: "Error",
-        description: "Content is required.",
-        variant: "destructive"
-      });
-      return;
-    }
-    
-    if (!post.slug?.trim()) {
-      toast({
-        title: "Error",
-        description: "Slug is required.",
-        variant: "destructive"
-      });
-      return;
-    }
-
-    const postData = {
-      ...post,
-      status,
-      published_date: status === "published" ? new Date().toISOString().split('T')[0] : post.published_date
-    };
-    
-    console.log("Calling save mutation with data:", postData);
-    savePostMutation.mutate(postData);
+  const generateSlug = (title: string) => {
+    return title
+      .toLowerCase()
+      .replace(/[^a-z0-9\s-]/g, '')
+      .replace(/\s+/g, '-')
+      .replace(/-+/g, '-')
+      .trim();
   };
 
-  const handlePreview = () => {
-    if (post.slug && post.status === "published") {
-      // Open the live blog post in a new tab
-      window.open(`/blog/${post.slug}`, "_blank");
-    } else {
-      // Show preview modal or toggle preview mode
-      setShowPreview(!showPreview);
+  const handleTitleChange = (value: string) => {
+    setFormData(prev => ({
+      ...prev,
+      title: value,
+      slug: generateSlug(value)
+    }));
+  };
+
+  const handleSave = () => {
+    if (!formData.title.trim() || !formData.content.trim()) {
+      toast({
+        title: 'Error',
+        description: 'Title and content are required',
+        variant: 'destructive'
+      });
+      return;
+    }
+
+    saveMutation.mutate({
+      ...formData,
+      tags: selectedTags
+    });
+  };
+
+  const handleImageUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    setIsUploading(true);
+    try {
+      const fileExt = file.name.split('.').pop();
+      const fileName = `${Date.now()}.${fileExt}`;
+      const filePath = `blog-media/${fileName}`;
+
+      const { error: uploadError } = await supabase.storage
+        .from('blog-media')
+        .upload(filePath, file);
+
+      if (uploadError) throw uploadError;
+
+      const { data } = supabase.storage
+        .from('blog-media')
+        .getPublicUrl(filePath);
+
+      setFormData(prev => ({ ...prev, cover_image: data.publicUrl }));
+      
+      toast({
+        title: 'Success',
+        description: 'Image uploaded successfully'
+      });
+    } catch (error: any) {
+      toast({
+        title: 'Error',
+        description: error.message,
+        variant: 'destructive'
+      });
+    } finally {
+      setIsUploading(false);
     }
   };
 
   if (isLoading) {
-    return <div className="p-4">Loading...</div>;
+    return <div>Loading...</div>;
   }
 
   return (
     <div className="space-y-6">
+      {/* Header */}
       <div className="flex items-center justify-between">
-        <Button variant="ghost" onClick={onBack} className="flex items-center gap-2">
-          <ArrowLeft size={16} />
-          Back to Posts
-        </Button>
-        
-        <div className="flex items-center gap-2">
-          <Button
-            variant="outline"
-            onClick={handlePreview}
-            className="flex items-center gap-2"
-          >
-            {post.status === "published" ? <Eye size={16} /> : showPreview ? <EyeOff size={16} /> : <Eye size={16} />}
-            {post.status === "published" ? "View Live" : (showPreview ? "Hide Preview" : "Show Preview")}
+        <div className="flex items-center gap-3">
+          <Button variant="outline" size="sm" onClick={onBack}>
+            <ArrowLeft size={16} />
           </Button>
-          
-          <Button
-            onClick={() => handleSave("draft")}
-            variant="outline"
-            disabled={savePostMutation.isPending}
+          <h1 className="text-2xl font-bold">
+            {postId ? 'Edit Blog Post' : 'Create New Blog Post'}
+          </h1>
+        </div>
+        
+        <div className="flex gap-2">
+          <Button 
+            variant="outline" 
+            onClick={handleSave}
+            disabled={saveMutation.isPending}
           >
             <Save size={16} className="mr-2" />
             Save Draft
           </Button>
-          
-          <Button
-            onClick={() => handleSave("published")}
-            disabled={savePostMutation.isPending}
+          <Button 
+            onClick={() => {
+              setFormData(prev => ({ ...prev, status: 'published' }));
+              handleSave();
+            }}
+            disabled={saveMutation.isPending}
           >
-            {savePostMutation.isPending ? "Saving..." : "Publish"}
+            <Eye size={16} className="mr-2" />
+            Publish
           </Button>
         </div>
       </div>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>{postId ? "Edit Post" : "Create New Post"}</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div>
-            <label className="block text-sm font-medium mb-2">Title *</label>
-            <Input
-              value={post.title || ""}
-              onChange={(e) => setPost({ ...post, title: e.target.value })}
-              placeholder="Enter post title"
-            />
-          </div>
+      {/* Form */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* Main Content */}
+        <div className="lg:col-span-2 space-y-6">
+          <Card>
+            <CardHeader>
+              <CardTitle>Content</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div>
+                <Label htmlFor="title">Title</Label>
+                <Input
+                  id="title"
+                  value={formData.title}
+                  onChange={(e) => handleTitleChange(e.target.value)}
+                  placeholder="Enter post title..."
+                />
+              </div>
 
-          <div>
-            <label className="block text-sm font-medium mb-2">Slug *</label>
-            <Input
-              value={post.slug || ""}
-              onChange={(e) => setPost({ ...post, slug: e.target.value })}
-              placeholder="post-slug (auto-generated from title)"
-            />
-          </div>
+              <div>
+                <Label htmlFor="slug">Slug</Label>
+                <Input
+                  id="slug"
+                  value={formData.slug}
+                  onChange={(e) => setFormData(prev => ({ ...prev, slug: e.target.value }))}
+                  placeholder="post-url-slug"
+                />
+              </div>
 
-          <div>
-            <label className="block text-sm font-medium mb-2">Excerpt</label>
-            <Textarea
-              value={post.excerpt || ""}
-              onChange={(e) => setPost({ ...post, excerpt: e.target.value })}
-              placeholder="Brief description of the post"
-              rows={2}
-            />
-          </div>
+              <div>
+                <Label htmlFor="excerpt">Excerpt</Label>
+                <Textarea
+                  id="excerpt"
+                  value={formData.excerpt}
+                  onChange={(e) => setFormData(prev => ({ ...prev, excerpt: e.target.value }))}
+                  placeholder="Brief description of the post..."
+                  rows={3}
+                />
+              </div>
 
-          <div>
-            <label className="block text-sm font-medium mb-2">Cover Image URL</label>
-            <Input
-              value={post.cover_image || ""}
-              onChange={(e) => setPost({ ...post, cover_image: e.target.value })}
-              placeholder="https://example.com/image.jpg"
-            />
-          </div>
+              <div>
+                <Label htmlFor="content">Content</Label>
+                <RichTextEditor
+                  value={formData.content}
+                  onChange={(value) => setFormData(prev => ({ ...prev, content: value }))}
+                />
+              </div>
+            </CardContent>
+          </Card>
+        </div>
 
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm font-medium mb-2">Read Time (minutes)</label>
-              <Input
-                type="number"
-                value={post.read_time || 5}
-                onChange={(e) => setPost({ ...post, read_time: parseInt(e.target.value) || 5 })}
-                min="1"
+        {/* Sidebar */}
+        <div className="space-y-6">
+          <Card>
+            <CardHeader>
+              <CardTitle>Settings</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div>
+                <Label htmlFor="status">Status</Label>
+                <Select
+                  value={formData.status}
+                  onValueChange={(value: 'draft' | 'published') => 
+                    setFormData(prev => ({ ...prev, status: value }))
+                  }
+                >
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="draft">Draft</SelectItem>
+                    <SelectItem value="published">Published</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div>
+                <Label htmlFor="category">Category</Label>
+                <Select
+                  value={formData.category_id || ''}
+                  onValueChange={(value) => 
+                    setFormData(prev => ({ ...prev, category_id: value || undefined }))
+                  }
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select category" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {categories.map((category) => (
+                      <SelectItem key={category.id} value={category.id}>
+                        {category.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div>
+                <Label htmlFor="published_date">Published Date</Label>
+                <Input
+                  id="published_date"
+                  type="date"
+                  value={formData.published_date}
+                  onChange={(e) => setFormData(prev => ({ ...prev, published_date: e.target.value }))}
+                />
+              </div>
+
+              <div>
+                <Label htmlFor="read_time">Read Time (minutes)</Label>
+                <Input
+                  id="read_time"
+                  type="number"
+                  value={formData.read_time}
+                  onChange={(e) => setFormData(prev => ({ ...prev, read_time: parseInt(e.target.value) || 5 }))}
+                />
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle>Cover Image</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div>
+                <Label htmlFor="cover_image">Image Upload</Label>
+                <div className="flex gap-2">
+                  <Input
+                    id="cover_image"
+                    type="file"
+                    accept="image/*"
+                    onChange={handleImageUpload}
+                    disabled={isUploading}
+                  />
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    disabled={isUploading}
+                  >
+                    <Upload size={16} />
+                  </Button>
+                </div>
+              </div>
+
+              {formData.cover_image && (
+                <div className="mt-2">
+                  <img
+                    src={formData.cover_image}
+                    alt="Cover preview"
+                    className="w-full h-32 object-cover rounded border"
+                  />
+                </div>
+              )}
+
+              <div>
+                <Label htmlFor="cover_image_url">Or enter URL</Label>
+                <Input
+                  id="cover_image_url"
+                  value={formData.cover_image || ''}
+                  onChange={(e) => setFormData(prev => ({ ...prev, cover_image: e.target.value }))}
+                  placeholder="https://example.com/image.jpg"
+                />
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle>Tags</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <TagSelector
+                selectedTags={selectedTags}
+                onTagsChange={setSelectedTags}
               />
-            </div>
-            
-            <div>
-              <label className="block text-sm font-medium mb-2">Status</label>
-              <select
-                value={post.status || "draft"}
-                onChange={(e) => setPost({ ...post, status: e.target.value as "draft" | "published" | "unpublished" })}
-                className="w-full px-3 py-2 border border-input rounded-md"
-              >
-                <option value="draft">Draft</option>
-                <option value="published">Published</option>
-                <option value="unpublished">Unpublished</option>
-              </select>
-            </div>
-          </div>
-
-          <TagsManager
-            selectedTags={selectedTags}
-            onTagsChange={setSelectedTags}
-          />
-
-          <div>
-            <label className="block text-sm font-medium mb-2">Content *</label>
-            <RichTextEditor
-              content={post.content || ""}
-              onChange={(content) => setPost({ ...post, content })}
-            />
-          </div>
-        </CardContent>
-      </Card>
+            </CardContent>
+          </Card>
+        </div>
+      </div>
     </div>
   );
 };
