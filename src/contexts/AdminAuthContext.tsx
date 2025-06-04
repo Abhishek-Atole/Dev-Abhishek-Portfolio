@@ -89,25 +89,40 @@ export const AdminAuthProvider: React.FC<AdminAuthProviderProps> = ({ children }
     try {
       setIsLoading(true);
       console.log('Attempting admin login for username:', username);
+      console.log('Current domain:', window.location.origin);
 
-      // Call login edge function with correct URL
+      // Call login edge function
       const response = await fetch('https://kjphoudvjejgzhzohzwu.supabase.co/functions/v1/admin-login', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          // Add this if you want to use the anon key as a bearer token:
           'Authorization': `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtqcGhvdWR2amVqZ3poem9oend1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDgxOTYwNTgsImV4cCI6MjA2Mzc3MjA1OH0.bIBVdLoCiIA7IwE6d_LtAtFI02Re5njRK3nQvdjM24c`,
         },
         body: JSON.stringify({ username, password }),
       });
 
       console.log('Login response status:', response.status);
+      console.log('Response headers:', Object.fromEntries(response.headers.entries()));
       
-      const result = await response.json();
+      const responseText = await response.text();
+      console.log('Raw response:', responseText);
+      
+      let result;
+      try {
+        result = JSON.parse(responseText);
+      } catch (parseError) {
+        console.error('Failed to parse response as JSON:', parseError);
+        return { success: false, error: 'Invalid response from server' };
+      }
+      
       console.log('Login response data:', result);
 
       if (!response.ok) {
-        return { success: false, error: result.error || 'Login failed' };
+        return { success: false, error: result.error || `Login failed with status ${response.status}` };
+      }
+
+      if (!result.sessionToken || !result.user) {
+        return { success: false, error: 'Invalid response format from server' };
       }
 
       // Store session token
@@ -118,7 +133,7 @@ export const AdminAuthProvider: React.FC<AdminAuthProviderProps> = ({ children }
       return { success: true };
     } catch (error) {
       console.error('Login error:', error);
-      return { success: false, error: 'Network error occurred' };
+      return { success: false, error: `Network error: ${error.message}` };
     } finally {
       setIsLoading(false);
     }

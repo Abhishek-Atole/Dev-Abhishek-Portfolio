@@ -1,10 +1,11 @@
+
 import React, { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Lock, User, Eye, EyeOff } from 'lucide-react';
+import { Lock, User, Eye, EyeOff, AlertCircle } from 'lucide-react';
 import { useAdminAuth } from '@/contexts/AdminAuthContext';
 import AdminRegister from './AdminRegister';
 
@@ -29,13 +30,22 @@ const AdminLogin = () => {
       return;
     }
 
+    console.log('Submitting login form with:', { username: username.trim(), passwordLength: password.length });
+
     const result = await login(username.trim(), password);
     
     if (!result.success) {
+      console.error('Login failed:', result.error);
       setError(result.error || 'Login failed');
     }
     
     setIsSubmitting(false);
+  };
+
+  // Helper function to fill in default credentials
+  const useDefaultCredentials = () => {
+    setUsername('superadmin');
+    setPassword('SecurePass2024!');
   };
 
   if (showRegister) {
@@ -61,6 +71,7 @@ const AdminLogin = () => {
           <form onSubmit={handleSubmit} className="space-y-4">
             {error && (
               <Alert variant="destructive">
+                <AlertCircle className="h-4 w-4" />
                 <AlertDescription>{error}</AlertDescription>
               </Alert>
             )}
@@ -112,6 +123,19 @@ const AdminLogin = () => {
                 </Button>
               </div>
             </div>
+
+            <div className="text-center">
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={useDefaultCredentials}
+                disabled={isSubmitting}
+                className="text-xs"
+              >
+                Use Default Credentials
+              </Button>
+            </div>
             
             <Button 
               type="submit" 
@@ -133,6 +157,14 @@ const AdminLogin = () => {
               </Button>
             </div>
           </form>
+
+          <div className="mt-6 p-3 bg-muted rounded-lg text-xs text-muted-foreground">
+            <p className="font-medium mb-1">Testing Domain:</p>
+            <p>{window.location.origin}</p>
+            <p className="mt-2 font-medium">Default Credentials:</p>
+            <p>Username: superadmin</p>
+            <p>Password: SecurePass2024!</p>
+          </div>
         </CardContent>
       </Card>
     </div>

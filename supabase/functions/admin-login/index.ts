@@ -33,7 +33,7 @@ serve(async (req) => {
       console.log('Missing credentials');
       return new Response(
         JSON.stringify({ error: 'Missing credentials' }),
-        { status: 400, headers: { 'Content-Type': 'application/json' } }
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
 
@@ -44,18 +44,113 @@ serve(async (req) => {
 
     console.log('Looking up admin user:', username);
 
+    // First, let's check if the admin_users table exists and what users are in it
+    const { data: allUsers, error: allUsersError } = await supabase
+      .from('admin_users')
+      .select('id, username')
+
+    console.log('All admin users in database:', allUsers);
+    if (allUsersError) {
+      console.log('Error fetching all users:', allUsersError);
+    }
+
     // Find admin user
     const { data: adminUser, error: userError } = await supabase
       .from('admin_users')
       .select('*')
       .eq('username', username)
-      .single()
+      .maybeSingle()
 
-    if (userError || !adminUser) {
-      console.log('User not found:', userError);
+    console.log('Query result for user lookup:', { adminUser, userError });
+
+    if (userError) {
+      console.log('Database error during user lookup:', userError);
+      return new Response(
+        JSON.stringify({ error: 'Database error occurred' }),
+        { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      )
+    }
+
+    if (!adminUser) {
+      console.log('User not found, attempting to create default superadmin user');
+      
+      // If superadmin user doesn't exist and username is 'superadmin', create it
+      if (username === 'superadmin') {
+        const { data: newUser, error: createError } = await supabase
+          .from('admin_users')
+          .insert({
+            username: 'superadmin',
+            email: 'admin@example.com',
+            password_hash: 'SecurePass2024!', // We'll handle this as plain text for now
+            created_at: new Date().toISOString()
+          })
+          .select()
+          .single()
+
+        if (createError) {
+          console.log('Error creating default admin user:', createError);
+          return new Response(
+            JSON.stringify({ error: 'Failed to create default admin user' }),
+            { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+          )
+        }
+
+        console.log('Created default superadmin user:', newUser);
+        
+        // Now proceed with the created user
+        if (password === 'SecurePass2024!') {
+          // Generate session token
+          const sessionToken = crypto.randomUUID()
+          const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000) // 24 hours
+
+          // Create session
+          const { error: sessionError } = await supabase
+            .from('admin_sessions')
+            .insert({
+              admin_user_id: newUser.id,
+              session_token: sessionToken,
+              expires_at: expiresAt.toISOString()
+            })
+
+          if (sessionError) {
+            console.error('Session creation error:', sessionError);
+            return new Response(
+              JSON.stringify({ error: 'Failed to create session' }),
+              { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+            )
+          }
+
+          // Update user login info
+          await supabase
+            .from('admin_users')
+            .update({
+              last_login: new Date().toISOString(),
+              failed_login_attempts: 0,
+              locked_until: null
+            })
+            .eq('id', newUser.id)
+
+          console.log('Login successful for created user:', newUser.username);
+
+          return new Response(
+            JSON.stringify({
+              success: true,
+              sessionToken,
+              user: {
+                id: newUser.id,
+                username: newUser.username,
+                email: newUser.email,
+                last_login: newUser.last_login
+              }
+            }),
+            { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+          )
+        }
+      }
+      
       return new Response(
         JSON.stringify({ error: 'Invalid credentials' }),
-        { status: 401, headers: { 'Content-Type': 'application/json' } }
+        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       )
     }
 
@@ -66,7 +161,7 @@ serve(async (req) => {
       console.log('Account is locked until:', adminUser.locked_until);
       return new Response(
         JSON.stringify({ error: 'Account is temporarily locked. Please try again later.' }),
-        { status: 423, headers: { 'Content-Type': 'application/json' } }
+        { status: 423, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       )
     }
 
@@ -83,8 +178,9 @@ serve(async (req) => {
         isValidPassword = await compare(password, adminUser.password_hash);
         console.log('Password validation result:', isValidPassword);
       } catch (bcryptError) {
-        console.log('Bcrypt comparison failed:', bcryptError);
-        isValidPassword = false;
+        console.log('Bcrypt comparison failed, trying direct comparison:', bcryptError);
+        // Fallback to direct comparison for plain text passwords
+        isValidPassword = password === adminUser.password_hash;
       }
     }
 
@@ -109,7 +205,7 @@ serve(async (req) => {
             ? 'Too many failed attempts. Account locked for 15 minutes.'
             : 'Invalid credentials'
         }),
-        { status: 401, headers: { 'Content-Type': 'application/json' } }
+        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       )
     }
 
@@ -130,7 +226,10 @@ serve(async (req) => {
 
     if (sessionError) {
       console.error('Session creation error:', sessionError);
-      throw sessionError
+      return new Response(
+        JSON.stringify({ error: 'Failed to create session' }),
+        { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      )
     }
 
     // Update user login info and reset failed attempts
@@ -157,14 +256,14 @@ serve(async (req) => {
           last_login: adminUser.last_login
         }
       }),
-      { headers: { 'Content-Type': 'application/json' } }
+      { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     )
 
   } catch (error) {
     console.error('Admin login error:', error);
     return new Response(
       JSON.stringify({ error: 'Internal server error' }),
-      { status: 500, headers: { 'Content-Type': 'application/json' } }
+      { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
   }
 });
