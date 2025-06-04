@@ -1,3 +1,4 @@
+
 import { serve } from 'https://deno.land/std@0.168.0/http/server.ts'
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 import { compare } from 'https://deno.land/x/bcrypt@v0.4.1/mod.ts'
@@ -83,11 +84,12 @@ serve(async (req) => {
       
       // If superadmin user doesn't exist and username is 'superadmin', create it
       if (username === 'superadmin') {
+        // Use a unique email for superadmin to avoid conflicts
         const { data: newUser, error: createError } = await supabase
           .from('admin_users')
           .insert({
             username: 'superadmin',
-            email: 'admin@example.com',
+            email: 'superadmin@local.dev', // Use a unique email for superadmin
             password_hash: 'SecurePass2024!', // We'll handle this as plain text for now
             created_at: new Date().toISOString()
           })
