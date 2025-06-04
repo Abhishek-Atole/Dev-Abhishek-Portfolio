@@ -125,7 +125,7 @@ const BlogPost = () => {
               />
               <SaveButton 
                 postId={post.id}
-                title={post.title}
+                postTitle={post.title}
               />
             </div>
           </header>

@@ -6,10 +6,11 @@ import { useToast } from "@/hooks/use-toast";
 interface ShareButtonProps {
   title: string;
   url?: string;
+  text?: string;
   className?: string;
 }
 
-const ShareButton = ({ title, url = window.location.href, className }: ShareButtonProps) => {
+const ShareButton = ({ title, url = window.location.href, text, className }: ShareButtonProps) => {
   const { toast } = useToast();
 
   const handleShare = async () => {
@@ -19,6 +20,7 @@ const ShareButton = ({ title, url = window.location.href, className }: ShareButt
         await navigator.share({
           title: title,
           url: url,
+          text: text,
         });
         toast({
           title: "Shared successfully!",

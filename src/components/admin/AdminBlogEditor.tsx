@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
@@ -101,7 +102,22 @@ const AdminBlogEditor: React.FC<AdminBlogEditorProps> = ({ postId, onBack }) => 
   // Load existing post data
   useEffect(() => {
     if (existingPost?.post) {
-      setFormData(existingPost.post);
+      const post = existingPost.post;
+      // Ensure status is properly typed
+      const status = (post.status === 'published' || post.status === 'draft') ? post.status : 'draft';
+      
+      setFormData({
+        id: post.id,
+        title: post.title || '',
+        slug: post.slug || '',
+        excerpt: post.excerpt || '',
+        content: post.content || '',
+        cover_image: post.cover_image || '',
+        category_id: post.category_id || '',
+        status,
+        published_date: post.published_date || '',
+        read_time: post.read_time || 5
+      });
       setSelectedTags(existingPost.tags || []);
     }
   }, [existingPost]);
@@ -332,7 +348,7 @@ const AdminBlogEditor: React.FC<AdminBlogEditorProps> = ({ postId, onBack }) => 
               <div>
                 <Label htmlFor="content">Content</Label>
                 <RichTextEditor
-                  value={formData.content}
+                  content={formData.content}
                   onChange={(value) => setFormData(prev => ({ ...prev, content: value }))}
                 />
               </div>

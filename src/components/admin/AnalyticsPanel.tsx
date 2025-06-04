@@ -29,11 +29,17 @@ ChartJS.register(
   TimeScale
 );
 
+interface PostsData {
+  postsByMonth: Record<string, number>;
+  statusCounts: Record<string, number>;
+  totalPosts: number;
+}
+
 const AnalyticsPanel = () => {
   // Fetch blog posts analytics
-  const { data: postsData = [] } = useQuery({
+  const { data: postsData } = useQuery({
     queryKey: ["analytics-posts"],
-    queryFn: async () => {
+    queryFn: async (): Promise<PostsData> => {
       const { data, error } = await supabase
         .from("admin_blog_posts")
         .select("*")
@@ -92,15 +98,24 @@ const AnalyticsPanel = () => {
     }
   });
 
+  // Default data structure
+  const defaultPostsData: PostsData = {
+    postsByMonth: {},
+    statusCounts: {},
+    totalPosts: 0
+  };
+
+  const currentPostsData = postsData || defaultPostsData;
+
   // Posts over time chart
   const postsOverTimeData = {
-    labels: Object.keys(postsData.postsByMonth || {}).sort(),
+    labels: Object.keys(currentPostsData.postsByMonth).sort(),
     datasets: [
       {
         label: "Posts Created",
-        data: Object.keys(postsData.postsByMonth || {})
+        data: Object.keys(currentPostsData.postsByMonth)
           .sort()
-          .map(month => postsData.postsByMonth[month]),
+          .map(month => currentPostsData.postsByMonth[month]),
         borderColor: "rgb(59, 130, 246)",
         backgroundColor: "rgba(59, 130, 246, 0.1)",
         tension: 0.4,
@@ -134,11 +149,11 @@ const AnalyticsPanel = () => {
 
   // Status distribution chart
   const statusData = {
-    labels: Object.keys(postsData.statusCounts || {}),
+    labels: Object.keys(currentPostsData.statusCounts),
     datasets: [
       {
         label: "Posts by Status",
-        data: Object.values(postsData.statusCounts || {}),
+        data: Object.values(currentPostsData.statusCounts),
         backgroundColor: [
           "rgba(34, 197, 94, 0.8)",
           "rgba(251, 191, 36, 0.8)",
@@ -195,7 +210,7 @@ const AnalyticsPanel = () => {
             <CardTitle className="text-sm font-medium">Total Posts</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{postsData.totalPosts || 0}</div>
+            <div className="text-2xl font-bold">{currentPostsData.totalPosts}</div>
           </CardContent>
         </Card>
 
@@ -205,7 +220,7 @@ const AnalyticsPanel = () => {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-green-600">
-              {postsData.statusCounts?.published || 0}
+              {currentPostsData.statusCounts?.published || 0}
             </div>
           </CardContent>
         </Card>
@@ -216,7 +231,7 @@ const AnalyticsPanel = () => {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-yellow-600">
-              {postsData.statusCounts?.draft || 0}
+              {currentPostsData.statusCounts?.draft || 0}
             </div>
           </CardContent>
         </Card>
