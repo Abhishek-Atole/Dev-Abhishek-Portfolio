@@ -104,26 +104,6 @@ export default {
 						borderColor: 'rgba(59, 130, 246, 0.4)'
 					}
 				},
-				'glow-pulse-light': {
-					'0%, 100%': { 
-						boxShadow: '0 0 10px rgba(59, 130, 246, 0.05)',
-						borderColor: 'rgba(59, 130, 246, 0.1)'
-					},
-					'50%': { 
-						boxShadow: '0 0 20px rgba(59, 130, 246, 0.15)',
-						borderColor: 'rgba(59, 130, 246, 0.2)'
-					}
-				},
-				'glow-pulse-strong': {
-					'0%, 100%': { 
-						boxShadow: '0 0 30px rgba(59, 130, 246, 0.2)',
-						borderColor: 'rgba(59, 130, 246, 0.3)'
-					},
-					'50%': { 
-						boxShadow: '0 0 60px rgba(59, 130, 246, 0.5)',
-						borderColor: 'rgba(59, 130, 246, 0.6)'
-					}
-				},
 				'slide-up': {
 					'0%': { transform: 'translateY(20px)', opacity: '0' },
 					'100%': { transform: 'translateY(0)', opacity: '1' }
@@ -131,31 +111,7 @@ export default {
 				'scale-bounce': {
 					'0%, 100%': { transform: 'scale(1)' },
 					'50%': { transform: 'scale(1.05)' }
-				},
-				'float': {
-					'0%, 100%': { transform: 'translateY(0) rotate(0deg)' },
-					'50%': { transform: 'translateY(-20px) rotate(10deg)' }
-				},
-				'float-slow': {
-					'0%, 100%': { transform: 'translateY(0) rotate(0deg)' },
-					'50%': { transform: 'translateY(-15px) rotate(-5deg)' }
-				},
-				'wave': {
-					'0%': { backgroundPosition: '0% 0%' },
-					'100%': { backgroundPosition: '100% 0%' },
-				},
-				'wave-slow': {
-					'0%': { backgroundPosition: '0% 0%' },
-					'100%': { backgroundPosition: '100% 0%' },
-				},
-				'wave-fast': {
-					'0%': { backgroundPosition: '0% 0%' },
-					'100%': { backgroundPosition: '100% 0%' },
-				},
-				'pulse': {
-					'0%, 100%': { opacity: '1' },
-					'50%': { opacity: '0.5' },
-				},
+				}
 			},
 			animation: {
 				'accordion-down': 'accordion-down 0.2s ease-out',
@@ -164,16 +120,8 @@ export default {
 				'fade-out': 'fade-out 0.5s ease-out',
 				'spin-slow': 'spin-slow 10s linear infinite',
 				'glow-pulse': 'glow-pulse 3s ease-in-out infinite',
-				'glow-pulse-light': 'glow-pulse-light 3s ease-in-out infinite',
-				'glow-pulse-strong': 'glow-pulse-strong 3s ease-in-out infinite',
 				'slide-up': 'slide-up 0.6s ease-out',
 				'scale-bounce': 'scale-bounce 2s ease-in-out infinite',
-				'float': 'float 6s ease-in-out infinite',
-				'float-slow': 'float-slow 8s ease-in-out infinite',
-				'wave': 'wave 15s linear infinite',
-				'wave-slow': 'wave-slow 25s linear infinite',
-				'wave-fast': 'wave-fast 10s linear infinite',
-				'pulse': 'pulse 2s ease-in-out infinite',
 			},
 		}
 	},
