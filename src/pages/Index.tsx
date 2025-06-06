@@ -11,6 +11,7 @@ import ContactSection from "@/components/ContactSection";
 import Footer from "@/components/Footer";
 import ResumeSection from "@/components/ResumeSection";
 import CertificatesSection from "@/components/CertificatesSection";
+import { motion } from "framer-motion";
 
 const Index = () => {
   // Set meta tags for SEO
@@ -22,52 +23,135 @@ const Index = () => {
     if (metaDescription) {
       metaDescription.setAttribute("content", "Portfolio of Abhishek Atole, specializing in C++ applications, virtual systems, and backend solutions with a passion for deep logic and clean architecture.");
     }
+
+    // Add viewport meta tag for better mobile responsiveness
+    let viewportMeta = document.querySelector('meta[name="viewport"]');
+    if (!viewportMeta) {
+      viewportMeta = document.createElement('meta');
+      viewportMeta.setAttribute('name', 'viewport');
+      document.head.appendChild(viewportMeta);
+    }
+    viewportMeta.setAttribute('content', 'width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0');
   }, []);
   
   return (
-    <div className="min-h-screen bg-background">
+    <motion.div 
+      className="min-h-screen bg-background"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      transition={{ duration: 0.3 }}
+    >
       <NavBar />
       
       <main className="w-full overflow-x-hidden">
-        <div id="home">
+        <motion.section 
+          id="home"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.5 }}
+        >
           <HeroSection />
-        </div>
+        </motion.section>
         
-        <div id="about" className="scroll-mt-20">
+        <motion.section 
+          id="about" 
+          className="scroll-mt-20"
+          initial={{ opacity: 0 }}
+          whileInView={{ opacity: 1 }}
+          viewport={{ once: true, margin: "-100px" }}
+          transition={{ duration: 0.5, delay: 0.2 }}
+        >
           <AboutSection />
-        </div>
+        </motion.section>
         
-        <div id="projects" className="scroll-mt-20">
+        <motion.section 
+          id="projects" 
+          className="scroll-mt-20"
+          initial={{ opacity: 0 }}
+          whileInView={{ opacity: 1 }}
+          viewport={{ once: true, margin: "-100px" }}
+          transition={{ duration: 0.5, delay: 0.2 }}
+        >
           <ProjectsSection />
-        </div>
+        </motion.section>
         
-        <div id="resume" className="scroll-mt-20">
+        <motion.section 
+          id="resume" 
+          className="scroll-mt-20"
+          initial={{ opacity: 0 }}
+          whileInView={{ opacity: 1 }}
+          viewport={{ once: true, margin: "-100px" }}
+          transition={{ duration: 0.5, delay: 0.2 }}
+        >
           <ResumeSection />
-        </div>
+        </motion.section>
         
-        <div id="skills" className="scroll-mt-20">
+        <motion.section 
+          id="skills" 
+          className="scroll-mt-20"
+          initial={{ opacity: 0 }}
+          whileInView={{ opacity: 1 }}
+          viewport={{ once: true, margin: "-100px" }}
+          transition={{ duration: 0.5, delay: 0.2 }}
+        >
           <SkillsSection />
-        </div>
+        </motion.section>
         
-        <div id="certificates" className="scroll-mt-20">
+        <motion.section 
+          id="certificates" 
+          className="scroll-mt-20"
+          initial={{ opacity: 0 }}
+          whileInView={{ opacity: 1 }}
+          viewport={{ once: true, margin: "-100px" }}
+          transition={{ duration: 0.5, delay: 0.2 }}
+        >
           <CertificatesSection />
-        </div>
+        </motion.section>
         
-        <div id="education" className="scroll-mt-20">
+        <motion.section 
+          id="education" 
+          className="scroll-mt-20"
+          initial={{ opacity: 0 }}
+          whileInView={{ opacity: 1 }}
+          viewport={{ once: true, margin: "-100px" }}
+          transition={{ duration: 0.5, delay: 0.2 }}
+        >
           <EducationSection />
-        </div>
+        </motion.section>
         
-        <div id="blog" className="scroll-mt-20">
+        <motion.section 
+          id="blog" 
+          className="scroll-mt-20"
+          initial={{ opacity: 0 }}
+          whileInView={{ opacity: 1 }}
+          viewport={{ once: true, margin: "-100px" }}
+          transition={{ duration: 0.5, delay: 0.2 }}
+        >
           <BlogSection />
-        </div>
+        </motion.section>
         
-        <div id="contact" className="scroll-mt-20">
+        <motion.section 
+          id="contact" 
+          className="scroll-mt-20"
+          initial={{ opacity: 0 }}
+          whileInView={{ opacity: 1 }}
+          viewport={{ once: true, margin: "-100px" }}
+          transition={{ duration: 0.5, delay: 0.2 }}
+        >
           <ContactSection />
-        </div>
+        </motion.section>
       </main>
       
-      <Footer />
-    </div>
+      <motion.footer
+        initial={{ opacity: 0 }}
+        whileInView={{ opacity: 1 }}
+        viewport={{ once: true }}
+        transition={{ duration: 0.5 }}
+      >
+        <Footer />
+      </motion.footer>
+    </motion.div>
   );
 };
 
