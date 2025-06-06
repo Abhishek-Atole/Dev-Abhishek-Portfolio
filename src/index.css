@@ -152,6 +152,14 @@
     @apply w-full h-[50vh] sm:h-[60vh] lg:h-[70vh] xl:h-[80vh];
   }
 
+  /* Grid pattern background */
+  .bg-grid-pattern {
+    background-image: 
+      linear-gradient(rgba(255, 255, 255, 0.1) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255, 255, 255, 0.1) 1px, transparent 1px);
+    background-size: 20px 20px;
+  }
+
   /* Enhanced Code Block Styling */
   .prose pre {
     @apply bg-card border border-border rounded-lg p-3 sm:p-4 overflow-x-auto text-sm sm:text-base;
