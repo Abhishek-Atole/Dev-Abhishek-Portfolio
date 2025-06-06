@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { ExternalLink, Github, Code } from "lucide-react";
 import FadeInSection from "@/components/animations/FadeInSection";
 import ResponsiveContainer from "@/components/ResponsiveContainer";
+import { motion } from "framer-motion";
 
 interface Project {
   title: string;
@@ -49,6 +50,29 @@ const projects: Project[] = [
   },
 ];
 
+// Container animation variants
+const containerVariants = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.1
+    }
+  }
+};
+
+// Card animation variants
+const cardVariants = {
+  hidden: { opacity: 0, y: 20 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: {
+      duration: 0.5
+    }
+  }
+};
+
 /**
  * A section that displays the projects
  */
@@ -67,10 +91,17 @@ const ProjectsSection = ({ showAll }: ProjectsSectionProps) => {
             Here are some of my favorite projects.
           </p>
         </FadeInSection>
-        <div className="grid sm:grid-cols-2 gap-6">
+        
+        <motion.div 
+          className="grid sm:grid-cols-2 gap-6"
+          variants={containerVariants}
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true, margin: "-50px" }}
+        >
           {displayProjects.map((project, index) => (
-            <FadeInSection key={index} direction="up" delay={0.1 * index}>
-              <Card className="bg-card text-card-foreground shadow-md overflow-hidden">
+            <motion.div key={index} variants={cardVariants}>
+              <Card className="bg-card text-card-foreground shadow-md overflow-hidden h-full hover:shadow-lg transition-shadow duration-300">
                 <CardHeader>
                   <CardTitle className="text-lg font-semibold">{project.title}</CardTitle>
                 </CardHeader>
@@ -85,23 +116,23 @@ const ProjectsSection = ({ showAll }: ProjectsSectionProps) => {
                   <CardDescription className="text-sm text-muted-foreground">
                     {project.description}
                   </CardDescription>
-                  <div className="flex justify-end space-x-2">
+                  <div className="flex justify-end space-x-2 pt-2">
                     {project.liveUrl && (
-                      <Button asChild variant="ghost" size="sm">
+                      <Button asChild variant="ghost" size="sm" className="hover:scale-105 transition-transform">
                         <a href={project.liveUrl} target="_blank" rel="noopener noreferrer" className="flex items-center">
                           Live <ExternalLink className="ml-1 h-4 w-4" />
                         </a>
                       </Button>
                     )}
                     {project.githubUrl && (
-                      <Button asChild variant="ghost" size="sm">
+                      <Button asChild variant="ghost" size="sm" className="hover:scale-105 transition-transform">
                         <a href={project.githubUrl} target="_blank" rel="noopener noreferrer" className="flex items-center">
                           GitHub <Github className="ml-1 h-4 w-4" />
                         </a>
                       </Button>
                     )}
                     {project.codeUrl && (
-                      <Button asChild variant="ghost" size="sm">
+                      <Button asChild variant="ghost" size="sm" className="hover:scale-105 transition-transform">
                         <a href={project.codeUrl} target="_blank" rel="noopener noreferrer" className="flex items-center">
                           Code <Code className="ml-1 h-4 w-4" />
                         </a>
@@ -110,9 +141,9 @@ const ProjectsSection = ({ showAll }: ProjectsSectionProps) => {
                   </div>
                 </CardContent>
               </Card>
-            </FadeInSection>
+            </motion.div>
           ))}
-        </div>
+        </motion.div>
       </ResponsiveContainer>
     </section>
   );

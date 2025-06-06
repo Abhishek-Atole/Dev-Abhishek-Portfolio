@@ -1,6 +1,7 @@
 
 import React, { useEffect, useRef, useState } from "react";
 import { cn } from "@/lib/utils";
+import { motion, useInView } from "framer-motion";
 
 interface FadeInSectionProps {
   children: React.ReactNode;
@@ -9,10 +10,12 @@ interface FadeInSectionProps {
   delay?: number;
   threshold?: number;
   duration?: number;
+  once?: boolean;
 }
 
 /**
  * A component that fades in its children when they enter the viewport
+ * Using Framer Motion for better performance
  */
 const FadeInSection = ({
   children,
@@ -21,58 +24,44 @@ const FadeInSection = ({
   delay = 0,
   threshold = 0.1,
   duration = 0.6,
+  once = true,
 }: FadeInSectionProps) => {
-  const [isVisible, setIsVisible] = useState(false);
-  const sectionRef = useRef<HTMLDivElement>(null);
+  const ref = useRef<HTMLDivElement>(null);
+  const isInView = useInView(ref, { 
+    once,
+    amount: threshold,
+    margin: "-50px",
+  });
 
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) {
-          setIsVisible(true);
-          observer.unobserve(entry.target);
-        }
-      },
-      { threshold }
-    );
-
-    const currentRef = sectionRef.current;
-    if (currentRef) {
-      observer.observe(currentRef);
+  // Animation variants based on direction
+  const variants = {
+    hidden: {
+      opacity: 0,
+      x: direction === "left" ? 20 : direction === "right" ? -20 : 0,
+      y: direction === "up" ? 20 : direction === "down" ? -20 : 0,
+    },
+    visible: {
+      opacity: 1,
+      x: 0,
+      y: 0,
     }
-
-    return () => {
-      if (currentRef) {
-        observer.unobserve(currentRef);
-      }
-    };
-  }, [threshold]);
-
-  const directionClasses = {
-    up: "translate-y-10",
-    down: "-translate-y-10",
-    left: "translate-x-10",
-    right: "-translate-x-10",
-  };
-
-  const animationStyles = {
-    transition: `opacity ${duration}s ease-out, transform ${duration}s ease-out`,
-    transitionDelay: `${delay}s`,
-    opacity: isVisible ? 1 : 0,
-    transform: isVisible ? "translate(0, 0)" : "",
   };
 
   return (
-    <div
-      ref={sectionRef}
-      className={cn(
-        isVisible ? "" : directionClasses[direction],
-        className
-      )}
-      style={animationStyles}
+    <motion.div
+      ref={ref}
+      className={className}
+      initial="hidden"
+      animate={isInView ? "visible" : "hidden"}
+      variants={variants}
+      transition={{ 
+        duration, 
+        delay, 
+        ease: "easeOut"
+      }}
     >
       {children}
-    </div>
+    </motion.div>
   );
 };
 
