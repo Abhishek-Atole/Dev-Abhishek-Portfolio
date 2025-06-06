@@ -12,13 +12,14 @@ import ProjectsManager from "@/components/admin/ProjectsManager";
 import WorkExperienceManager from "@/components/admin/WorkExperienceManager";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Plus, FileText, Eye, Tag, Award, Folder, FolderOpen, Building2 } from "lucide-react";
+import { Plus, FileText, Eye, Tag, Award, Folder, FolderOpen, Building2, Terminal, Code2, Settings } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import AdminProtectedRoute from "@/components/admin/AdminProtectedRoute";
 import { useAdminAuth } from "@/contexts/AdminAuthContext";
 import AnalyticsPanel from "@/components/admin/AnalyticsPanel";
 import MediaLibrary from "@/components/admin/MediaLibrary";
 import TagsManager from "@/components/admin/TagsManager";
+import { Badge } from "@/components/ui/badge";
 
 type View = "dashboard" | "editor" | "list" | "certificates" | "categories" | "projects" | "work-experience" | "analytics" | "media" | "tags";
 
@@ -99,138 +100,217 @@ const AdminDashboard = () => {
   };
 
   const renderDashboard = () => (
-    <div className="space-y-10">
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-        <div>
-          <h1 className="text-3xl font-bold mb-1 tracking-tight">Admin Dashboard</h1>
-          <p className="text-muted-foreground text-base">
-            Welcome back, <span className="font-semibold">{adminUser?.username}</span>! Manage your content, projects, and portfolio.
-          </p>
+    <div className="space-y-12">
+      {/* Enhanced Header */}
+      <div className="relative bg-gradient-to-br from-primary/5 via-background to-accent/5 -mx-3 sm:-mx-4 lg:-mx-6 px-3 sm:px-4 lg:px-6 py-8 rounded-lg">
+        <div className="absolute inset-0 bg-grid-pattern opacity-[0.02] rounded-lg"></div>
+        <div className="relative flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6">
+          <div className="space-y-4">
+            <div className="flex items-center gap-3">
+              <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                <Terminal size={16} className="text-primary" />
+                <span>Admin Interface</span>
+              </div>
+            </div>
+            <h1 className="text-4xl sm:text-5xl font-bold leading-tight bg-gradient-to-r from-foreground to-foreground/80 bg-clip-text">
+              Content Management
+            </h1>
+            <p className="text-lg text-muted-foreground leading-relaxed max-w-2xl">
+              Welcome back, <span className="font-semibold text-primary">{adminUser?.username}</span>! 
+              Manage your portfolio content, blog posts, and projects from this centralized dashboard.
+            </p>
+          </div>
+          <div className="flex items-center gap-3">
+            <Badge variant="secondary" className="text-xs px-3 py-1">
+              <Code2 size={12} className="mr-1" />
+              Admin Panel
+            </Badge>
+            <Button variant="outline" onClick={handleLogout} size="sm" className="font-mono">
+              <Settings size={16} className="mr-2" />
+              Logout
+            </Button>
+          </div>
         </div>
-        <Button variant="outline" onClick={handleLogout} size="sm">
-          Logout
-        </Button>
       </div>
 
-      {/* Stats Cards */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-4">
-        <Card className="text-center">
-          <CardHeader className="pb-1">
-            <CardTitle className="text-xs font-medium">Total Posts</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{stats?.totalPosts || 0}</div>
-          </CardContent>
-        </Card>
-        <Card className="text-center">
-          <CardHeader className="pb-1">
-            <CardTitle className="text-xs font-medium">Published</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-green-600">{stats?.publishedPosts || 0}</div>
-          </CardContent>
-        </Card>
-        <Card className="text-center">
-          <CardHeader className="pb-1">
-            <CardTitle className="text-xs font-medium">Drafts</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-yellow-600">{stats?.draftPosts || 0}</div>
-          </CardContent>
-        </Card>
-        <Card className="text-center">
-          <CardHeader className="pb-1">
-            <CardTitle className="text-xs font-medium">Categories</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{stats?.totalCategories || 0}</div>
-          </CardContent>
-        </Card>
-        <Card className="text-center">
-          <CardHeader className="pb-1">
-            <CardTitle className="text-xs font-medium">Tags</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{stats?.totalTags || 0}</div>
-          </CardContent>
-        </Card>
-        <Card className="text-center">
-          <CardHeader className="pb-1">
-            <CardTitle className="text-xs font-medium">Projects</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-blue-600">{stats?.totalProjects || 0}</div>
-          </CardContent>
-        </Card>
-        <Card className="text-center">
-          <CardHeader className="pb-1">
-            <CardTitle className="text-xs font-medium">Work Exp.</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-purple-600">{stats?.totalWorkExperiences || 0}</div>
-          </CardContent>
-        </Card>
-        <Card className="text-center">
-          <CardHeader className="pb-1">
-            <CardTitle className="text-xs font-medium">Certificates</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-primary">{stats?.totalCertificates || 0}</div>
-          </CardContent>
-        </Card>
+      {/* Enhanced Stats Cards */}
+      <div className="space-y-6">
+        <div className="flex items-center gap-3">
+          <Code2 size={20} className="text-primary" />
+          <h2 className="text-2xl font-bold font-mono">Overview</h2>
+        </div>
+        <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-4">
+          <Card className="text-center hover:shadow-lg transition-shadow border-border bg-card">
+            <CardHeader className="pb-2">
+              <CardTitle className="text-xs font-medium text-muted-foreground">Total Posts</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold font-mono">{stats?.totalPosts || 0}</div>
+            </CardContent>
+          </Card>
+          <Card className="text-center hover:shadow-lg transition-shadow border-border bg-card">
+            <CardHeader className="pb-2">
+              <CardTitle className="text-xs font-medium text-muted-foreground">Published</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold text-green-600 font-mono">{stats?.publishedPosts || 0}</div>
+            </CardContent>
+          </Card>
+          <Card className="text-center hover:shadow-lg transition-shadow border-border bg-card">
+            <CardHeader className="pb-2">
+              <CardTitle className="text-xs font-medium text-muted-foreground">Drafts</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold text-yellow-600 font-mono">{stats?.draftPosts || 0}</div>
+            </CardContent>
+          </Card>
+          <Card className="text-center hover:shadow-lg transition-shadow border-border bg-card">
+            <CardHeader className="pb-2">
+              <CardTitle className="text-xs font-medium text-muted-foreground">Categories</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold font-mono">{stats?.totalCategories || 0}</div>
+            </CardContent>
+          </Card>
+          <Card className="text-center hover:shadow-lg transition-shadow border-border bg-card">
+            <CardHeader className="pb-2">
+              <CardTitle className="text-xs font-medium text-muted-foreground">Tags</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold font-mono">{stats?.totalTags || 0}</div>
+            </CardContent>
+          </Card>
+          <Card className="text-center hover:shadow-lg transition-shadow border-border bg-card">
+            <CardHeader className="pb-2">
+              <CardTitle className="text-xs font-medium text-muted-foreground">Projects</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold text-blue-600 font-mono">{stats?.totalProjects || 0}</div>
+            </CardContent>
+          </Card>
+          <Card className="text-center hover:shadow-lg transition-shadow border-border bg-card">
+            <CardHeader className="pb-2">
+              <CardTitle className="text-xs font-medium text-muted-foreground">Work Exp.</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold text-purple-600 font-mono">{stats?.totalWorkExperiences || 0}</div>
+            </CardContent>
+          </Card>
+          <Card className="text-center hover:shadow-lg transition-shadow border-border bg-card">
+            <CardHeader className="pb-2">
+              <CardTitle className="text-xs font-medium text-muted-foreground">Certificates</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold text-primary font-mono">{stats?.totalCertificates || 0}</div>
+            </CardContent>
+          </Card>
+        </div>
       </div>
 
-      {/* Quick Actions */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2 text-lg">
-            <FileText size={20} />
+      {/* Enhanced Quick Actions */}
+      <Card className="border-border bg-gradient-to-r from-card to-primary/5 shadow-lg">
+        <CardHeader className="border-b border-border bg-muted/30">
+          <CardTitle className="flex items-center gap-3 text-xl">
+            <Terminal size={20} className="text-primary" />
             Quick Actions
           </CardTitle>
-          <CardDescription>Manage your blog, projects, and portfolio content</CardDescription>
+          <CardDescription className="text-base">
+            Manage your blog, projects, and portfolio content with these shortcuts
+          </CardDescription>
         </CardHeader>
-        <CardContent className="space-y-6">
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-            <Button onClick={handleNewPost} className="h-auto p-4 flex flex-col items-center gap-2 text-sm font-medium shadow-sm">
-              <Plus size={22} />
-              <span>Create New Post</span>
-            </Button>
-            <Button variant="outline" onClick={() => setCurrentView("list")} className="h-auto p-4 flex flex-col items-center gap-2 text-sm font-medium">
-              <Eye size={22} />
-              <span>View All Posts</span>
-            </Button>
-            <Button variant="outline" onClick={() => setCurrentView("projects")} className="h-auto p-4 flex flex-col items-center gap-2 text-sm font-medium">
-              <FolderOpen size={22} />
-              <span>Manage Projects</span>
-            </Button>
-            <Button variant="outline" onClick={() => setCurrentView("work-experience")} className="h-auto p-4 flex flex-col items-center gap-2 text-sm font-medium">
-              <Building2 size={22} />
-              <span>Work Experience</span>
-            </Button>
+        <CardContent className="space-y-8 p-8">
+          {/* Content Management Actions */}
+          <div className="space-y-4">
+            <div className="flex items-center gap-2 mb-4">
+              <FileText size={16} className="text-primary" />
+              <h3 className="font-semibold text-lg font-mono">Content Management</h3>
+            </div>
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+              <Button 
+                onClick={handleNewPost} 
+                className="h-auto p-6 flex flex-col items-center gap-3 text-sm font-medium shadow-sm bg-primary hover:bg-primary/90 font-mono"
+              >
+                <Plus size={24} />
+                <span>Create New Post</span>
+              </Button>
+              <Button 
+                variant="outline" 
+                onClick={() => setCurrentView("list")} 
+                className="h-auto p-6 flex flex-col items-center gap-3 text-sm font-medium hover:bg-muted/50 font-mono"
+              >
+                <Eye size={24} />
+                <span>View All Posts</span>
+              </Button>
+              <Button 
+                variant="outline" 
+                onClick={() => setCurrentView("projects")} 
+                className="h-auto p-6 flex flex-col items-center gap-3 text-sm font-medium hover:bg-muted/50 font-mono"
+              >
+                <FolderOpen size={24} />
+                <span>Manage Projects</span>
+              </Button>
+              <Button 
+                variant="outline" 
+                onClick={() => setCurrentView("work-experience")} 
+                className="h-auto p-6 flex flex-col items-center gap-3 text-sm font-medium hover:bg-muted/50 font-mono"
+              >
+                <Building2 size={24} />
+                <span>Work Experience</span>
+              </Button>
+            </div>
           </div>
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-            <Button variant="outline" onClick={() => setCurrentView("certificates")} className="h-auto p-4 flex flex-col items-center gap-2 text-sm font-medium">
-              <Award size={22} />
-              <span>Manage Certificates</span>
-            </Button>
-            <Button variant="outline" onClick={() => setCurrentView("categories")} className="h-auto p-4 flex flex-col items-center gap-2 text-sm font-medium">
-              <Folder size={22} />
-              <span>Manage Categories</span>
-            </Button>
-            <Button variant="outline" onClick={() => setCurrentView("tags")} className="h-auto p-4 flex flex-col items-center gap-2 text-sm font-medium">
-              <Tag size={22} />
-              <span>Manage Tags</span>
-            </Button>
-            <Button variant="outline" onClick={() => setCurrentView("analytics")} className="h-auto p-4 flex flex-col items-center gap-2 text-sm font-medium">
-              <FileText size={22} />
-              <span>Analytics</span>
-            </Button>
+
+          {/* Portfolio Management Actions */}
+          <div className="space-y-4">
+            <div className="flex items-center gap-2 mb-4">
+              <Award size={16} className="text-primary" />
+              <h3 className="font-semibold text-lg font-mono">Portfolio Management</h3>
+            </div>
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+              <Button 
+                variant="outline" 
+                onClick={() => setCurrentView("certificates")} 
+                className="h-auto p-6 flex flex-col items-center gap-3 text-sm font-medium hover:bg-muted/50 font-mono"
+              >
+                <Award size={24} />
+                <span>Manage Certificates</span>
+              </Button>
+              <Button 
+                variant="outline" 
+                onClick={() => setCurrentView("categories")} 
+                className="h-auto p-6 flex flex-col items-center gap-3 text-sm font-medium hover:bg-muted/50 font-mono"
+              >
+                <Folder size={24} />
+                <span>Manage Categories</span>
+              </Button>
+              <Button 
+                variant="outline" 
+                onClick={() => setCurrentView("tags")} 
+                className="h-auto p-6 flex flex-col items-center gap-3 text-sm font-medium hover:bg-muted/50 font-mono"
+              >
+                <Tag size={24} />
+                <span>Manage Tags</span>
+              </Button>
+              <Button 
+                variant="outline" 
+                onClick={() => setCurrentView("media")} 
+                className="h-auto p-6 flex flex-col items-center gap-3 text-sm font-medium hover:bg-muted/50 font-mono"
+              >
+                <Eye size={24} />
+                <span>Media Library</span>
+              </Button>
+            </div>
           </div>
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-            <Button variant="outline" onClick={() => setCurrentView("media")} className="h-auto p-4 flex flex-col items-center gap-2 text-sm font-medium">
-              <Eye size={22} />
-              <span>Media Library</span>
+
+          {/* Analytics Action */}
+          <div className="pt-4 border-t border-border">
+            <Button 
+              variant="outline" 
+              onClick={() => setCurrentView("analytics")} 
+              className="w-full sm:w-auto h-auto p-6 flex items-center gap-3 text-sm font-medium hover:bg-muted/50 font-mono"
+            >
+              <FileText size={24} />
+              <span>View Analytics Dashboard</span>
             </Button>
           </div>
         </CardContent>
@@ -257,84 +337,147 @@ const AdminDashboard = () => {
         );
       case "certificates":
         return (
-          <div className="space-y-6">
-            <div className="flex items-center justify-between">
-              <h1 className="text-2xl sm:text-3xl font-bold">Certificate Management</h1>
-              <Button variant="outline" onClick={handleBackToDashboard} size="sm">
-                Back to Dashboard
-              </Button>
+          <div className="space-y-8">
+            <div className="relative bg-gradient-to-br from-primary/5 via-background to-accent/5 -mx-3 sm:-mx-4 lg:-mx-6 px-3 sm:px-4 lg:px-6 py-6 rounded-lg">
+              <div className="absolute inset-0 bg-grid-pattern opacity-[0.02] rounded-lg"></div>
+              <div className="relative flex items-center justify-between">
+                <div className="space-y-2">
+                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                    <Award size={16} className="text-primary" />
+                    <span>Portfolio Management</span>
+                  </div>
+                  <h1 className="text-3xl font-bold font-mono">Certificate Management</h1>
+                </div>
+                <Button variant="outline" onClick={handleBackToDashboard} size="sm" className="font-mono">
+                  Back to Dashboard
+                </Button>
+              </div>
             </div>
             <CertificationManager />
           </div>
         );
       case "categories":
         return (
-          <div className="space-y-6">
-            <div className="flex items-center justify-between">
-              <h1 className="text-2xl sm:text-3xl font-bold">Categories Management</h1>
-              <Button variant="outline" onClick={handleBackToDashboard} size="sm">
-                Back to Dashboard
-              </Button>
+          <div className="space-y-8">
+            <div className="relative bg-gradient-to-br from-primary/5 via-background to-accent/5 -mx-3 sm:-mx-4 lg:-mx-6 px-3 sm:px-4 lg:px-6 py-6 rounded-lg">
+              <div className="absolute inset-0 bg-grid-pattern opacity-[0.02] rounded-lg"></div>
+              <div className="relative flex items-center justify-between">
+                <div className="space-y-2">
+                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                    <Folder size={16} className="text-primary" />
+                    <span>Content Organization</span>
+                  </div>
+                  <h1 className="text-3xl font-bold font-mono">Categories Management</h1>
+                </div>
+                <Button variant="outline" onClick={handleBackToDashboard} size="sm" className="font-mono">
+                  Back to Dashboard
+                </Button>
+              </div>
             </div>
             <CategoriesManager />
           </div>
         );
       case "projects":
         return (
-          <div className="space-y-6">
-            <div className="flex items-center justify-between">
-              <h1 className="text-2xl sm:text-3xl font-bold">Projects Management</h1>
-              <Button variant="outline" onClick={handleBackToDashboard} size="sm">
-                Back to Dashboard
-              </Button>
+          <div className="space-y-8">
+            <div className="relative bg-gradient-to-br from-primary/5 via-background to-accent/5 -mx-3 sm:-mx-4 lg:-mx-6 px-3 sm:px-4 lg:px-6 py-6 rounded-lg">
+              <div className="absolute inset-0 bg-grid-pattern opacity-[0.02] rounded-lg"></div>
+              <div className="relative flex items-center justify-between">
+                <div className="space-y-2">
+                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                    <FolderOpen size={16} className="text-primary" />
+                    <span>Portfolio Management</span>
+                  </div>
+                  <h1 className="text-3xl font-bold font-mono">Projects Management</h1>
+                </div>
+                <Button variant="outline" onClick={handleBackToDashboard} size="sm" className="font-mono">
+                  Back to Dashboard
+                </Button>
+              </div>
             </div>
             <ProjectsManager />
           </div>
         );
       case "work-experience":
         return (
-          <div className="space-y-6">
-            <div className="flex items-center justify-between">
-              <h1 className="text-2xl sm:text-3xl font-bold">Work Experience Management</h1>
-              <Button variant="outline" onClick={handleBackToDashboard} size="sm">
-                Back to Dashboard
-              </Button>
+          <div className="space-y-8">
+            <div className="relative bg-gradient-to-br from-primary/5 via-background to-accent/5 -mx-3 sm:-mx-4 lg:-mx-6 px-3 sm:px-4 lg:px-6 py-6 rounded-lg">
+              <div className="absolute inset-0 bg-grid-pattern opacity-[0.02] rounded-lg"></div>
+              <div className="relative flex items-center justify-between">
+                <div className="space-y-2">
+                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                    <Building2 size={16} className="text-primary" />
+                    <span>Career Management</span>
+                  </div>
+                  <h1 className="text-3xl font-bold font-mono">Work Experience Management</h1>
+                </div>
+                <Button variant="outline" onClick={handleBackToDashboard} size="sm" className="font-mono">
+                  Back to Dashboard
+                </Button>
+              </div>
             </div>
             <WorkExperienceManager />
           </div>
         );
       case "analytics":
         return (
-          <div className="space-y-6">
-            <div className="flex items-center justify-between">
-              <h1 className="text-2xl sm:text-3xl font-bold">Analytics</h1>
-              <Button variant="outline" onClick={handleBackToDashboard} size="sm">
-                Back to Dashboard
-              </Button>
+          <div className="space-y-8">
+            <div className="relative bg-gradient-to-br from-primary/5 via-background to-accent/5 -mx-3 sm:-mx-4 lg:-mx-6 px-3 sm:px-4 lg:px-6 py-6 rounded-lg">
+              <div className="absolute inset-0 bg-grid-pattern opacity-[0.02] rounded-lg"></div>
+              <div className="relative flex items-center justify-between">
+                <div className="space-y-2">
+                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                    <FileText size={16} className="text-primary" />
+                    <span>Data Insights</span>
+                  </div>
+                  <h1 className="text-3xl font-bold font-mono">Analytics Dashboard</h1>
+                </div>
+                <Button variant="outline" onClick={handleBackToDashboard} size="sm" className="font-mono">
+                  Back to Dashboard
+                </Button>
+              </div>
             </div>
             <AnalyticsPanel />
           </div>
         );
       case "media":
         return (
-          <div className="space-y-6">
-            <div className="flex items-center justify-between">
-              <h1 className="text-2xl sm:text-3xl font-bold">Media Library</h1>
-              <Button variant="outline" onClick={handleBackToDashboard} size="sm">
-                Back to Dashboard
-              </Button>
+          <div className="space-y-8">
+            <div className="relative bg-gradient-to-br from-primary/5 via-background to-accent/5 -mx-3 sm:-mx-4 lg:-mx-6 px-3 sm:px-4 lg:px-6 py-6 rounded-lg">
+              <div className="absolute inset-0 bg-grid-pattern opacity-[0.02] rounded-lg"></div>
+              <div className="relative flex items-center justify-between">
+                <div className="space-y-2">
+                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                    <Eye size={16} className="text-primary" />
+                    <span>Asset Management</span>
+                  </div>
+                  <h1 className="text-3xl font-bold font-mono">Media Library</h1>
+                </div>
+                <Button variant="outline" onClick={handleBackToDashboard} size="sm" className="font-mono">
+                  Back to Dashboard
+                </Button>
+              </div>
             </div>
             <MediaLibrary />
           </div>
         );
       case "tags":
         return (
-          <div className="space-y-6">
-            <div className="flex items-center justify-between">
-              <h1 className="text-2xl sm:text-3xl font-bold">Tags Management</h1>
-              <Button variant="outline" onClick={handleBackToDashboard} size="sm">
-                Back to Dashboard
-              </Button>
+          <div className="space-y-8">
+            <div className="relative bg-gradient-to-br from-primary/5 via-background to-accent/5 -mx-3 sm:-mx-4 lg:-mx-6 px-3 sm:px-4 lg:px-6 py-6 rounded-lg">
+              <div className="absolute inset-0 bg-grid-pattern opacity-[0.02] rounded-lg"></div>
+              <div className="relative flex items-center justify-between">
+                <div className="space-y-2">
+                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                    <Tag size={16} className="text-primary" />
+                    <span>Content Organization</span>
+                  </div>
+                  <h1 className="text-3xl font-bold font-mono">Tags Management</h1>
+                </div>
+                <Button variant="outline" onClick={handleBackToDashboard} size="sm" className="font-mono">
+                  Back to Dashboard
+                </Button>
+              </div>
             </div>
             <TagsManager />
           </div>

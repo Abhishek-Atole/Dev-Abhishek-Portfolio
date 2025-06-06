@@ -3,10 +3,11 @@ import { useState, useRef, useCallback } from "react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 import { 
   Bold, Italic, Underline, Link, List, ListOrdered, 
   Code, Quote, Image, Video, FileText, Heading1, 
-  Heading2, Heading3, Eye, EyeOff 
+  Heading2, Heading3, Eye, EyeOff, Terminal, Copy, Check 
 } from "lucide-react";
 
 interface RichTextEditorProps {
@@ -16,6 +17,7 @@ interface RichTextEditorProps {
 
 const RichTextEditor = ({ content, onChange }: RichTextEditorProps) => {
   const [isPreview, setIsPreview] = useState(false);
+  const [copiedCode, setCopiedCode] = useState<string | null>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   const insertText = useCallback((before: string, after: string = "") => {
@@ -50,6 +52,16 @@ const RichTextEditor = ({ content, onChange }: RichTextEditorProps) => {
     }, 0);
   }, [content, onChange]);
 
+  const copyToClipboard = async (text: string) => {
+    try {
+      await navigator.clipboard.writeText(text);
+      setCopiedCode(text);
+      setTimeout(() => setCopiedCode(null), 2000);
+    } catch (err) {
+      console.error('Failed to copy text: ', err);
+    }
+  };
+
   const formatActions = [
     { icon: Bold, action: () => insertText("**", "**"), tooltip: "Bold" },
     { icon: Italic, action: () => insertText("*", "*"), tooltip: "Italic" },
@@ -81,44 +93,55 @@ const RichTextEditor = ({ content, onChange }: RichTextEditorProps) => {
   const renderPreview = () => {
     // Simple markdown-to-HTML conversion for preview
     let html = content
-      .replace(/^### (.*$)/gim, '<h3>$1</h3>')
-      .replace(/^## (.*$)/gim, '<h2>$1</h2>')
-      .replace(/^# (.*$)/gim, '<h1>$1</h1>')
+      .replace(/^### (.*$)/gim, '<h3 class="text-xl font-bold mt-8 mb-4 font-mono text-primary">$1</h3>')
+      .replace(/^## (.*$)/gim, '<h2 class="text-2xl font-bold mt-10 mb-5 font-mono border-l-4 border-primary pl-4">$1</h2>')
+      .replace(/^# (.*$)/gim, '<h1 class="text-3xl font-bold mt-12 mb-6 font-mono border-b border-border pb-3">$1</h1>')
       .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
       .replace(/\*(.*?)\*/g, '<em>$1</em>')
-      .replace(/`(.*?)`/g, '<code>$1</code>')
-      .replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2">$1</a>')
-      .replace(/^> (.*$)/gim, '<blockquote>$1</blockquote>')
-      .replace(/^- (.*$)/gim, '<li>$1</li>')
-      .replace(/^1\. (.*$)/gim, '<li>$1</li>')
+      .replace(/`(.*?)`/g, '<code class="bg-muted px-2 py-1 rounded font-mono text-sm text-primary font-medium border">$1</code>')
+      .replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" class="text-primary hover:text-primary/80 underline underline-offset-4 decoration-primary/50 hover:decoration-primary transition-colors font-medium">$1</a>')
+      .replace(/^> (.*$)/gim, '<blockquote class="border-l-4 border-primary pl-4 bg-muted/30 py-2 my-4">$1</blockquote>')
+      .replace(/^- (.*$)/gim, '<li class="flex items-start gap-3"><div class="w-1.5 h-1.5 bg-primary rounded-full mt-2.5 flex-shrink-0"></div><div>$1</div></li>')
+      .replace(/^1\. (.*$)/gim, '<li class="flex items-start gap-3"><div class="w-1.5 h-1.5 bg-primary rounded-full mt-2.5 flex-shrink-0"></div><div>$1</div></li>')
       .replace(/\n/g, '<br>');
 
-    // Wrap consecutive <li> elements in <ul> or <ol>
-    html = html.replace(/(<li>.*?<\/li>)+/g, '<ul>$&</ul>');
+    // Wrap consecutive <li> elements in <ul>
+    html = html.replace(/(<li>.*?<\/li>)+/g, '<ul class="space-y-2">$&</ul>');
 
     return html;
   };
 
   return (
-    <Card>
-      <CardHeader>
+    <Card className="border-border bg-card shadow-lg">
+      <CardHeader className="border-b border-border bg-muted/30">
         <div className="flex items-center justify-between">
-          <CardTitle className="text-lg">Content Editor</CardTitle>
+          <div className="flex items-center gap-3">
+            <Terminal size={20} className="text-primary" />
+            <CardTitle className="text-lg font-mono">Content Editor</CardTitle>
+            <Badge variant="secondary" className="text-xs font-mono">
+              Markdown
+            </Badge>
+          </div>
           <Button
             variant="outline"
             size="sm"
             onClick={() => setIsPreview(!isPreview)}
+            className="font-mono"
           >
             {isPreview ? <EyeOff size={16} /> : <Eye size={16} />}
             {isPreview ? "Edit" : "Preview"}
           </Button>
         </div>
       </CardHeader>
-      <CardContent className="space-y-4">
+      <CardContent className="space-y-4 p-6">
         {!isPreview && (
-          <div className="border rounded-lg">
-            {/* Toolbar */}
-            <div className="flex flex-wrap items-center gap-1 p-2 border-b bg-muted/50">
+          <div className="border rounded-lg overflow-hidden bg-card border-border">
+            {/* Enhanced Toolbar */}
+            <div className="flex flex-wrap items-center gap-1 p-3 border-b bg-muted/50 border-border">
+              <Badge variant="secondary" className="text-xs font-mono mr-2">
+                <Code size={12} className="mr-1" />
+                Formatting
+              </Badge>
               {formatActions.map((action, index) => (
                 <Button
                   key={index}
@@ -126,18 +149,22 @@ const RichTextEditor = ({ content, onChange }: RichTextEditorProps) => {
                   size="sm"
                   onClick={action.action}
                   title={action.tooltip}
-                  className="h-8 w-8 p-0"
+                  className="h-8 w-8 p-0 hover:bg-primary/10 hover:text-primary transition-colors"
                 >
                   <action.icon size={16} />
                 </Button>
               ))}
-              <div className="w-px h-6 bg-border mx-1" />
+              <div className="w-px h-6 bg-border mx-2" />
+              <Badge variant="secondary" className="text-xs font-mono mr-2">
+                <Image size={12} className="mr-1" />
+                Media
+              </Badge>
               <Button
                 variant="ghost"
                 size="sm"
                 onClick={() => insertMedia("image")}
                 title="Insert Image"
-                className="h-8 w-8 p-0"
+                className="h-8 w-8 p-0 hover:bg-primary/10 hover:text-primary transition-colors"
               >
                 <Image size={16} />
               </Button>
@@ -146,7 +173,7 @@ const RichTextEditor = ({ content, onChange }: RichTextEditorProps) => {
                 size="sm"
                 onClick={() => insertMedia("video")}
                 title="Insert Video"
-                className="h-8 w-8 p-0"
+                className="h-8 w-8 p-0 hover:bg-primary/10 hover:text-primary transition-colors"
               >
                 <Video size={16} />
               </Button>
@@ -155,38 +182,58 @@ const RichTextEditor = ({ content, onChange }: RichTextEditorProps) => {
                 size="sm"
                 onClick={() => insertMedia("code")}
                 title="Insert Code Block"
-                className="h-8 w-8 p-0"
+                className="h-8 w-8 p-0 hover:bg-primary/10 hover:text-primary transition-colors"
               >
                 <FileText size={16} />
               </Button>
             </div>
 
-            {/* Editor */}
+            {/* Enhanced Editor */}
             <Textarea
               ref={textareaRef}
               value={content}
               onChange={(e) => onChange(e.target.value)}
-              placeholder="Start writing your blog post..."
-              className="min-h-[400px] border-0 focus-visible:ring-0 resize-none font-mono"
+              placeholder="Start writing your blog post... Use markdown for formatting."
+              className="min-h-[500px] border-0 focus-visible:ring-0 resize-none font-mono text-sm leading-relaxed bg-card"
             />
           </div>
         )}
 
         {isPreview && (
-          <div className="border rounded-lg p-4 min-h-[400px] bg-background">
-            <div 
-              className="prose prose-sm max-w-none"
-              dangerouslySetInnerHTML={{ __html: renderPreview() }}
-            />
-          </div>
+          <Card className="border rounded-lg min-h-[500px] bg-background border-border">
+            <CardHeader className="border-b border-border">
+              <div className="flex items-center gap-2">
+                <Eye size={16} className="text-primary" />
+                <CardTitle className="text-sm font-mono">Preview</CardTitle>
+              </div>
+            </CardHeader>
+            <CardContent className="p-6">
+              <div 
+                className="prose prose-sm max-w-none leading-relaxed"
+                dangerouslySetInnerHTML={{ __html: renderPreview() }}
+              />
+            </CardContent>
+          </Card>
         )}
 
-        {/* Help Text */}
-        <div className="text-xs text-muted-foreground space-y-1">
-          <p><strong>Markdown shortcuts:</strong></p>
-          <p>**bold** | *italic* | `code` | [link](url) | # Heading | &gt; Quote | - List</p>
-          <p>Use the toolbar buttons or type markdown directly</p>
-        </div>
+        {/* Enhanced Help Text */}
+        <Card className="bg-muted/30 border-l-4 border-l-primary">
+          <CardContent className="p-4">
+            <div className="flex items-start gap-3">
+              <Terminal size={16} className="text-primary mt-0.5 flex-shrink-0" />
+              <div className="space-y-2 text-xs text-muted-foreground">
+                <p><strong className="text-foreground">Markdown Shortcuts:</strong></p>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-1">
+                  <p><code className="bg-background px-1 rounded">**bold**</code> | <code className="bg-background px-1 rounded">*italic*</code></p>
+                  <p><code className="bg-background px-1 rounded">`code`</code> | <code className="bg-background px-1 rounded">[link](url)</code></p>
+                  <p><code className="bg-background px-1 rounded"># Heading</code> | <code className="bg-background px-1 rounded">&gt; Quote</code></p>
+                  <p><code className="bg-background px-1 rounded">- List</code> | <code className="bg-background px-1 rounded">```code block```</code></p>
+                </div>
+                <p className="text-primary font-medium">Use the toolbar buttons or type markdown directly for rich formatting</p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
       </CardContent>
     </Card>
   );
