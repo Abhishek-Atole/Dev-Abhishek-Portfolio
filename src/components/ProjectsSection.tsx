@@ -1,3 +1,4 @@
+
 import React from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -14,6 +15,10 @@ interface Project {
   liveUrl?: string;
   githubUrl?: string;
   codeUrl?: string;
+}
+
+interface ProjectsSectionProps {
+  showAll?: boolean;
 }
 
 const projects: Project[] = [
@@ -47,7 +52,10 @@ const projects: Project[] = [
 /**
  * A section that displays the projects
  */
-const ProjectsSection = () => {
+const ProjectsSection = ({ showAll }: ProjectsSectionProps) => {
+  // Use the showAll prop to determine how many projects to display
+  const displayProjects = showAll ? projects : projects.slice(0, 2);
+
   return (
     <section id="projects" className="py-12">
       <ResponsiveContainer className="space-y-8">
@@ -60,7 +68,7 @@ const ProjectsSection = () => {
           </p>
         </FadeInSection>
         <div className="grid sm:grid-cols-2 gap-6">
-          {projects.map((project, index) => (
+          {displayProjects.map((project, index) => (
             <FadeInSection key={index} direction="up" delay={0.1 * index}>
               <Card className="bg-card text-card-foreground shadow-md overflow-hidden">
                 <CardHeader>

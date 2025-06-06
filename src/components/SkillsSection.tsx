@@ -1,9 +1,10 @@
+
 import React from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { 
   Code, 
-  Tool, 
+  Wrench, // Replacing Tool with Wrench which is available
   Terminal, 
   Settings, 
   FileCode, 
@@ -114,7 +115,7 @@ const SkillsSection = () => {
                   <CardTitle className="text-xl text-primary flex items-center gap-3">
                     <span className="bg-primary/10 p-2 rounded-lg inline-block">
                       {idx === 0 && <Code size={20} />}
-                      {idx === 1 && <Tool size={20} />}
+                      {idx === 1 && <Wrench size={20} />} {/* Updated icon from Tool to Wrench */}
                       {idx === 2 && <Terminal size={20} />}
                       {idx === 3 && <Settings size={20} />}
                     </span>
