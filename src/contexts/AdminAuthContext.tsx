@@ -1,5 +1,6 @@
 
-import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import React, { createContext, useContext, useState, useEffect } from 'react';
+import type { ReactNode } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 
 interface AdminUser {
@@ -31,7 +32,7 @@ interface AdminAuthProviderProps {
   children: ReactNode;
 }
 
-export const AdminAuthProvider: React.FC<AdminAuthProviderProps> = ({ children }) => {
+export const AdminAuthProvider = ({ children }: AdminAuthProviderProps) => {
   const [adminUser, setAdminUser] = useState<AdminUser | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -133,7 +134,7 @@ export const AdminAuthProvider: React.FC<AdminAuthProviderProps> = ({ children }
       return { success: true };
     } catch (error) {
       console.error('Login error:', error);
-      return { success: false, error: `Network error: ${error.message}` };
+      return { success: false, error: `Network error: ${error instanceof Error ? error.message : 'Unknown error'}` };
     } finally {
       setIsLoading(false);
     }

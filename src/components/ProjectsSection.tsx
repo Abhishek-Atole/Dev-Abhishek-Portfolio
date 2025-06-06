@@ -1,191 +1,111 @@
-
-import { Github, ExternalLink, ArrowRight } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import React from "react";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Link } from "react-router-dom";
-import { motion } from "framer-motion";
-import FadeInSection from "./animations/FadeInSection";
-import { useIsMobile } from "@/hooks/use-mobile";
+import { Button } from "@/components/ui/button";
+import { ExternalLink, Github, Code } from "lucide-react";
+import FadeInSection from "@/components/animations/FadeInSection";
+import ResponsiveContainer from "@/components/ResponsiveContainer";
 
-export type ProjectType = {
+interface Project {
   title: string;
   description: string;
-  tags: string[];
-  github: string;
-  demo?: string;
   image: string;
-};
+  tags: string[];
+  liveUrl?: string;
+  githubUrl?: string;
+  codeUrl?: string;
+}
 
-export const projects: ProjectType[] = [
+const projects: Project[] = [
   {
-    title: "Polygon Boolean Operations Visualizer",
-    description: "A GUI tool for visualizing 2D polygon Boolean operations. Cross-platform support and 50+ test cases with real-time rendering.",
-    tags: ["C++", "Qt6", "CGAL", "CMake"],
-    github: "https://github.com/Abhishek-Atole",
-    image: "https://images.unsplash.com/photo-1555949963-ff9fe0c870eb?q=80&w=2070&auto=format&fit=crop"
+    title: "Personal Portfolio Website",
+    description:
+      "A personal portfolio website built with React, TypeScript, and Tailwind CSS. Showcases my skills, projects, and experience.",
+    image: "/portfolio.png",
+    tags: ["React", "TypeScript", "Tailwind CSS", "Framer Motion"],
+    liveUrl: "https://abhishek-atole.vercel.app/",
+    githubUrl: "https://github.com/abhishek-atole/abhishek-atole",
   },
   {
-    title: "Generalized Data Structures Library",
-    description: "A modular, header-only library of linked lists built with modern C++ best practices.",
-    tags: ["C++17", "Templates", "OOP", "Header-only"],
-    github: "https://github.com/Abhishek-Atole",
-    image: "https://images.unsplash.com/photo-1518432031352-d6fc5c10da5a?q=80&w=1974&auto=format&fit=crop"
+    title: "E-commerce Store",
+    description:
+      "A full-stack e-commerce store built with Next.js, TypeScript, and Stripe. Allows users to browse products, add them to a cart, and checkout.",
+    image: "/ecommerce.png",
+    tags: ["Next.js", "TypeScript", "Stripe", "Prisma", "PostgreSQL"],
+    githubUrl: "https://github.com/abhishek-atole/nextjs-ecommerce",
   },
   {
-    title: "Custom Virtual File System",
-    description: "An in-memory file system simulation supporting 15+ shell commands and detailed permission handling.",
-    tags: ["C++", "Memory Management", "File Systems"],
-    github: "https://github.com/Abhishek-Atole",
-    image: "https://images.unsplash.com/photo-1555949963-aa79dcee981c?q=80&w=2070&auto=format&fit=crop"
+    title: "Task Management App",
+    description:
+      "A task management app built with React, TypeScript, and Firebase. Allows users to create, assign, and track tasks.",
+    image: "/task-management.png",
+    tags: ["React", "TypeScript", "Firebase", "Tailwind CSS"],
+    githubUrl: "https://github.com/abhishek-atole/react-task-management",
   },
-  {
-    title: "SQL Inventory App",
-    description: "A CRUD-enabled CLI inventory system built with JDBC and normalized relational schema.",
-    tags: ["Java", "MySQL", "JDBC", "SQL"],
-    github: "https://github.com/Abhishek-Atole",
-    image: "https://images.unsplash.com/photo-1545670723-196ed0954986?q=80&w=2952&auto=format&fit=crop"
-  },
-  {
-    title: "Network Protocol Analyzer",
-    description: "A packet sniffing and analysis tool built with C++ and pcap library for monitoring network traffic.",
-    tags: ["C++", "Networking", "Pcap", "Analysis"],
-    github: "https://github.com/Abhishek-Atole",
-    image: "https://images.unsplash.com/photo-1558494949-ef010cbdcc31?q=80&w=2034&auto=format&fit=crop"
-  },
-  {
-    title: "Memory Management Toolkit",
-    description: "Custom allocators and memory management utilities for performance-critical C++ applications.",
-    tags: ["C++", "Memory Management", "Optimization"],
-    github: "https://github.com/Abhishek-Atole",
-    image: "https://images.unsplash.com/photo-1519241047957-be31d7379a5d?q=80&w=2070&auto=format&fit=crop"
-  }
 ];
 
-const ProjectCard = ({ project, index }: { project: ProjectType; index: number }) => {
-  const isMobile = useIsMobile();
-  
+/**
+ * A section that displays the projects
+ */
+const ProjectsSection = () => {
   return (
-    <FadeInSection
-      direction="up"
-      delay={index * 0.1}
-      className="h-full"
-    >
-      <Card className="overflow-hidden group h-full flex flex-col transition-all duration-300 hover:-translate-y-2 hover:shadow-xl hover:shadow-primary/10 border-border hover:border-primary/30">
-        <div className="h-48 overflow-hidden relative">
-          <img 
-            src={project.image} 
-            alt={project.title} 
-            className="w-full h-full object-cover object-center transition-transform duration-700 group-hover:scale-110"
-          />
-          <div className="absolute inset-0 bg-gradient-to-t from-background to-transparent opacity-0 group-hover:opacity-80 transition-opacity duration-300" />
-        </div>
-        
-        <CardHeader>
-          <CardTitle className="group-hover:text-primary transition-colors duration-300">{project.title}</CardTitle>
-          <CardDescription className="line-clamp-2">{project.description}</CardDescription>
-        </CardHeader>
-        
-        <CardContent className="flex-grow">
-          <div className="flex flex-wrap gap-2 mt-2">
-            {project.tags.map(tag => (
-              <Badge 
-                key={tag} 
-                variant="outline" 
-                className="font-mono text-xs group-hover:bg-primary/10 group-hover:border-primary/30 transition-all duration-300"
-              >
-                {tag}
-              </Badge>
-            ))}
-          </div>
-        </CardContent>
-        
-        <CardFooter className="flex justify-between pt-2 border-t border-border/50 mt-auto">
-          <Button variant="ghost" size="sm" asChild className="group/btn">
-            <a 
-              href={project.github} 
-              target="_blank" 
-              rel="noopener noreferrer"
-              className="flex items-center gap-2"
-            >
-              <Github size={16} className="group-hover/btn:text-primary transition-colors duration-300" />
-              <span className="group-hover/btn:translate-x-1 transition-transform duration-300">Source</span>
-            </a>
-          </Button>
-          
-          {project.demo && (
-            <Button variant="outline" size="sm" asChild className="group/demo">
-              <a 
-                href={project.demo} 
-                target="_blank" 
-                rel="noopener noreferrer"
-                className="flex items-center gap-2"
-              >
-                <span className="group-hover/demo:translate-x-1 transition-transform duration-300">Demo</span>
-                <ExternalLink size={16} className="group-hover/demo:text-primary transition-colors duration-300" />
-              </a>
-            </Button>
-          )}
-        </CardFooter>
-      </Card>
-    </FadeInSection>
-  );
-};
-
-const ProjectsSection = ({ showAll = false }) => {
-  const displayedProjects = showAll ? projects : projects.slice(0, 6);
-  const isMobile = useIsMobile();
-  
-  return (
-    <section id="projects" className="py-16 bg-secondary/30 relative overflow-hidden">
-      {/* Animated background elements */}
-      <div className="absolute inset-0 pointer-events-none">
-        <div className="absolute top-20 left-10 w-4 h-4 bg-primary/20 rotate-45 animate-float opacity-50" />
-        <div className="absolute bottom-40 right-20 w-6 h-6 bg-accent/20 rounded-full animate-float opacity-50" style={{ animationDelay: '1.5s' }} />
-        <div className="absolute top-1/2 left-1/3 w-8 h-8 border border-primary/30 rounded-full animate-pulse opacity-30" />
-      </div>
-      
-      <div className="container mx-auto relative z-10">
+    <section id="projects" className="py-12">
+      <ResponsiveContainer className="space-y-8">
         <FadeInSection direction="up">
-          <h2 className="section-heading flex items-center justify-center md:justify-start gap-3 mb-8">
-            <span className="bg-primary/10 text-primary p-2 rounded-lg">
-              <Code size={24} />
-            </span>
-            Featured Projects
+          <h2 className="text-3xl font-semibold tracking-tight text-center">
+            Projects
           </h2>
+          <p className="text-muted-foreground text-center">
+            Here are some of my favorite projects.
+          </p>
         </FadeInSection>
-        
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
-          {displayedProjects.map((project, index) => (
-            <ProjectCard key={index} project={project} index={index} />
+        <div className="grid sm:grid-cols-2 gap-6">
+          {projects.map((project, index) => (
+            <FadeInSection key={index} direction="up" delay={0.1 * index}>
+              <Card className="bg-card text-card-foreground shadow-md overflow-hidden">
+                <CardHeader>
+                  <CardTitle className="text-lg font-semibold">{project.title}</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-2">
+                  <div className="flex flex-wrap gap-1">
+                    {project.tags.map((tag) => (
+                      <Badge key={tag} variant="secondary">
+                        {tag}
+                      </Badge>
+                    ))}
+                  </div>
+                  <CardDescription className="text-sm text-muted-foreground">
+                    {project.description}
+                  </CardDescription>
+                  <div className="flex justify-end space-x-2">
+                    {project.liveUrl && (
+                      <Button asChild variant="ghost" size="sm">
+                        <a href={project.liveUrl} target="_blank" rel="noopener noreferrer" className="flex items-center">
+                          Live <ExternalLink className="ml-1 h-4 w-4" />
+                        </a>
+                      </Button>
+                    )}
+                    {project.githubUrl && (
+                      <Button asChild variant="ghost" size="sm">
+                        <a href={project.githubUrl} target="_blank" rel="noopener noreferrer" className="flex items-center">
+                          GitHub <Github className="ml-1 h-4 w-4" />
+                        </a>
+                      </Button>
+                    )}
+                    {project.codeUrl && (
+                      <Button asChild variant="ghost" size="sm">
+                        <a href={project.codeUrl} target="_blank" rel="noopener noreferrer" className="flex items-center">
+                          Code <Code className="ml-1 h-4 w-4" />
+                        </a>
+                      </Button>
+                    )}
+                  </div>
+                </CardContent>
+              </Card>
+            </FadeInSection>
           ))}
         </div>
-        
-        <div className="mt-12 text-center">
-          <FadeInSection direction="up" delay={0.3}>
-            {!showAll ? (
-              <Button asChild className="font-mono group relative overflow-hidden bg-gradient-to-r from-primary to-accent border-0 hover:from-primary/90 hover:to-accent/90 transition-all duration-500">
-                <Link to="/projects" className="flex items-center gap-2 px-6 py-2">
-                  <span className="group-hover:translate-x-1 transition-transform duration-300">See All Projects</span>
-                  <ArrowRight size={16} className="group-hover:translate-x-1 transition-transform duration-300" />
-                </Link>
-              </Button>
-            ) : (
-              <Button asChild className="font-mono group relative overflow-hidden bg-gradient-to-r from-muted/80 to-muted border-0 hover:from-muted hover:to-muted/80 transition-all duration-500">
-                <a 
-                  href="https://github.com/Abhishek-Atole" 
-                  target="_blank" 
-                  rel="noopener noreferrer"
-                  className="flex items-center gap-2 px-6 py-2"
-                >
-                  <Github size={18} className="group-hover:scale-110 transition-transform duration-300" />
-                  <span className="group-hover:translate-x-1 transition-transform duration-300">See More on GitHub</span>
-                </a>
-              </Button>
-            )}
-          </FadeInSection>
-        </div>
-      </div>
+      </ResponsiveContainer>
     </section>
   );
 };

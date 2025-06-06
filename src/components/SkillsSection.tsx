@@ -1,11 +1,24 @@
-
-import { Progress } from "@/components/ui/progress";
+import React from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { 
+  Code, 
+  Tool, 
+  Terminal, 
+  Settings, 
+  FileCode, 
+  Server, 
+  Database, 
+  LayoutGrid, 
+  Layers 
+} from "lucide-react";
+import FadeInSection from "@/components/animations/FadeInSection";
+import ResponsiveContainer from "@/components/ResponsiveContainer";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useState } from "react";
 import { useInView } from "framer-motion";
 import { useRef } from "react";
-import FadeInSection from "./animations/FadeInSection";
+import { Progress } from "@/components/ui/progress";
 
 type SkillCategory = {
   name: string;
