@@ -157,7 +157,7 @@ const AdminBlogEditor: React.FC<AdminBlogEditorProps> = ({ postId, onBack }) => 
         status,
         published_date: post.published_date || new Date().toISOString().split('T')[0],
         read_time: post.read_time || 5,
-        comparative_learning: post.comparative_learning || ''
+        comparative_learning: (post as any).comparative_learning || ''
       });
       setSelectedTags(existingPost.tags || []);
     }
