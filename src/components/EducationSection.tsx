@@ -1,5 +1,5 @@
 
-import { GraduationCap, Calendar, MapPin, Trophy, BookOpen, Star } from "lucide-react";
+import { GraduationCap, Calendar, MapPin, Trophy, BookOpen, Star, Award } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 const educationData = [
@@ -9,9 +9,18 @@ const educationData = [
     degree: "B.E. in Electronics & Telecommunication",
     duration: "2020–2024",
     description: "Specialized in electronics & telecommunication engineering while focusing on programming and systems development.",
-    achievements: ["Programming Excellence", "System Architecture", "Technical Innovation"],
-    gpa: "8.5/10",
-    icon: <GraduationCap className="text-primary" size={24} />
+    achievements: [
+      "Programming Excellence", 
+      "System Architecture", 
+      "Technical Innovation",
+      "Google Developer Program (2x participant)",
+      "C/C++ Programming Proficiency",
+      "Project Development & Implementation"
+    ],
+    grade: "CGPA: 6.79/10",
+    displayGrade: "6.79/10",
+    icon: <GraduationCap className="text-primary" size={24} />,
+    specialHighlight: "Google Developer Program"
   },
   {
     institution: "The New Era High School",
@@ -19,9 +28,32 @@ const educationData = [
     degree: "12th, General Science",
     duration: "2019–2020",
     description: "Completed higher secondary education with focus on science subjects including Physics, Chemistry, and Mathematics.",
-    achievements: ["Science Excellence", "Mathematics Proficiency", "Academic Merit"],
-    gpa: "85%",
+    achievements: [
+      "Science Excellence", 
+      "Mathematics Proficiency", 
+      "Academic Merit",
+      "Strong Foundation in PCM"
+    ],
+    grade: "Percentage: 66.62%",
+    displayGrade: "66.62%",
     icon: <BookOpen className="text-accent" size={24} />
+  },
+  {
+    institution: "The New Era High School",
+    location: "Jalgaon Jamod",
+    degree: "10th Standard",
+    duration: "2017–2018",
+    description: "Completed secondary education with strong academic performance and secured prestigious NMMS scholarship for higher studies.",
+    achievements: [
+      "NMMS Scholarship Recipient (8th-12th Standard)",
+      "Academic Excellence",
+      "Strong Foundation Building",
+      "Merit-based Recognition"
+    ],
+    grade: "Percentage: 83.20%",
+    displayGrade: "83.20%",
+    icon: <Award className="text-green-600" size={24} />,
+    specialHighlight: "NMMS Scholar"
   }
 ];
 
@@ -58,12 +90,12 @@ const EducationSection = () => {
           </h2>
           
           <p className="text-lg text-muted-foreground max-w-2xl mx-auto leading-relaxed">
-            Building a strong foundation in engineering and technology through dedicated academic pursuit and practical learning.
+            A comprehensive academic journey from secondary education through engineering, marked by consistent excellence and recognition.
           </p>
         </div>
         
         {/* Education Timeline */}
-        <div className="space-y-8 max-w-4xl mx-auto">
+        <div className="space-y-8 max-w-5xl mx-auto">
           {educationData.map((item, index) => (
             <Card 
               key={index} 
@@ -76,45 +108,51 @@ const EducationSection = () => {
               {/* Card Glow Effect */}
               <div className="absolute inset-0 bg-gradient-to-r from-primary/5 to-accent/5 opacity-0 group-hover/card:opacity-100 transition-all duration-500" />
               
-              {/* Floating Achievement Badge */}
-              <div className="absolute top-4 right-4 opacity-0 group-hover/card:opacity-100 transition-all duration-300 transform translate-y-2 group-hover/card:translate-y-0">
-                <div className="bg-gradient-to-r from-primary/20 to-accent/20 backdrop-blur-md 
-                  px-3 py-1.5 rounded-full border border-primary/30">
-                  <Star className="text-primary" size={16} />
+              {/* Special Highlight Badge */}
+              {item.specialHighlight && (
+                <div className="absolute top-4 right-4 opacity-0 group-hover/card:opacity-100 transition-all duration-300 transform translate-y-2 group-hover/card:translate-y-0">
+                  <div className="bg-gradient-to-r from-primary/20 to-accent/20 backdrop-blur-md 
+                    px-3 py-1.5 rounded-full border border-primary/30 flex items-center gap-2">
+                    <Star className="text-primary" size={14} />
+                    <span className="text-xs font-semibold text-primary">{item.specialHighlight}</span>
+                  </div>
                 </div>
-              </div>
+              )}
 
               <CardHeader className="relative z-10">
-                <CardTitle className="flex items-center gap-3 text-2xl lg:text-3xl group-hover/card:text-primary transition-colors duration-300">
-                  <div className="p-2 rounded-full bg-gradient-to-r from-primary/10 to-accent/10 border border-primary/20 
-                    group-hover/card:border-primary/40 group-hover/card:bg-gradient-to-r group-hover/card:from-primary/20 group-hover/card:to-accent/20 
-                    transition-all duration-300">
-                    {item.icon}
+                <CardTitle className="flex flex-col sm:flex-row sm:items-center gap-4 text-xl lg:text-2xl group-hover/card:text-primary transition-colors duration-300">
+                  <div className="flex items-center gap-3">
+                    <div className="p-2 rounded-full bg-gradient-to-r from-primary/10 to-accent/10 border border-primary/20 
+                      group-hover/card:border-primary/40 group-hover/card:bg-gradient-to-r group-hover/card:from-primary/20 group-hover/card:to-accent/20 
+                      transition-all duration-300">
+                      {item.icon}
+                    </div>
+                    <span className="group-hover/card:translate-x-1 transition-transform duration-300">
+                      {item.institution}
+                    </span>
                   </div>
-                  <span className="group-hover/card:translate-x-1 transition-transform duration-300">
-                    {item.institution}
-                  </span>
                 </CardTitle>
                 
-                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-4 text-sm text-muted-foreground mt-4">
-                  <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4">
-                    <div className="flex items-center gap-2 group-hover/card:text-primary transition-colors duration-300">
-                      <Calendar size={16} className="group-hover/card:scale-110 transition-transform duration-300" />
-                      <span className="font-medium">{item.duration}</span>
-                    </div>
-                    <div className="flex items-center gap-2 group-hover/card:text-accent transition-colors duration-300">
-                      <MapPin size={16} className="group-hover/card:scale-110 transition-transform duration-300" />
-                      <span className="font-medium">{item.location}</span>
-                    </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 text-sm text-muted-foreground mt-4">
+                  <div className="flex items-center gap-2 group-hover/card:text-primary transition-colors duration-300">
+                    <Calendar size={16} className="group-hover/card:scale-110 transition-transform duration-300" />
+                    <span className="font-medium">{item.duration}</span>
                   </div>
-                  
-                  {/* GPA Badge */}
-                  <div className="inline-flex items-center gap-2 bg-gradient-to-r from-primary/10 to-accent/10 
-                    border border-primary/20 rounded-full px-3 py-1 backdrop-blur-sm
-                    group-hover/card:border-primary/40 group-hover/card:bg-gradient-to-r group-hover/card:from-primary/20 group-hover/card:to-accent/20 
-                    transition-all duration-300">
-                    <Trophy size={14} className="text-primary" />
-                    <span className="text-xs font-mono font-semibold">{item.gpa}</span>
+                  <div className="flex items-center gap-2 group-hover/card:text-accent transition-colors duration-300">
+                    <MapPin size={16} className="group-hover/card:scale-110 transition-transform duration-300" />
+                    <span className="font-medium">{item.location}</span>
+                  </div>
+                  <div className="flex items-center gap-2 group-hover/card:text-green-600 transition-colors duration-300">
+                    <Trophy size={16} className="group-hover/card:scale-110 transition-transform duration-300" />
+                    <span className="font-medium">{item.displayGrade}</span>
+                  </div>
+                  <div className="sm:col-span-2 lg:col-span-1">
+                    <div className="inline-flex items-center gap-2 bg-gradient-to-r from-primary/10 to-accent/10 
+                      border border-primary/20 rounded-full px-3 py-1 backdrop-blur-sm
+                      group-hover/card:border-primary/40 group-hover/card:bg-gradient-to-r group-hover/card:from-primary/20 group-hover/card:to-accent/20 
+                      transition-all duration-300">
+                      <span className="text-xs font-mono font-semibold">{item.grade}</span>
+                    </div>
                   </div>
                 </div>
               </CardHeader>
@@ -131,20 +169,20 @@ const EducationSection = () => {
                 </p>
                 
                 {/* Achievements */}
-                <div className="space-y-3">
+                <div className="space-y-4">
                   <h4 className="font-semibold text-sm text-primary uppercase tracking-wide">Key Achievements</h4>
-                  <div className="flex flex-wrap gap-2">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
                     {item.achievements.map((achievement, achievementIndex) => (
                       <div 
                         key={achievementIndex}
                         className="inline-flex items-center gap-2 bg-gradient-to-r from-muted/50 to-muted/30 
-                          border border-border/50 rounded-full px-3 py-1.5 text-xs font-medium
+                          border border-border/50 rounded-lg px-3 py-2 text-sm font-medium
                           hover:border-primary/40 hover:bg-gradient-to-r hover:from-primary/10 hover:to-accent/10
                           hover:scale-105 transition-all duration-300 cursor-pointer"
                         style={{ animationDelay: `${achievementIndex * 100}ms` }}
                       >
-                        <Star size={12} className="text-primary" />
-                        <span>{achievement}</span>
+                        <Star size={14} className="text-primary flex-shrink-0" />
+                        <span className="text-xs lg:text-sm">{achievement}</span>
                       </div>
                     ))}
                   </div>
@@ -170,10 +208,23 @@ const EducationSection = () => {
               transform -translate-x-1/2 border-4 border-background shadow-lg hidden lg:block
               hover:scale-125 transition-transform duration-300"
             style={{ 
-              top: `${index === 0 ? '45%' : '75%'}`,
+              top: `${30 + (index * 20)}%`,
             }}
           />
         ))}
+
+        {/* Call to Action for Notes */}
+        <div className="mt-16 text-center">
+          <div className="inline-flex items-center gap-3 bg-gradient-to-r from-muted/20 to-muted/10 
+            backdrop-blur-sm border border-border/30 rounded-full px-6 py-3
+            hover:border-primary/40 hover:bg-gradient-to-r hover:from-primary/10 hover:to-accent/10 
+            transition-all duration-300 cursor-pointer group/cta">
+            <BookOpen className="text-primary group-hover/cta:scale-110 transition-transform duration-300" size={20} />
+            <span className="font-mono text-sm text-muted-foreground group-hover/cta:text-foreground transition-colors duration-300">
+              Study Notes & Resources - Coming Soon
+            </span>
+          </div>
+        </div>
       </div>
     </section>
   );
