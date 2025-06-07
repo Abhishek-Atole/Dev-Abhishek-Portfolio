@@ -1,6 +1,7 @@
 
 import NavBar from "@/components/NavBar";
 import Footer from "@/components/Footer";
+import Chatbot from "@/components/Chatbot";
 import { useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -110,6 +111,9 @@ const BlogPage = () => {
         </div>
       </main>
       <Footer />
+      
+      {/* AI Chatbot for blog readers */}
+      <Chatbot position="bottom-right" />
     </div>
   );
 };

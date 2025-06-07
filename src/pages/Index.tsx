@@ -11,6 +11,7 @@ import ContactSection from "@/components/ContactSection";
 import Footer from "@/components/Footer";
 import ResumeSection from "@/components/ResumeSection";
 import CertificatesSection from "@/components/CertificatesSection";
+import Chatbot from "@/components/Chatbot";
 
 const Index = () => {
   // Set meta tags for SEO
@@ -67,6 +68,9 @@ const Index = () => {
       </main>
       
       <Footer />
+      
+      {/* AI Chatbot for visitors */}
+      <Chatbot position="bottom-right" />
     </div>
   );
 };

@@ -1,10 +1,10 @@
-
 import React from 'react';
 import { useParams, Navigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import NavBar from '@/components/NavBar';
 import Footer from '@/components/Footer';
+import Chatbot from '@/components/Chatbot';
 import MarkdownRenderer from '@/components/MarkdownRenderer';
 import ShareButton from '@/components/ShareButton';
 import SaveButton from '@/components/SaveButton';
@@ -176,6 +176,7 @@ const BlogPost = () => {
             </div>
             <p className="text-sm text-muted-foreground">
               This article covers advanced programming concepts. Code examples are interactive and can be copied with a single click.
+              Have questions? Ask the AI assistant below!
             </p>
           </Card>
 
@@ -247,6 +248,9 @@ const BlogPost = () => {
       </main>
       
       <Footer />
+      
+      {/* AI Chatbot for blog readers - positioned for easy access */}
+      <Chatbot position="bottom-right" />
     </div>
   );
 };
