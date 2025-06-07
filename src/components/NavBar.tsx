@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { Menu, X, Home, User, Mail, BookOpen, Code, FileText, Award } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -15,6 +14,7 @@ const navItems = [
   { label: "Certificates", href: "/certificates", icon: Award },
   { label: "Blog", href: "/blog", icon: FileText },
   { label: "Contact", href: "/contact", icon: Mail },
+  { label: "Notes", href: "/notes", icon: FileText },
 ];
 
 const NavBar = () => {

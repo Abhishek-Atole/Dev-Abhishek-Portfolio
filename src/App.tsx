@@ -1,4 +1,3 @@
-
 import React from "react";
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
@@ -16,6 +15,7 @@ import AdminDashboard from "@/pages/AdminDashboard";
 import NotFound from "@/pages/NotFound";
 import { AdminAuthProvider } from "@/contexts/AdminAuthContext";
 import AdminProtectedRoute from "@/components/admin/AdminProtectedRoute";
+import NotesPage from "@/pages/notes";
 
 const queryClient = new QueryClient();
 
@@ -42,6 +42,7 @@ function App() {
                 </AdminProtectedRoute>
               }
             />
+            <Route path="/notes" element={<NotesPage />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </Router>
