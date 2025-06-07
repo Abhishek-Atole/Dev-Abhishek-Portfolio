@@ -9,9 +9,13 @@ import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useToast } from '@/hooks/use-toast';
-import { ArrowLeft, Save, Eye, Upload } from 'lucide-react';
+import { ArrowLeft, Save, Eye, Upload, Calendar, GitCompare, Settings } from 'lucide-react';
+import { Switch } from '@/components/ui/switch';
+import { Badge } from '@/components/ui/badge';
 import RichTextEditor from './RichTextEditor';
 import TagSelector from './TagSelector';
+import MediaUploader from './MediaUploader';
+import ComparativeLearningSection from './ComparativeLearningSection';
 
 interface BlogPost {
   id?: string;
@@ -24,6 +28,7 @@ interface BlogPost {
   status: 'draft' | 'published';
   published_date?: string;
   read_time?: number;
+  comparative_learning?: string; // JSON string
 }
 
 interface Category {
@@ -46,14 +51,50 @@ const AdminBlogEditor: React.FC<AdminBlogEditorProps> = ({ postId, onBack }) => 
     cover_image: '',
     category_id: '',
     status: 'draft',
-    published_date: '',
-    read_time: 5
+    published_date: new Date().toISOString().split('T')[0],
+    read_time: 5,
+    comparative_learning: ''
   });
   
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const [isUploading, setIsUploading] = useState(false);
+  const [showComparativeSection, setShowComparativeSection] = useState(false);
+  const [comparativeLearningData, setComparativeLearningData] = useState({
+    topic: '',
+    description: '',
+    items: []
+  });
+  
   const { toast } = useToast();
   const queryClient = useQueryClient();
+  
+  // Load comparative learning data from JSON
+  useEffect(() => {
+    if (formData.comparative_learning) {
+      try {
+        const parsed = JSON.parse(formData.comparative_learning);
+        setComparativeLearningData(parsed);
+        setShowComparativeSection(true);
+      } catch (error) {
+        console.error('Error parsing comparative learning data:', error);
+      }
+    }
+  }, [formData.comparative_learning]);
+
+  // Update comparative learning JSON when data changes
+  useEffect(() => {
+    if (showComparativeSection) {
+      setFormData(prev => ({
+        ...prev,
+        comparative_learning: JSON.stringify(comparativeLearningData)
+      }));
+    } else {
+      setFormData(prev => ({
+        ...prev,
+        comparative_learning: ''
+      }));
+    }
+  }, [comparativeLearningData, showComparativeSection]);
   
   // Fetch categories
   const { data: categories = [] } = useQuery({
@@ -103,7 +144,6 @@ const AdminBlogEditor: React.FC<AdminBlogEditorProps> = ({ postId, onBack }) => 
   useEffect(() => {
     if (existingPost?.post) {
       const post = existingPost.post;
-      // Ensure status is properly typed
       const status = (post.status === 'published' || post.status === 'draft') ? post.status : 'draft';
       
       setFormData({
@@ -115,8 +155,9 @@ const AdminBlogEditor: React.FC<AdminBlogEditorProps> = ({ postId, onBack }) => 
         cover_image: post.cover_image || '',
         category_id: post.category_id || '',
         status,
-        published_date: post.published_date || '',
-        read_time: post.read_time || 5
+        published_date: post.published_date || new Date().toISOString().split('T')[0],
+        read_time: post.read_time || 5,
+        comparative_learning: post.comparative_learning || ''
       });
       setSelectedTags(existingPost.tags || []);
     }
@@ -126,8 +167,12 @@ const AdminBlogEditor: React.FC<AdminBlogEditorProps> = ({ postId, onBack }) => 
     mutationFn: async (data: BlogPost & { tags: string[] }) => {
       const { tags, ...postData } = data;
       
+      // Auto-generate read time based on content length
+      const words = postData.content.split(' ').length;
+      const estimatedReadTime = Math.max(1, Math.ceil(words / 200));
+      postData.read_time = estimatedReadTime;
+      
       if (postId) {
-        // Update existing post
         const { data: updatedPost, error } = await supabase
           .from('admin_blog_posts')
           .update(postData)
@@ -156,7 +201,6 @@ const AdminBlogEditor: React.FC<AdminBlogEditorProps> = ({ postId, onBack }) => 
         
         return updatedPost;
       } else {
-        // Create new post
         const { data: newPost, error } = await supabase
           .from('admin_blog_posts')
           .insert([postData])
@@ -165,7 +209,6 @@ const AdminBlogEditor: React.FC<AdminBlogEditorProps> = ({ postId, onBack }) => 
         
         if (error) throw error;
         
-        // Insert tags
         if (tags.length > 0) {
           const tagInserts = tags.map(tagId => ({
             blog_post_id: newPost.id,
@@ -184,7 +227,7 @@ const AdminBlogEditor: React.FC<AdminBlogEditorProps> = ({ postId, onBack }) => 
       queryClient.invalidateQueries({ queryKey: ['admin-blog-posts'] });
       toast({
         title: 'Success',
-        description: `Blog post ${postId ? 'updated' : 'created'} successfully`
+        description: `Blog post ${postId ? 'updated' : 'created'} successfully`,
       });
     },
     onError: (error: any) => {
@@ -213,7 +256,7 @@ const AdminBlogEditor: React.FC<AdminBlogEditorProps> = ({ postId, onBack }) => 
     }));
   };
 
-  const handleSave = () => {
+  const handleSave = (publishNow = false) => {
     if (!formData.title.trim() || !formData.content.trim()) {
       toast({
         title: 'Error',
@@ -223,85 +266,61 @@ const AdminBlogEditor: React.FC<AdminBlogEditorProps> = ({ postId, onBack }) => 
       return;
     }
 
-    saveMutation.mutate({
+    const dataToSave = {
       ...formData,
+      status: publishNow ? 'published' as const : formData.status,
+      published_date: publishNow ? new Date().toISOString().split('T')[0] : formData.published_date,
       tags: selectedTags
-    });
-  };
+    };
 
-  const handleImageUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (!file) return;
-
-    setIsUploading(true);
-    try {
-      const fileExt = file.name.split('.').pop();
-      const fileName = `${Date.now()}.${fileExt}`;
-      const filePath = `blog-media/${fileName}`;
-
-      const { error: uploadError } = await supabase.storage
-        .from('blog-media')
-        .upload(filePath, file);
-
-      if (uploadError) throw uploadError;
-
-      const { data } = supabase.storage
-        .from('blog-media')
-        .getPublicUrl(filePath);
-
-      setFormData(prev => ({ ...prev, cover_image: data.publicUrl }));
-      
-      toast({
-        title: 'Success',
-        description: 'Image uploaded successfully'
-      });
-    } catch (error: any) {
-      toast({
-        title: 'Error',
-        description: error.message,
-        variant: 'destructive'
-      });
-    } finally {
-      setIsUploading(false);
-    }
+    saveMutation.mutate(dataToSave);
   };
 
   if (isLoading) {
-    return <div>Loading...</div>;
+    return <div className="flex items-center justify-center p-8">Loading...</div>;
   }
 
   return (
     <div className="space-y-6">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <Button variant="outline" size="sm" onClick={onBack}>
-            <ArrowLeft size={16} />
-          </Button>
-          <h1 className="text-2xl font-bold">
-            {postId ? 'Edit Blog Post' : 'Create New Blog Post'}
-          </h1>
-        </div>
-        
-        <div className="flex gap-2">
-          <Button 
-            variant="outline" 
-            onClick={handleSave}
-            disabled={saveMutation.isPending}
-          >
-            <Save size={16} className="mr-2" />
-            Save Draft
-          </Button>
-          <Button 
-            onClick={() => {
-              setFormData(prev => ({ ...prev, status: 'published' }));
-              handleSave();
-            }}
-            disabled={saveMutation.isPending}
-          >
-            <Eye size={16} className="mr-2" />
-            Publish
-          </Button>
+      {/* Enhanced Header */}
+      <div className="relative bg-gradient-to-br from-primary/5 via-background to-accent/5 -mx-3 sm:-mx-4 lg:-mx-6 px-3 sm:px-4 lg:px-6 py-6 rounded-lg">
+        <div className="absolute inset-0 bg-grid-pattern opacity-[0.02] rounded-lg"></div>
+        <div className="relative flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <Button variant="outline" size="sm" onClick={onBack}>
+              <ArrowLeft size={16} />
+            </Button>
+            <div className="space-y-1">
+              <h1 className="text-2xl font-bold font-mono">
+                {postId ? 'Edit Blog Post' : 'Create New Blog Post'}
+              </h1>
+              <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                <Calendar size={14} />
+                <span>{new Date().toLocaleDateString()}</span>
+                <Badge variant="outline" className="text-xs">
+                  {formData.status}
+                </Badge>
+              </div>
+            </div>
+          </div>
+          
+          <div className="flex gap-2">
+            <Button 
+              variant="outline" 
+              onClick={() => handleSave(false)}
+              disabled={saveMutation.isPending}
+            >
+              <Save size={16} className="mr-2" />
+              Save Draft
+            </Button>
+            <Button 
+              onClick={() => handleSave(true)}
+              disabled={saveMutation.isPending}
+            >
+              <Eye size={16} className="mr-2" />
+              Publish Now
+            </Button>
+          </div>
         </div>
       </div>
 
@@ -315,22 +334,24 @@ const AdminBlogEditor: React.FC<AdminBlogEditorProps> = ({ postId, onBack }) => 
             </CardHeader>
             <CardContent className="space-y-4">
               <div>
-                <Label htmlFor="title">Title</Label>
+                <Label htmlFor="title">Title *</Label>
                 <Input
                   id="title"
                   value={formData.title}
                   onChange={(e) => handleTitleChange(e.target.value)}
-                  placeholder="Enter post title..."
+                  placeholder="Enter an engaging post title..."
+                  className="font-semibold"
                 />
               </div>
 
               <div>
-                <Label htmlFor="slug">Slug</Label>
+                <Label htmlFor="slug">URL Slug</Label>
                 <Input
                   id="slug"
                   value={formData.slug}
                   onChange={(e) => setFormData(prev => ({ ...prev, slug: e.target.value }))}
                   placeholder="post-url-slug"
+                  className="font-mono text-sm"
                 />
               </div>
 
@@ -340,13 +361,13 @@ const AdminBlogEditor: React.FC<AdminBlogEditorProps> = ({ postId, onBack }) => 
                   id="excerpt"
                   value={formData.excerpt}
                   onChange={(e) => setFormData(prev => ({ ...prev, excerpt: e.target.value }))}
-                  placeholder="Brief description of the post..."
+                  placeholder="Brief description that appears in previews..."
                   rows={3}
                 />
               </div>
 
               <div>
-                <Label htmlFor="content">Content</Label>
+                <Label htmlFor="content">Content *</Label>
                 <RichTextEditor
                   content={formData.content}
                   onChange={(value) => setFormData(prev => ({ ...prev, content: value }))}
@@ -354,13 +375,47 @@ const AdminBlogEditor: React.FC<AdminBlogEditorProps> = ({ postId, onBack }) => 
               </div>
             </CardContent>
           </Card>
+
+          {/* Comparative Learning Section */}
+          <div className="space-y-4">
+            <Card className="border-primary/20">
+              <CardHeader className="pb-4">
+                <div className="flex items-center justify-between">
+                  <CardTitle className="flex items-center gap-2">
+                    <GitCompare size={20} className="text-primary" />
+                    Comparative Learning
+                  </CardTitle>
+                  <div className="flex items-center gap-2">
+                    <Label htmlFor="comparative-toggle" className="text-sm font-medium">
+                      Enable Comparison
+                    </Label>
+                    <Switch
+                      id="comparative-toggle"
+                      checked={showComparativeSection}
+                      onCheckedChange={setShowComparativeSection}
+                    />
+                  </div>
+                </div>
+              </CardHeader>
+            </Card>
+
+            {showComparativeSection && (
+              <ComparativeLearningSection
+                data={comparativeLearningData}
+                onChange={setComparativeLearningData}
+              />
+            )}
+          </div>
         </div>
 
         {/* Sidebar */}
         <div className="space-y-6">
           <Card>
             <CardHeader>
-              <CardTitle>Settings</CardTitle>
+              <CardTitle className="flex items-center gap-2">
+                <Settings size={18} />
+                Settings
+              </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               <div>
@@ -375,8 +430,8 @@ const AdminBlogEditor: React.FC<AdminBlogEditorProps> = ({ postId, onBack }) => 
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="draft">Draft</SelectItem>
-                    <SelectItem value="published">Published</SelectItem>
+                    <SelectItem value="draft">📝 Draft</SelectItem>
+                    <SelectItem value="published">✅ Published</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -413,64 +468,39 @@ const AdminBlogEditor: React.FC<AdminBlogEditorProps> = ({ postId, onBack }) => 
               </div>
 
               <div>
-                <Label htmlFor="read_time">Read Time (minutes)</Label>
+                <Label htmlFor="read_time">Estimated Read Time (auto-calculated)</Label>
                 <Input
                   id="read_time"
                   type="number"
                   value={formData.read_time}
-                  onChange={(e) => setFormData(prev => ({ ...prev, read_time: parseInt(e.target.value) || 5 }))}
+                  readOnly
+                  className="bg-muted"
                 />
+                <p className="text-xs text-muted-foreground mt-1">
+                  Based on ~200 words per minute
+                </p>
               </div>
             </CardContent>
           </Card>
 
-          <Card>
-            <CardHeader>
-              <CardTitle>Cover Image</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div>
-                <Label htmlFor="cover_image">Image Upload</Label>
-                <div className="flex gap-2">
-                  <Input
-                    id="cover_image"
-                    type="file"
-                    accept="image/*"
-                    onChange={handleImageUpload}
-                    disabled={isUploading}
-                  />
-                  <Button
-                    type="button"
-                    variant="outline"
-                    size="sm"
-                    disabled={isUploading}
-                  >
-                    <Upload size={16} />
-                  </Button>
-                </div>
-              </div>
+          <MediaUploader
+            onImageUploaded={(url) => setFormData(prev => ({ ...prev, cover_image: url }))}
+          />
 
-              {formData.cover_image && (
-                <div className="mt-2">
-                  <img
-                    src={formData.cover_image}
-                    alt="Cover preview"
-                    className="w-full h-32 object-cover rounded border"
-                  />
-                </div>
-              )}
-
-              <div>
-                <Label htmlFor="cover_image_url">Or enter URL</Label>
-                <Input
-                  id="cover_image_url"
-                  value={formData.cover_image || ''}
-                  onChange={(e) => setFormData(prev => ({ ...prev, cover_image: e.target.value }))}
-                  placeholder="https://example.com/image.jpg"
+          {formData.cover_image && (
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-sm">Cover Image Preview</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <img
+                  src={formData.cover_image}
+                  alt="Cover preview"
+                  className="w-full h-32 object-cover rounded border"
                 />
-              </div>
-            </CardContent>
-          </Card>
+              </CardContent>
+            </Card>
+          )}
 
           <Card>
             <CardHeader>
