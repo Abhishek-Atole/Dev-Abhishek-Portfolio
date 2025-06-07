@@ -1,4 +1,3 @@
-
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import NavBar from "@/components/NavBar";
@@ -28,12 +27,13 @@ const CertificatesPage = () => {
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
 
   const { data: certificates, isLoading } = useQuery({
-    queryKey: ["certificates-all"],
+    queryKey: ["certificates-home"],
     queryFn: async () => {
       const { data, error } = await supabase
         .from("certificates")
         .select("*")
-        .order("issue_date", { ascending: false });
+        .order("issue_date", { ascending: false })
+        .limit(6);
       if (error) throw error;
       return data as Certificate[];
     }
