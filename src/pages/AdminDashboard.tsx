@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -19,9 +18,10 @@ import { useAdminAuth } from "@/contexts/AdminAuthContext";
 import AnalyticsPanel from "@/components/admin/AnalyticsPanel";
 import MediaLibrary from "@/components/admin/MediaLibrary";
 import TagsManager from "@/components/admin/TagsManager";
-import { Badge } from "@/components/ui/badge";
+import Badge from "@/components/ui/badge";
+import NotesDashboard from "@/components/admin/NotesDashboard";
 
-type View = "dashboard" | "editor" | "list" | "certificates" | "categories" | "projects" | "work-experience" | "analytics" | "media" | "tags";
+type View = "dashboard" | "editor" | "list" | "certificates" | "categories" | "projects" | "work-experience" | "analytics" | "media" | "tags" | "notes";
 
 const AdminDashboard = () => {
   const [currentView, setCurrentView] = useState<View>("dashboard");
@@ -34,7 +34,7 @@ const AdminDashboard = () => {
   }, []);
 
   // Fetch stats for dashboard
-  const { data: stats } = useQuery({
+  const { data: stats, error: statsError } = useQuery({
     queryKey: ["admin-stats"],
     queryFn: async () => {
       const [postsResult, categoriesResult, tagsResult, certificatesResult, projectsResult, workExperiencesResult] = await Promise.all([
@@ -81,10 +81,7 @@ const AdminDashboard = () => {
     setCurrentView("editor");
   };
 
-  const handleBackToDashboard = () => {
-    setCurrentView("dashboard");
-    setEditingPostId(null);
-  };
+  const handleBackToDashboard = () => setCurrentView("dashboard");
 
   const handleBackToList = () => {
     setCurrentView("list");
@@ -240,6 +237,14 @@ const AdminDashboard = () => {
               >
                 <Eye size={24} />
                 <span>View All Posts</span>
+              </Button>
+              <Button 
+                variant="outline" 
+                onClick={() => setCurrentView("notes")} 
+                className="h-auto p-6 flex flex-col items-center gap-3 text-sm font-medium hover:bg-muted/50 font-mono"
+              >
+                <FileText size={24} />
+                <span>Manage Notes</span>
               </Button>
               <Button 
                 variant="outline" 
@@ -487,17 +492,49 @@ const AdminDashboard = () => {
     }
   };
 
+  if (statsError) {
+    return (
+      <div className="p-8 text-red-600 font-mono">
+        Failed to load dashboard stats: {statsError.message}
+      </div>
+    );
+  }
+
   return (
     <AdminProtectedRoute>
-      <div className="min-h-screen bg-background">
-        <NavBar />
-        <main className="pt-20 sm:pt-24 pb-12 sm:pb-16">
-          <div className="container mx-auto max-w-7xl px-3 sm:px-4 lg:px-6">
-            {renderContent()}
-          </div>
-        </main>
-        <Footer />
-      </div>
+      <NavBar />
+      <main className="container py-8 min-h-[80vh]">
+        {currentView === "dashboard" && renderDashboard()}
+        {currentView === "editor" && (
+          <AdminBlogEditor postId={editingPostId} onBack={handleBackToList} />
+        )}
+        {currentView === "list" && (
+          <AdminBlogList onEdit={handleEditPost} onBack={handleBackToDashboard} />
+        )}
+        {currentView === "certificates" && (
+          <CertificationManager />
+        )}
+        {currentView === "categories" && (
+          <CategoriesManager />
+        )}
+        {currentView === "projects" && (
+          <ProjectsManager />
+        )}
+        {currentView === "work-experience" && (
+          <WorkExperienceManager />
+        )}
+        {currentView === "analytics" && (
+          <AnalyticsPanel />
+        )}
+        {currentView === "media" && (
+          <MediaLibrary />
+        )}
+        {currentView === "tags" && (
+          <TagsManager />
+        )}
+        {currentView === "notes" && <NotesDashboard onBack={handleBackToDashboard} />}
+      </main>
+      <Footer />
     </AdminProtectedRoute>
   );
 };
