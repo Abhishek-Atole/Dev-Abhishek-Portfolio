@@ -1,4 +1,3 @@
-
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&display=swap');
 
@@ -37,6 +36,13 @@
     --ring: 196 80% 60%;
 
     --radius: 0.5rem;
+
+    /* Add RGB values for Framer Motion animations */
+    --primary-rgb: 56, 189, 248;
+    --accent-rgb: 34, 197, 94;
+    --muted-rgb: 71, 85, 105;
+    --background-rgb: 15, 23, 42;
+    --foreground-rgb: 248, 250, 252;
   }
   
   .light {
@@ -67,6 +73,27 @@
     --border: 214.3 31.8% 91.4%;
     --input: 214.3 31.8% 91.4%;
     --ring: 196 80% 40%;
+
+    /* Light mode RGB values */
+    --primary-rgb: 59, 130, 246;
+    --accent-rgb: 34, 197, 94;
+    --muted-rgb: 100, 116, 139;
+    --background-rgb: 255, 255, 255;
+    --foreground-rgb: 15, 23, 42;
+  }
+
+  /* Fix animation utilities */
+  .animate-color-primary {
+    background-color: rgb(var(--primary-rgb));
+  }
+
+  .animate-color-muted {
+    background-color: rgb(var(--muted-rgb));
+  }
+
+  /* Remove problematic HSL animations */
+  .your-animation-class {
+    background-color: rgba(var(--muted-rgb), 0.5);
   }
 }
 
@@ -78,6 +105,7 @@
 
   html {
     scroll-behavior: smooth;
+    scroll-padding-top: 6rem; /* Account for fixed navbar height */
     /* Hide scrollbar for IE, Edge and Firefox */
     -ms-overflow-style: none;
     scrollbar-width: none;
@@ -324,5 +352,88 @@
 
   .safe-area-right {
     padding-right: env(safe-area-inset-right);
+  }
+
+  /* Add smooth scrolling and proper anchor offset */
+  html {
+    scroll-behavior: smooth;
+    scroll-padding-top: 6rem; /* Account for fixed navbar height */
+  }
+
+  /* Ensure content sections have proper spacing */
+  .content-section {
+    scroll-margin-top: 6rem !important;
+  }
+
+  /* Make sure the navbar has proper z-index */
+  .navbar-fixed {
+    z-index: 50;
+  }
+
+  /* Ensure proper spacing for notes page */
+  .sidebar-nav {
+    top: 6rem !important;
+  }
+
+  .main-content {
+    padding-top: 2rem !important;
+    min-height: calc(100vh - 6rem);
+  }
+
+  /* Ensure overview section is properly positioned */
+  #overview {
+    scroll-margin-top: 8rem !important;
+  }
+}
+
+/* Admin dashboard specific spacing */
+.admin-main-content {
+  padding-top: 6rem; /* 24 = 6rem, accounts for fixed navbar */
+  min-height: calc(100vh - 6rem);
+}
+
+/* Ensure admin content has proper spacing */
+.admin-container {
+  padding-top: 2rem;
+  padding-bottom: 2rem;
+}
+
+/* Animation-safe utilities */
+@layer utilities {
+  /* Hover effects without HSL conflicts */
+  .hover-primary {
+    @apply hover:bg-blue-500/10 hover:text-blue-600 hover:border-blue-500/30;
+  }
+
+  .hover-accent {
+    @apply hover:bg-green-500/10 hover:text-green-600 hover:border-green-500/30;
+  }
+
+  /* Motion-safe animations */
+  .motion-safe-fade {
+    @apply opacity-0 animate-[fadeIn_0.5s_ease-out_forwards];
+  }
+
+  .motion-safe-slide {
+    @apply translate-y-4 opacity-0 animate-[slideUp_0.6s_ease-out_forwards];
+  }
+
+  /* Safe color transitions */
+  .safe-color-transition {
+    transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+  }
+}
+
+/* Add keyframes for safe animations */
+@keyframes fadeIn {
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideUp {
+  to {
+    opacity: 1;
+    transform: translateY(0);
   }
 }

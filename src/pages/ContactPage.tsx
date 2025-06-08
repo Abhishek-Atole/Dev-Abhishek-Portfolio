@@ -1,4 +1,3 @@
-
 import NavBar from "@/components/NavBar";
 import ContactSection from "@/components/ContactSection";
 import Footer from "@/components/Footer";
@@ -13,7 +12,8 @@ const ContactPage = () => {
   return (
     <div className="min-h-screen bg-background">
       <NavBar />
-      <main className="pt-24">
+      {/* Add proper top spacing */}
+      <main className="pt-24 pb-16">
         <ContactSection />
       </main>
       <Footer />
