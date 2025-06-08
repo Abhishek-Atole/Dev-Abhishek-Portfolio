@@ -97,13 +97,13 @@ const HeroSection = () => {
       <div className="container mx-auto min-h-screen flex items-center relative z-10 pt-16">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center w-full">
           
-          {/* Left Content - Enhanced */}
+          {/* Left Content - Fix animations */}
           <div className="lg:col-span-7 space-y-8 animate-fade-in">
             
-            {/* Status Badge */}
+            {/* Status Badge - Remove problematic hover animations */}
             <div className="inline-flex items-center gap-3 bg-gradient-to-r from-primary/10 to-accent/10 
-              border border-primary/20 rounded-full px-6 py-3 backdrop-blur-sm hover:border-primary/40 
-              hover:bg-gradient-to-r hover:from-primary/15 hover:to-accent/15 transition-all duration-300">
+              border border-primary/20 rounded-full px-6 py-3 backdrop-blur-sm 
+              transition-all duration-300 hover:border-primary/40">
               <div className="w-3 h-3 bg-green-500 rounded-full animate-pulse" />
               <span className="font-mono text-sm font-medium text-foreground/80">Available for opportunities</span>
             </div>

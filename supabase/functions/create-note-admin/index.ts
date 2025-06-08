@@ -12,31 +12,17 @@ const allowedOrigins = [
   'http://127.0.0.1:8080'
 ];
 
-const corsHeaders = {
-  'Access-Control-Allow-Origin': '*', // Or restrict to allowedOrigins
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-  'Access-Control-Allow-Methods': 'POST, OPTIONS',
-};
-
 serve(async (req) => {
-  const origin = req.headers.get('origin');
-  console.log('Request origin:', origin);
-  console.log('Allowed origins:', allowedOrigins);
-  
-  // More robust CORS handling - allow the origin if it's in our list, otherwise use wildcard for development
-  const allowedOrigin = allowedOrigins.includes(origin) ? origin : '*';
-  
-  const dynamicCorsHeaders = {
-    'Access-Control-Allow-Origin': allowedOrigin,
-    'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+  const origin = req.headers.get('origin') ?? '*';
+  const corsHeaders = {
+    'Access-Control-Allow-Origin': origin,
     'Access-Control-Allow-Methods': 'POST, OPTIONS',
+    'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
   };
 
-  console.log('Admin login request received from origin:', origin);
-  console.log('CORS headers being sent:', dynamicCorsHeaders);
-
+  // Handle CORS preflight
   if (req.method === 'OPTIONS') {
-    return new Response('ok', { headers: dynamicCorsHeaders });
+    return new Response(null, { status: 200, headers: corsHeaders });
   }
 
   try {
@@ -47,7 +33,7 @@ serve(async (req) => {
       console.log('Missing credentials');
       return new Response(
         JSON.stringify({ error: 'Missing credentials' }),
-        { status: 400, headers: { ...dynamicCorsHeaders, 'Content-Type': 'application/json' } }
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
 
@@ -81,7 +67,7 @@ serve(async (req) => {
       console.log('Database error during user lookup:', userError);
       return new Response(
         JSON.stringify({ error: 'Database error occurred' }),
-        { status: 500, headers: { ...dynamicCorsHeaders, 'Content-Type': 'application/json' } }
+        { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       )
     }
 
@@ -106,7 +92,7 @@ serve(async (req) => {
           console.log('Error creating default admin user:', createError);
           return new Response(
             JSON.stringify({ error: 'Failed to create default admin user' }),
-            { status: 500, headers: { ...dynamicCorsHeaders, 'Content-Type': 'application/json' } }
+            { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
           )
         }
 
@@ -131,7 +117,7 @@ serve(async (req) => {
             console.error('Session creation error:', sessionError);
             return new Response(
               JSON.stringify({ error: 'Failed to create session' }),
-              { status: 500, headers: { ...dynamicCorsHeaders, 'Content-Type': 'application/json' } }
+              { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
             )
           }
 
@@ -158,14 +144,14 @@ serve(async (req) => {
                 last_login: newUser.last_login
               }
             }),
-            { headers: { ...dynamicCorsHeaders, 'Content-Type': 'application/json' } }
+            { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
           )
         }
       }
       
       return new Response(
         JSON.stringify({ error: 'Invalid credentials' }),
-        { status: 401, headers: { ...dynamicCorsHeaders, 'Content-Type': 'application/json' } }
+        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       )
     }
 
@@ -176,7 +162,7 @@ serve(async (req) => {
       console.log('Account is locked until:', adminUser.locked_until);
       return new Response(
         JSON.stringify({ error: 'Account is temporarily locked. Please try again later.' }),
-        { status: 423, headers: { ...dynamicCorsHeaders, 'Content-Type': 'application/json' } }
+        { status: 423, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       )
     }
 
@@ -220,7 +206,7 @@ serve(async (req) => {
             ? 'Too many failed attempts. Account locked for 15 minutes.'
             : 'Invalid credentials'
         }),
-        { status: 401, headers: { ...dynamicCorsHeaders, 'Content-Type': 'application/json' } }
+        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       )
     }
 
@@ -243,7 +229,7 @@ serve(async (req) => {
       console.error('Session creation error:', sessionError);
       return new Response(
         JSON.stringify({ error: 'Failed to create session' }),
-        { status: 500, headers: { ...dynamicCorsHeaders, 'Content-Type': 'application/json' } }
+        { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       )
     }
 
@@ -271,14 +257,14 @@ serve(async (req) => {
           last_login: adminUser.last_login
         }
       }),
-      { headers: { ...dynamicCorsHeaders, 'Content-Type': 'application/json' } }
+      { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     )
 
   } catch (error) {
     console.error('Admin login error:', error);
     return new Response(
       JSON.stringify({ error: 'Internal server error' }),
-      { status: 500, headers: { ...dynamicCorsHeaders, 'Content-Type': 'application/json' } }
+      { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
   }
 });

@@ -1,4 +1,3 @@
-
 import { ArrowRight, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
@@ -84,7 +83,7 @@ const BlogSection = () => {
                   Articles Published
                 </div>
                 <Button 
-                  variant="ghost" 
+                  variant="outline" 
                   asChild 
                   className="w-full bg-gradient-to-r from-primary/10 to-accent/10 hover:from-primary/20 hover:to-accent/20 
                     border border-primary/20 hover:border-primary/40 hover:scale-105 transition-all duration-300 

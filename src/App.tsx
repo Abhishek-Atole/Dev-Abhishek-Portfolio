@@ -1,5 +1,5 @@
 import React from "react";
-import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
+import { BrowserRouter, Route, Routes } from "react-router-dom";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
 
@@ -16,6 +16,8 @@ import NotFound from "@/pages/NotFound";
 import { AdminAuthProvider } from "@/contexts/AdminAuthContext";
 import AdminProtectedRoute from "@/components/admin/AdminProtectedRoute";
 import NotesPage from "@/pages/notes";
+import NotePage from "@/pages/NotePage";
+import NotesIndexPage from "@/pages/NotesIndexPage";
 
 const queryClient = new QueryClient();
 
@@ -24,7 +26,12 @@ function App() {
     <QueryClientProvider client={queryClient}>
       <AdminAuthProvider>
         <Toaster />
-        <Router>
+        <BrowserRouter
+          future={{
+            v7_startTransition: true,
+            v7_relativeSplatPath: true,
+          }}
+        >
           <Routes>
             <Route path="/" element={<Index />} />
             <Route path="/about" element={<AboutPage />} />
@@ -42,10 +49,11 @@ function App() {
                 </AdminProtectedRoute>
               }
             />
-            <Route path="/notes" element={<NotesPage />} />
+            <Route path="/notes" element={<NotesIndexPage />} />
+            <Route path="/notes/:slug" element={<NotePage />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
-        </Router>
+        </BrowserRouter>
       </AdminAuthProvider>
     </QueryClientProvider>
   );

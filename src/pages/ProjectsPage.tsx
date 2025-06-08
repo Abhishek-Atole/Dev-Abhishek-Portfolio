@@ -1,4 +1,3 @@
-
 import NavBar from "@/components/NavBar";
 import ProjectsSection from "@/components/ProjectsSection";
 import Footer from "@/components/Footer";
@@ -13,8 +12,9 @@ const ProjectsPage = () => {
   return (
     <div className="min-h-screen bg-background">
       <NavBar />
-      <main className="pt-24">
-        <ProjectsSection showAll={true} />
+      {/* Add proper top spacing */}
+      <main className="pt-24 pb-16">
+        <ProjectsSection />
       </main>
       <Footer />
     </div>

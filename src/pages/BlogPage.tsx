@@ -1,4 +1,3 @@
-
 import NavBar from "@/components/NavBar";
 import Footer from "@/components/Footer";
 import Chatbot from "@/components/Chatbot";
@@ -7,6 +6,7 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import BlogList from "@/components/BlogList";
 import { Code, BookOpen } from "lucide-react";
+import { motion } from "framer-motion";
 
 const BlogPage = () => {
   useEffect(() => {
@@ -64,22 +64,23 @@ const BlogPage = () => {
   return (
     <div className="min-h-screen bg-background">
       <NavBar />
+      {/* Add proper top spacing */}
       <main className="pt-24 pb-16">
-        <div className="container mx-auto max-w-5xl px-4">
-          {/* Header */}
-          <div className="text-center mb-16">
-            <div className="flex items-center justify-center gap-3 mb-4">
-              <div className="p-3 rounded-full bg-primary/10">
-                <Code size={32} className="text-primary" />
-              </div>
-            </div>
-            <h1 className="text-4xl md:text-5xl font-bold mb-4 font-mono">Developer Blog</h1>
-            <p className="text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed">
-              Deep dives into C++, Java, systems programming, and software engineering. 
-              Sharing insights, tutorials, and lessons learned from real-world development.
+        <div className="container mx-auto px-4">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5 }}
+            className="text-center mb-12"
+          >
+            <h1 className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent mb-4">
+              Blog Posts
+            </h1>
+            <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
+              Insights, tutorials, and thoughts on web development, technology, and more.
             </p>
-          </div>
-
+          </motion.div>
+          
           {/* Stats */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
             <div className="text-center p-6 rounded-lg border border-border bg-card">

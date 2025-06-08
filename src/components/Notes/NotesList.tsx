@@ -1,6 +1,6 @@
 import React from 'react';
 import NoteItem from './NoteItem';
-import { Note } from '../../../Dev-Abhishek-Portfolio/src/types/note';
+import { Note } from '../../types/note'; // Fix this path
 
 interface NotesListProps {
   notes: Note[];
@@ -8,7 +8,7 @@ interface NotesListProps {
 
 const NotesList: React.FC<NotesListProps> = ({ notes }) => {
   return (
-    <div>
+    <div className="space-y-4">
       {notes.map(note => (
         <NoteItem key={note.id} note={note} />
       ))}
