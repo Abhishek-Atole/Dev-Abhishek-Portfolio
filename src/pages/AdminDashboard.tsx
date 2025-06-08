@@ -18,7 +18,7 @@ import { useAdminAuth } from "@/contexts/AdminAuthContext";
 import AnalyticsPanel from "@/components/admin/AnalyticsPanel";
 import MediaLibrary from "@/components/admin/MediaLibrary";
 import TagsManager from "@/components/admin/TagsManager";
-import Badge from "@/components/ui/badge";
+import { Badge } from "@/components/ui/badge";
 import NotesDashboard from "@/components/admin/NotesDashboard";
 
 type View = "dashboard" | "editor" | "list" | "certificates" | "categories" | "projects" | "work-experience" | "analytics" | "media" | "tags" | "notes";
@@ -118,7 +118,7 @@ const AdminDashboard = () => {
             </p>
           </div>
           <div className="flex items-center gap-3">
-            <Badge variant="secondary" className="text-xs px-3 py-1">
+            <Badge className="text-xs px-3 py-1">
               <Code2 size={12} className="mr-1" />
               Admin Panel
             </Badge>
@@ -340,6 +340,27 @@ const AdminDashboard = () => {
             onBackToDashboard={handleBackToDashboard}
           />
         );
+      case "notes":
+        return (
+          <div className="space-y-8">
+            <div className="relative bg-gradient-to-br from-primary/5 via-background to-accent/5 -mx-3 sm:-mx-4 lg:-mx-6 px-3 sm:px-4 lg:px-6 py-6 rounded-lg">
+              <div className="absolute inset-0 bg-grid-pattern opacity-[0.02] rounded-lg"></div>
+              <div className="relative flex items-center justify-between">
+                <div className="space-y-2">
+                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                    <FileText size={16} className="text-primary" />
+                    <span>Content Management</span>
+                  </div>
+                  <h1 className="text-3xl font-bold font-mono">Notes Management</h1>
+                </div>
+                <Button variant="outline" onClick={handleBackToDashboard} size="sm" className="font-mono">
+                  Back to Dashboard
+                </Button>
+              </div>
+            </div>
+            <NotesDashboard onBack={handleBackToDashboard} />
+          </div>
+        );
       case "certificates":
         return (
           <div className="space-y-8">
@@ -504,35 +525,7 @@ const AdminDashboard = () => {
     <AdminProtectedRoute>
       <NavBar />
       <main className="container py-8 min-h-[80vh]">
-        {currentView === "dashboard" && renderDashboard()}
-        {currentView === "editor" && (
-          <AdminBlogEditor postId={editingPostId} onBack={handleBackToList} />
-        )}
-        {currentView === "list" && (
-          <AdminBlogList onEdit={handleEditPost} onBack={handleBackToDashboard} />
-        )}
-        {currentView === "certificates" && (
-          <CertificationManager />
-        )}
-        {currentView === "categories" && (
-          <CategoriesManager />
-        )}
-        {currentView === "projects" && (
-          <ProjectsManager />
-        )}
-        {currentView === "work-experience" && (
-          <WorkExperienceManager />
-        )}
-        {currentView === "analytics" && (
-          <AnalyticsPanel />
-        )}
-        {currentView === "media" && (
-          <MediaLibrary />
-        )}
-        {currentView === "tags" && (
-          <TagsManager />
-        )}
-        {currentView === "notes" && <NotesDashboard onBack={handleBackToDashboard} />}
+        {renderContent()}
       </main>
       <Footer />
     </AdminProtectedRoute>

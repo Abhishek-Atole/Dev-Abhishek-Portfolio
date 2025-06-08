@@ -2,12 +2,13 @@ import React, { useEffect, useState } from 'react';
 import DOMPurify from 'dompurify';
 import NotesList from '../Notes/NotesList';
 import AddNoteForm from '../Notes/AddNoteForm';
-import { Note } from '../../Dev-Abhishek-Portfolio/src/types/note';
-import { getNotes, addNote } from '../../utils/notesStorage';
+import { Note } from '../../types/note'; // Fix this path
+import { getNotes, addNote } from '../../utils/notesStorage'; // Fix this path
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
+import { ArrowLeft } from 'lucide-react';
 
 interface Props {
   onBack: () => void;
@@ -67,60 +68,17 @@ const NotesDashboard: React.FC<Props> = ({ onBack }) => {
   return (
     <Card className="max-w-3xl mx-auto my-8">
       <CardHeader>
-        <CardTitle>Manage HTML Notes</CardTitle>
-        <Button variant="outline" onClick={onBack} className="mt-2">Back to Dashboard</Button>
+        <div className="flex items-center gap-3">
+          <Button variant="outline" size="sm" onClick={onBack}>
+            <ArrowLeft size={16} />
+          </Button>
+          <CardTitle className="text-2xl font-bold">Notes Dashboard</CardTitle>
+        </div>
       </CardHeader>
       <CardContent>
-        {!showForm && (
-          <Button onClick={() => setShowForm(true)} className="mb-6">New Note</Button>
-        )}
-        {showForm && (
-          <form
-            className="space-y-4"
-            onSubmit={e => {
-              e.preventDefault();
-              handleSave();
-            }}
-          >
-            <Input
-              value={title}
-              onChange={e => setTitle(e.target.value)}
-              placeholder="Note Title"
-              required
-            />
-            <Textarea
-              value={html}
-              onChange={e => setHtml(e.target.value)}
-              rows={10}
-              placeholder="Paste your HTML, CSS, and scripts here"
-              required
-            />
-            <div className="flex gap-2">
-              <Button type="button" variant="outline" onClick={handlePreview}>Preview</Button>
-              <Button type="submit">Save Note</Button>
-            </div>
-            {error && <div className="text-red-500">{error}</div>}
-            {preview && (
-              <div className="mt-4 border rounded bg-muted p-4">
-                <div className="font-semibold mb-2">Preview:</div>
-                <div dangerouslySetInnerHTML={{ __html: preview }} />
-              </div>
-            )}
-          </form>
-        )}
-        {!showForm && notes.length > 0 && (
-          <div className="mt-8">
-            <h3 className="font-semibold mb-2">Existing Notes</h3>
-            <ul className="space-y-2">
-              {notes.map(note => (
-                <li key={note.id} className="border rounded p-3 bg-card">
-                  <span className="font-mono font-bold">{note.title}</span>
-                  <div className="text-xs text-gray-500">{new Date(note.createdAt).toLocaleString()}</div>
-                </li>
-              ))}
-            </ul>
-          </div>
-        )}
+        <div className="text-center py-12">
+          <p className="text-muted-foreground">Notes management coming soon...</p>
+        </div>
       </CardContent>
     </Card>
   );
