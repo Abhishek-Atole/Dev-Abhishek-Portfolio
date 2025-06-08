@@ -13,10 +13,14 @@ const NotesIndexPage: React.FC = () => {
 
   useEffect(() => {
     document.title = "Notes | Abhishek Atole";
-    const allNotes = getNotes().sort((a, b) => 
-      new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
-    );
-    setNotes(allNotes);
+    const notesData = getNotes(); // Call getNotes once and store the result
+    // Check if notesData is an array before attempting to sort
+    const sortedNotes = Array.isArray(notesData)
+      ? [...notesData].sort((a, b) => // Create a shallow copy for sorting
+          new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+        )
+      : []; // Default to an empty array if notesData is not an array
+    setNotes(sortedNotes);
   }, []);
 
   return (

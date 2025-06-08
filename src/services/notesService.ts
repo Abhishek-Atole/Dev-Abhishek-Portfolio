@@ -44,7 +44,7 @@ function saveNotesToStorage(notes: Note[]) {
 
 export async function getNotes(): Promise<Note[]> {
   try {
-    const { data, error } = await supabase
+    const { data, error } = await (supabase as any)
       .from('notes')
       .select('*')
       .order('created_at', { ascending: false });
@@ -68,45 +68,57 @@ export async function getNotes(): Promise<Note[]> {
   }
 }
 
-export async function addNote(noteData: Omit<Note, 'id' | 'createdAt'>): Promise<Note> {
+export async function addNote(noteData: Omit<Note, 'id' | 'createdAt' | 'admin_user_id' | 'updatedAt'>): Promise<Note> {
   try {
-    const { data, error } = await supabase
-      .from('notes')
-      .insert([transformToDatabase(noteData)])
-      .select()
-      .single();
-
-    if (error) {
-      throw error;
+    const adminSessionToken = localStorage.getItem('admin_session_token');
+    if (!adminSessionToken) {
+      throw new Error('Admin session token not found. Please log in.');
     }
 
-    const newNote = transformDatabaseNote(data);
+    const payload = {
+      notePayload: { 
+        title: noteData.title,
+        html: noteData.html,
+        slug: noteData.slug,
+      },
+      adminSessionToken // Make sure this token is valid and being retrieved correctly
+    };
     
-    // Update localStorage backup
-    const localNotes = getNotesFromStorage();
-    saveNotesToStorage([newNote, ...localNotes]);
+    const { data: newNoteData, error } = await supabase.functions.invoke('create-note-admin', {
+      body: payload, 
+    });
+
+    if (error) throw error;
+    if (!newNoteData) throw new Error('No data returned from create-note-admin function');
     
-    return newNote;
+    // Assuming newNoteData is compatible with your Note type or needs transformation
+    // If your Edge function returns data matching the DatabaseNote structure:
+    // return transformDatabaseNote(newNoteData); 
+    // If it already matches the Note structure:
+    return newNoteData as Note;
+
   } catch (error) {
-    console.error('Error adding note:', error);
+    console.error('Error adding note:', error); // Keep this log
     
     // Fallback: create note with local ID and save to localStorage
     const localNote: Note = {
       id: `local_${Date.now()}`,
       ...noteData,
-      createdAt: new Date().toISOString()
+      createdAt: new Date().toISOString(),
+      // admin_user_id: adminUserId, // You'd need adminUserId here if storing locally with it
     };
     
     const localNotes = getNotesFromStorage();
     saveNotesToStorage([localNote, ...localNotes]);
     
-    throw error; // Re-throw to show user the error
+    // Re-throw to inform the UI component
+    throw error; 
   }
 }
 
 export async function updateNote(id: string, updates: Partial<Omit<Note, 'id' | 'createdAt'>>): Promise<Note> {
   try {
-    const { data, error } = await supabase
+    const { data, error } = await (supabase as any)
       .from('notes')
       .update(transformToDatabase(updates))
       .eq('id', id)
@@ -152,7 +164,7 @@ export async function updateNote(id: string, updates: Partial<Omit<Note, 'id' | 
 
 export async function deleteNote(id: string): Promise<void> {
   try {
-    const { error } = await supabase
+    const { error } = await (supabase as any)
       .from('notes')
       .delete()
       .eq('id', id);
@@ -179,7 +191,7 @@ export async function deleteNote(id: string): Promise<void> {
 
 export async function getNoteBySlug(slug: string): Promise<Note | null> {
   try {
-    const { data, error } = await supabase
+    const { data, error } = await (supabase as any)
       .from('notes')
       .select('*')
       .eq('slug', slug)
@@ -208,7 +220,7 @@ export async function syncLocalNotesToDatabase(): Promise<void> {
     
     for (const note of localNotes) {
       // Check if note already exists in database
-      const { data: existingNote } = await supabase
+      const { data: existingNote } = await (supabase as any)
         .from('notes')
         .select('id')
         .eq('slug', note.slug)
@@ -216,7 +228,7 @@ export async function syncLocalNotesToDatabase(): Promise<void> {
 
       if (!existingNote) {
         // Note doesn't exist in database, add it
-        await supabase
+        await (supabase as any)
           .from('notes')
           .insert([transformToDatabase(note)]);
       }

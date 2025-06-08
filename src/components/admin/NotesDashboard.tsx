@@ -9,6 +9,7 @@ import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { ArrowLeft, Plus, Eye, Edit, Trash2, Save, X, Loader2, Database, Wifi, WifiOff } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { useAdminAuth } from '@/contexts/AdminAuthContext';
 
 interface Props {
   onBack: () => void;
@@ -27,6 +28,7 @@ const NotesDashboard: React.FC<Props> = ({ onBack }) => {
   const [saving, setSaving] = useState(false);
   const [isOnline, setIsOnline] = useState(navigator.onLine);
   const { toast } = useToast();
+  const { adminUser } = useAdminAuth(); // Get adminUser to ensure they are logged in
 
   useEffect(() => {
     loadNotes();
@@ -97,31 +99,39 @@ const NotesDashboard: React.FC<Props> = ({ onBack }) => {
       return;
     }
 
+    if (!adminUser) { // Check if admin is logged in
+      toast({
+        title: 'Authentication Error',
+        description: 'Admin user not authenticated. Please log in again.',
+        variant: 'destructive'
+      });
+      setSaving(false);
+      return;
+    }
+
     setSaving(true);
     try {
+      const notePayloadBase = { title, html, slug: slug || generateSlug(title) };
+
       if (editingId) {
-        // Update existing note
-        await updateNote(editingId, { title, html, slug });
-        toast({
-          title: 'Success',
-          description: 'Note updated successfully!'
-        });
+        // For updates, you'll need a similar 'update-note-admin' Edge Function
+        // await updateNote(editingId, notePayloadBase); 
+        toast({ title: 'Info', description: 'Update functionality via Edge Function needs to be implemented.'});
       } else {
-        // Create new note
-        await addNote({ title, html, slug });
-        toast({
-          title: 'Success',
-          description: 'Note created successfully!'
-        });
+        await addNote(notePayloadBase); // Pass only core note data
       }
       
       await loadNotes();
       resetForm();
-    } catch (error) {
+      toast({
+        title: 'Success',
+        description: editingId ? 'Note updated successfully!' : 'Note created successfully!'
+      });
+    } catch (error: any) {
       toast({
         title: 'Error',
-        description: isOnline ? 'Failed to save note to database.' : 'Saved locally. Will sync when online.',
-        variant: isOnline ? 'destructive' : 'default'
+        description: error.message || (isOnline ? 'Failed to save note to database.' : 'Saved locally. Will sync when online.'),
+        variant: isOnline && error.message !== 'Admin session token not found. Please log in.' ? 'destructive' : 'default'
       });
     } finally {
       setSaving(false);

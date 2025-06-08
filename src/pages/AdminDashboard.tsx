@@ -316,7 +316,7 @@ const AdminDashboard = () => {
             <CardHeader>
               <div className="flex items-center justify-between">
                 <CardTitle className="text-lg">Recent Blog Posts</CardTitle>
-                <Button variant="ghost" size="sm" onClick={() => setCurrentView("list")}>
+                <Button variant="outline" size="sm" onClick={() => setCurrentView("list")}>
                   View All
                 </Button>
               </div>
@@ -338,7 +338,7 @@ const AdminDashboard = () => {
                         </p>
                       </div>
                       <Button
-                        variant="ghost"
+                        variant="outline"
                         size="sm"
                         onClick={() => handleEditPost(post.id)}
                       >
@@ -364,7 +364,7 @@ const AdminDashboard = () => {
             <CardHeader>
               <div className="flex items-center justify-between">
                 <CardTitle className="text-lg">Recent Notes</CardTitle>
-                <Button variant="ghost" size="sm" onClick={() => setCurrentView("notes")}>
+                <Button variant="outline" size="sm" onClick={() => setCurrentView("notes")}>
                   View All
                 </Button>
               </div>
@@ -386,7 +386,7 @@ const AdminDashboard = () => {
                         </p>
                       </div>
                       <Button
-                        variant="ghost"
+                        variant="outline"
                         size="sm"
                         onClick={() => window.open(`/notes/${note.slug}`, '_blank')}
                       >
