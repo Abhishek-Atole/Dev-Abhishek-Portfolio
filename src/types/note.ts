@@ -5,6 +5,7 @@ export interface Note {
   slug: string;
   createdAt: string;
   updatedAt?: string;
+  admin_user_id?: string;
 }
 
 export interface DatabaseNote {
@@ -14,4 +15,5 @@ export interface DatabaseNote {
   slug: string;
   created_at: string;
   updated_at?: string;
+  admin_user_id?: string;
 }

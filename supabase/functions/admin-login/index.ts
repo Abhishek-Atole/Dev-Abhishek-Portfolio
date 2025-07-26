@@ -9,7 +9,10 @@ const allowedOrigins = [
   'http://127.0.0.1:8081',
   'http://localhost:8081',
   'http://localhost:8080',
-  'http://127.0.0.1:8080'
+  'http://127.0.0.1:8080',
+  'https://super-trout-qg7px57wvxxc6xpr-8080.app.github.dev',
+  'https://super-trout-qg7px57wvxxc6xpr-8081.app.github.dev',
+  'https://super-trout-qg7px57wvxxc6xpr-5173.app.github.dev'
 ];
 
 const corsHeaders = {

@@ -11,7 +11,8 @@ function transformDatabaseNote(dbNote: DatabaseNote): Note {
     html: dbNote.html,
     slug: dbNote.slug,
     createdAt: dbNote.created_at,
-    updatedAt: dbNote.updated_at
+    updatedAt: dbNote.updated_at,
+    admin_user_id: dbNote.admin_user_id
   };
 }
 
@@ -21,6 +22,7 @@ function transformToDatabase(note: Partial<Note>): Partial<DatabaseNote> {
     title: note.title,
     html: note.html,
     slug: note.slug,
+    admin_user_id: note.admin_user_id,
   };
 }
 
@@ -84,17 +86,18 @@ export async function addNote(noteData: Omit<Note, 'id' | 'createdAt' | 'admin_u
       adminSessionToken // Make sure this token is valid and being retrieved correctly
     };
     
+    console.log('Sending payload to create-note-admin:', payload);
+    console.log('Admin session token:', adminSessionToken);
+    
     const { data: newNoteData, error } = await supabase.functions.invoke('create-note-admin', {
       body: payload, 
     });
 
+    console.log('Response from create-note-admin:', { data: newNoteData, error });
+
     if (error) throw error;
     if (!newNoteData) throw new Error('No data returned from create-note-admin function');
     
-    // Assuming newNoteData is compatible with your Note type or needs transformation
-    // If your Edge function returns data matching the DatabaseNote structure:
-    // return transformDatabaseNote(newNoteData); 
-    // If it already matches the Note structure:
     return newNoteData as Note;
 
   } catch (error) {

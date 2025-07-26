@@ -1,270 +1,219 @@
 import { serve } from 'https://deno.land/std@0.168.0/http/server.ts'
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
-import { compare } from 'https://deno.land/x/bcrypt@v0.4.1/mod.ts'
 
-// Example CORS handling for Edge Functions
+// CORS configuration
 const allowedOrigins = [
   'https://abhishekatole.netlify.app',
   'https://preview--abhishekatole.lovable.app',
   'http://127.0.0.1:8081',
   'http://localhost:8081',
   'http://localhost:8080',
-  'http://127.0.0.1:8080'
+  'http://127.0.0.1:8080',
+  'http://localhost:8082',
+  'http://127.0.0.1:8082',
+  'http://localhost:8083',
+  'http://127.0.0.1:8083',
+  'https://super-trout-qg7px57wvxxc6xpr-8080.app.github.dev',
+  'https://super-trout-qg7px57wvxxc6xpr-8081.app.github.dev',
+  'https://super-trout-qg7px57wvxxc6xpr-8082.app.github.dev',
+  'https://super-trout-qg7px57wvxxc6xpr-5173.app.github.dev'
 ];
 
 serve(async (req) => {
-  const origin = req.headers.get('origin') ?? '*';
+  const origin = req.headers.get('origin') || '*';
+  
+  // Check if origin is allowed
+  const isAllowedOrigin = allowedOrigins.includes(origin) || origin.includes('github.dev');
+  
   const corsHeaders = {
-    'Access-Control-Allow-Origin': origin,
+    'Access-Control-Allow-Origin': isAllowedOrigin ? origin : allowedOrigins[0],
     'Access-Control-Allow-Methods': 'POST, OPTIONS',
     'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+    'Access-Control-Max-Age': '86400',
   };
 
-  // Handle CORS preflight
+  // Handle CORS preflight request
   if (req.method === 'OPTIONS') {
-    return new Response(null, { status: 200, headers: corsHeaders });
+    return new Response(null, { 
+      status: 200, 
+      headers: corsHeaders 
+    });
+  }
+
+  // Only allow POST requests
+  if (req.method !== 'POST') {
+    return new Response(
+      JSON.stringify({ error: 'Method not allowed' }),
+      { 
+        status: 405, 
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+      }
+    );
   }
 
   try {
-    const { username, password } = await req.json();
-    console.log('Login attempt for username:', username);
+    // Parse request body
+    const { notePayload, adminSessionToken } = await req.json();
+    
+    console.log('Create note request received:');
+    console.log('- notePayload:', notePayload);
+    console.log('- adminSessionToken present:', adminSessionToken ? 'YES' : 'NO');
+    console.log('- adminSessionToken value:', adminSessionToken);
 
-    if (!username || !password) {
-      console.log('Missing credentials');
+    // Validate request data
+    if (!notePayload || !adminSessionToken) {
+      console.error('Missing required fields:', { notePayload: !!notePayload, adminSessionToken: !!adminSessionToken });
       return new Response(
-        JSON.stringify({ error: 'Missing credentials' }),
-        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        JSON.stringify({ error: 'Missing required fields: notePayload and adminSessionToken' }),
+        { 
+          status: 400, 
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+        }
+      );
+    }
+
+    const { title, html, slug } = notePayload;
+
+    if (!title || !html || !slug) {
+      return new Response(
+        JSON.stringify({ error: 'Missing required note fields: title, html, slug' }),
+        { 
+          status: 400, 
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+        }
       );
     }
 
     // Initialize Supabase client
-    const supabaseUrl = Deno.env.get('SUPABASE_URL')!
-    const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
-    const supabase = createClient(supabaseUrl, supabaseServiceKey)
+    const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
+    const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
+    const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
-    console.log('Looking up admin user:', username);
+    console.log('Initializing Supabase client...');
+    console.log('- Supabase URL:', supabaseUrl ? 'SET' : 'NOT SET');
+    console.log('- Service key:', supabaseServiceKey ? 'SET' : 'NOT SET');
 
-    // First, let's check if the admin_users table exists and what users are in it
-    const { data: allUsers, error: allUsersError } = await supabase
-      .from('admin_users')
-      .select('id, username')
-
-    console.log('All admin users in database:', allUsers);
-    if (allUsersError) {
-      console.log('Error fetching all users:', allUsersError);
-    }
-
-    // Find admin user
-    const { data: adminUser, error: userError } = await supabase
-      .from('admin_users')
-      .select('*')
-      .eq('username', username)
-      .maybeSingle()
-
-    console.log('Query result for user lookup:', { adminUser, userError });
-
-    if (userError) {
-      console.log('Database error during user lookup:', userError);
-      return new Response(
-        JSON.stringify({ error: 'Database error occurred' }),
-        { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      )
-    }
-
-    if (!adminUser) {
-      console.log('User not found, attempting to create default superadmin user');
+        // Verify admin session
+    console.log('Verifying admin session...');
+    let session, sessionError;
+    try {
+      const result = await supabase
+        .from('admin_sessions')
+        .select(`
+          id,
+          admin_user_id,
+          expires_at,
+          admin_users!admin_sessions_admin_user_id_fkey(id, username, email)
+        `)
+        .eq('session_token', adminSessionToken)
+        .gte('expires_at', new Date().toISOString())
+        .maybeSingle();
       
-      // If superadmin user doesn't exist and username is 'superadmin', create it
-      if (username === 'superadmin') {
-        // Use a unique email for superadmin to avoid conflicts
-        const { data: newUser, error: createError } = await supabase
-          .from('admin_users')
-          .insert({
-            username: 'superadmin',
-            email: 'superadmin@local.dev', // Use a unique email for superadmin
-            password_hash: 'SecurePass2024!', // We'll handle this as plain text for now
-            created_at: new Date().toISOString()
-          })
-          .select()
-          .single()
-
-        if (createError) {
-          console.log('Error creating default admin user:', createError);
-          return new Response(
-            JSON.stringify({ error: 'Failed to create default admin user' }),
-            { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-          )
+      session = result.data;
+      sessionError = result.error;
+    } catch (queryError) {
+      console.error('Session query failed with exception:', queryError);
+      return new Response(
+        JSON.stringify({ error: 'Session verification failed', details: queryError.message }),
+        { 
+          status: 500, 
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
         }
+      );
+    }
 
-        console.log('Created default superadmin user:', newUser);
-        
-        // Now proceed with the created user
-        if (password === 'SecurePass2024!') {
-          // Generate session token
-          const sessionToken = crypto.randomUUID()
-          const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000) // 24 hours
+    // Check if slug already exists
+    const { data: existingNote, error: slugError } = await supabase
+      .from('notes')
+      .select('id')
+      .eq('slug', slug)
+      .maybeSingle();
 
-          // Create session
-          const { error: sessionError } = await supabase
-            .from('admin_sessions')
-            .insert({
-              admin_user_id: newUser.id,
-              session_token: sessionToken,
-              expires_at: expiresAt.toISOString()
-            })
-
-          if (sessionError) {
-            console.error('Session creation error:', sessionError);
-            return new Response(
-              JSON.stringify({ error: 'Failed to create session' }),
-              { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-            )
-          }
-
-          // Update user login info
-          await supabase
-            .from('admin_users')
-            .update({
-              last_login: new Date().toISOString(),
-              failed_login_attempts: 0,
-              locked_until: null
-            })
-            .eq('id', newUser.id)
-
-          console.log('Login successful for created user:', newUser.username);
-
-          return new Response(
-            JSON.stringify({
-              success: true,
-              sessionToken,
-              user: {
-                id: newUser.id,
-                username: newUser.username,
-                email: newUser.email,
-                last_login: newUser.last_login
-              }
-            }),
-            { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-          )
+    if (slugError && slugError.code !== 'PGRST116') { // PGRST116 is "not found" which is expected
+      console.error('Slug check error:', slugError);
+      return new Response(
+        JSON.stringify({ error: 'Error checking slug uniqueness' }),
+        { 
+          status: 500, 
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
         }
-      }
-      
+      );
+    }
+
+    if (existingNote) {
       return new Response(
-        JSON.stringify({ error: 'Invalid credentials' }),
-        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      )
+        JSON.stringify({ error: 'A note with this slug already exists' }),
+        { 
+          status: 409, 
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+        }
+      );
     }
 
-    console.log('Admin user found:', adminUser.id);
-
-    // Check if account is locked
-    if (adminUser.locked_until && new Date(adminUser.locked_until) > new Date()) {
-      console.log('Account is locked until:', adminUser.locked_until);
-      return new Response(
-        JSON.stringify({ error: 'Account is temporarily locked. Please try again later.' }),
-        { status: 423, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      )
-    }
-
-    // Verify password - handle both the default password and bcrypt hashes
-    let isValidPassword = false;
-    
-    // For the default admin user with username 'superadmin', check for plain text 'SecurePass2024!' first
-    if (username === 'superadmin' && password === 'SecurePass2024!') {
-      isValidPassword = true;
-      console.log('Default admin login successful');
-    } else {
-      // For all other cases, use bcrypt comparison
-      try {
-        isValidPassword = await compare(password, adminUser.password_hash);
-        console.log('Password validation result:', isValidPassword);
-      } catch (bcryptError) {
-        console.log('Bcrypt comparison failed, trying direct comparison:', bcryptError);
-        // Fallback to direct comparison for plain text passwords
-        isValidPassword = password === adminUser.password_hash;
-      }
-    }
-
-    if (!isValidPassword) {
-      // Increment failed attempts
-      const failedAttempts = (adminUser.failed_login_attempts || 0) + 1
-      const lockUntil = failedAttempts >= 5 ? new Date(Date.now() + 15 * 60 * 1000) : null // 15 minutes
-
-      console.log('Invalid password, failed attempts:', failedAttempts);
-
-      await supabase
-        .from('admin_users')
-        .update({
-          failed_login_attempts: failedAttempts,
-          locked_until: lockUntil?.toISOString()
-        })
-        .eq('id', adminUser.id)
-
-      return new Response(
-        JSON.stringify({
-          error: failedAttempts >= 5
-            ? 'Too many failed attempts. Account locked for 15 minutes.'
-            : 'Invalid credentials'
-        }),
-        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      )
-    }
-
-    // Generate session token
-    const sessionToken = crypto.randomUUID()
-    const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000) // 24 hours
-
-    console.log('Creating session for user:', adminUser.id);
-
-    // Create session
-    const { error: sessionError } = await supabase
-      .from('admin_sessions')
+    // Create the note
+    const { data: newNote, error: createError } = await supabase
+      .from('notes')
       .insert({
-        admin_user_id: adminUser.id,
-        session_token: sessionToken,
-        expires_at: expiresAt.toISOString()
+        title: title.trim(),
+        html: html,
+        slug: slug.trim(),
+        admin_user_id: session.admin_user_id,
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString()
       })
+      .select(`
+        id,
+        title,
+        html,
+        slug,
+        created_at,
+        updated_at,
+        admin_user_id
+      `)
+      .single();
 
-    if (sessionError) {
-      console.error('Session creation error:', sessionError);
+    if (createError) {
+      console.error('Note creation error:', createError);
       return new Response(
-        JSON.stringify({ error: 'Failed to create session' }),
-        { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      )
+        JSON.stringify({ error: 'Failed to create note' }),
+        { 
+          status: 500, 
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+        }
+      );
     }
 
-    // Update user login info and reset failed attempts
-    await supabase
-      .from('admin_users')
-      .update({
-        last_login: new Date().toISOString(),
-        failed_login_attempts: 0,
-        locked_until: null
-      })
-      .eq('id', adminUser.id)
+    console.log('Note created successfully:', newNote.id);
 
-    console.log('Login successful for user:', adminUser.username);
+    // Transform the note to match frontend expectations
+    const responseNote = {
+      id: newNote.id,
+      title: newNote.title,
+      html: newNote.html,
+      slug: newNote.slug,
+      createdAt: newNote.created_at,
+      updatedAt: newNote.updated_at
+    };
 
-    // Return success response
     return new Response(
-      JSON.stringify({
-        success: true,
-        sessionToken,
-        user: {
-          id: adminUser.id,
-          username: adminUser.username,
-          email: adminUser.email,
-          last_login: adminUser.last_login
-        }
-      }),
-      { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-    )
+      JSON.stringify(responseNote),
+      { 
+        status: 201,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+      }
+    );
 
   } catch (error) {
-    console.error('Admin login error:', error);
+    console.error('Create note admin error:', error);
     return new Response(
-      JSON.stringify({ error: 'Internal server error' }),
-      { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      JSON.stringify({ 
+        error: 'Internal server error',
+        details: error.message 
+      }),
+      { 
+        status: 500, 
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+      }
     );
   }
 });
