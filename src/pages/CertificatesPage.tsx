@@ -86,7 +86,7 @@ const CertificatesPage = () => {
           {certificates && certificates.length > 0 && (
             <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 lg:gap-8">
               {certificates.map((cert) => (
-                <Card key={cert.id} className="group hover:shadow-xl hover:shadow-primary/10 transition-all duration-300 hover:-translate-y-2 border-2 hover:border-primary/30 overflow-hidden">
+                <Card key={cert.id} className="group hover:shadow-xl hover:shadow-primary/10 transition-all duration-300 hover:-translate-y-2 border-2 hover:border-primary/30 overflow-hidden h-full flex flex-col">
                   <CardHeader className="pb-3">
                     <div className="flex items-start justify-between gap-3">
                       <CardTitle className="text-lg leading-tight line-clamp-2 group-hover:text-primary transition-colors">
@@ -107,7 +107,7 @@ const CertificatesPage = () => {
                     </div>
                   </CardHeader>
                   
-                  <CardContent className="space-y-4">
+                  <CardContent className="space-y-4 flex-1 flex flex-col">
                     {/* Certificate Image */}
                     {cert.image_url && (
                       <div className="relative group/image">
@@ -130,69 +130,88 @@ const CertificatesPage = () => {
                       </div>
                     )}
 
-                    {/* Certificate Details */}
-                    <div className="space-y-3">
-                      <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                        <Building size={14} className="text-primary" />
-                        <span className="font-medium">{cert.issuer}</span>
-                      </div>
-                      
-                      {cert.issue_date && (
+                    {/* Certificate Details - Flex container to push button to bottom */}
+                    <div className="flex-1 flex flex-col justify-between space-y-3">
+                      <div className="space-y-3">
                         <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                          <Calendar size={14} className="text-primary" />
-                          <span>{new Date(cert.issue_date).toLocaleDateString('en-US', { 
-                            year: 'numeric', 
-                            month: 'long', 
-                            day: 'numeric' 
-                          })}</span>
+                          <Building size={14} className="text-primary" />
+                          <span className="font-medium">{cert.issuer}</span>
                         </div>
-                      )}
+                        
+                        {cert.issue_date && (
+                          <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                            <Calendar size={14} className="text-primary" />
+                            <span>{new Date(cert.issue_date).toLocaleDateString('en-US', { 
+                              year: 'numeric', 
+                              month: 'long', 
+                              day: 'numeric' 
+                            })}</span>
+                          </div>
+                        )}
 
-                      {cert.certificate_id && (
-                        <div className="text-xs font-mono text-muted-foreground bg-muted/50 p-2 rounded">
-                          ID: {cert.certificate_id}
-                        </div>
-                      )}
+                        {cert.certificate_id && (
+                          <div className="text-xs font-mono text-muted-foreground bg-muted/50 p-2 rounded">
+                            ID: {cert.certificate_id}
+                          </div>
+                        )}
 
-                      {/* Description */}
-                      {cert.description && (
-                        <p className="text-sm text-muted-foreground leading-relaxed line-clamp-3">
-                          {cert.description}
-                        </p>
-                      )}
+                        {/* Description */}
+                        {cert.description && (
+                          <p className="text-sm text-muted-foreground leading-relaxed line-clamp-3">
+                            {cert.description}
+                          </p>
+                        )}
 
-                      {/* Badges */}
-                      <div className="flex items-center justify-between flex-wrap gap-2">
-                        <div className="flex flex-wrap gap-2">
-                          <Badge variant="secondary" className="text-xs">
-                            {cert.issuer}
-                          </Badge>
-                          {cert.verification_link && (
-                            <Badge variant="outline" className="text-xs flex items-center gap-1">
-                              <LinkIcon size={10} />
-                              Verified
+                        {/* Badges */}
+                        <div className="flex items-center justify-between flex-wrap gap-2">
+                          <div className="flex flex-wrap gap-2">
+                            <Badge variant="secondary" className="text-xs">
+                              {cert.issuer}
                             </Badge>
-                          )}
-                          {cert.expiration_date && (
-                            <Badge variant="outline" className="text-xs">
-                              Expires: {new Date(cert.expiration_date).toLocaleDateString()}
-                            </Badge>
-                          )}
+                            {cert.verification_link && (
+                              <Badge variant="outline" className="text-xs flex items-center gap-1">
+                                <LinkIcon size={10} />
+                                Verified
+                              </Badge>
+                            )}
+                            {cert.expiration_date && (
+                              <Badge variant="outline" className="text-xs">
+                                Expires: {new Date(cert.expiration_date).toLocaleDateString()}
+                              </Badge>
+                            )}
+                          </div>
                         </div>
                       </div>
 
-                      {/* Action Button */}
-                      {cert.verification_link && (
-                        <Button 
-                          asChild 
-                          className="w-full mt-4 group-hover:bg-primary group-hover:shadow-lg transition-all duration-300"
-                        >
-                          <a href={cert.verification_link} target="_blank" rel="noopener noreferrer">
-                            <ExternalLink size={14} className="mr-2" />
-                            View Certificate
-                          </a>
-                        </Button>
-                      )}
+                      {/* Action Button - Always at bottom */}
+                      <div className="pt-4 mt-auto">
+                        {cert.verification_link ? (
+                          <Button 
+                            asChild 
+                            className="w-full group-hover:bg-primary group-hover:shadow-lg transition-all duration-300 h-10"
+                          >
+                            <a 
+                              href={cert.verification_link} 
+                              target="_blank" 
+                              rel="noopener noreferrer"
+                              className="flex items-center justify-center"
+                            >
+                              <ExternalLink size={16} className="mr-2" />
+                              View Certificate
+                            </a>
+                          </Button>
+                        ) : (
+                          <Button 
+                            disabled 
+                            variant="outline" 
+                            className="w-full opacity-60 cursor-not-allowed h-10"
+                          >
+                            <span className="flex items-center justify-center">
+                              Link Not Available
+                            </span>
+                          </Button>
+                        )}
+                      </div>
                     </div>
                   </CardContent>
                 </Card>

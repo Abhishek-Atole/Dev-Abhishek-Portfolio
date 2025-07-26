@@ -164,7 +164,7 @@ const ContactSection = () => {
                 <div className="flex-1">
                   <h4 className="font-medium font-mono text-lg">Location</h4>
                   <p className="text-sm text-muted-foreground font-mono">
-                    Mumbai, India
+                    Pune, India
                   </p>
                 </div>
               </div>

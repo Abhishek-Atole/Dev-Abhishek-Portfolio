@@ -42,7 +42,7 @@ function App() {
             <Route path="/blog" element={<BlogPage />} />
             <Route path="/blog/:slug" element={<BlogPost />} />
             <Route
-              path="/admin"
+              path="/dashboard-x9k7p2m4"
               element={
                 <AdminProtectedRoute>
                   <AdminDashboard />

@@ -174,7 +174,7 @@ const HeroSection = () => {
               <span className="font-mono text-sm text-muted-foreground">Connect with me:</span>
               <div className="flex items-center gap-4">
                 <a 
-                  href="https://github.com" 
+                  href="https://github.com/Abhishek-Atole" 
                   target="_blank" 
                   rel="noopener noreferrer"
                   className="group p-3 rounded-full bg-gradient-to-r from-muted/30 to-muted/20 border border-border/50 
@@ -184,7 +184,7 @@ const HeroSection = () => {
                   <Github size={24} className="text-muted-foreground group-hover:text-primary transition-colors duration-300" />
                 </a>
                 <a 
-                  href="https://linkedin.com" 
+                  href="https://linkedin.com/in/abhishekatole" 
                   target="_blank" 
                   rel="noopener noreferrer"
                   className="group p-3 rounded-full bg-gradient-to-r from-muted/30 to-muted/20 border border-border/50 
@@ -194,7 +194,7 @@ const HeroSection = () => {
                   <Linkedin size={24} className="text-muted-foreground group-hover:text-primary transition-colors duration-300" />
                 </a>
                 <a 
-                  href="#contact"
+                  href="mailto:abhiatole03@gmail.com"
                   className="group p-3 rounded-full bg-gradient-to-r from-muted/30 to-muted/20 border border-border/50 
                     hover:border-primary/50 hover:bg-gradient-to-r hover:from-primary/10 hover:to-accent/10 
                     hover:scale-110 transition-all duration-300 hover:shadow-lg hover:shadow-primary/20"
